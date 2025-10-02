@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(cat:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(node:*)",
+      "Bash(start \"https://supabase.com/dashboard/project/wrfcpsljchyetbmupqgc/sql/new\")",
+      "Bash(start \"https://supabase.com/dashboard/project/wrfcpsljchyetbmupqgc/auth/providers\")",
+      "Bash(start \"http://localhost:5176\")",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(start \"http://localhost:5173\")",
+      "Bash(start \"https://supabase.com/dashboard/project/wrfcpsljchyetbmupqgc/auth/url-configuration\")",
+      "Bash(curl:*)",
+      "Bash(start:*)",
+      "Bash(tasklist)",
+      "Bash(npm run build:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Bash(npx:*)",
+      "Bash(copy Events.jsx Events.backup.jsx)",
+      "Bash(copy Events.refactored.jsx Events.jsx)",
+      "Bash(npm uninstall:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
