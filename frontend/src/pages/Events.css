@@ -1,0 +1,23 @@
+/* Подложка для карточек событий */
+.event-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-card {
+    background: rgba(34, 34, 34, 0.95) !important;
+  }
+}
+
+/* Улучшение видимости текста в фильтрах и сообщениях */
+.text-xs.text-muted-foreground {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.text-center .text-muted-foreground {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500;
+}

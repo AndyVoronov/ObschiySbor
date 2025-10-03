@@ -23,6 +23,7 @@ CREATE TABLE events (
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'completed')),
   category_data JSONB,
   image_url TEXT,
+  price DECIMAL(10, 2) DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -201,3 +202,95 @@ CREATE POLICY "Логи доступны только администратор
       WHERE id = auth.uid() AND role = 'admin'
     )
   );
+
+-- Создание таблицы чат-комнат (одна комната на событие)
+CREATE TABLE chat_rooms (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_id UUID REFERENCES events(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Создание таблицы сообщений чата
+CREATE TABLE chat_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_id UUID REFERENCES chat_rooms(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Индексы для чатов
+CREATE INDEX idx_chat_rooms_event_id ON chat_rooms(event_id);
+CREATE INDEX idx_chat_messages_room_id ON chat_messages(room_id);
+CREATE INDEX idx_chat_messages_created_at ON chat_messages(created_at);
+
+-- Включение RLS для чатов
+ALTER TABLE chat_rooms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+
+-- Политики для chat_rooms
+CREATE POLICY "Чат-комнаты видны участникам события" ON chat_rooms
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM event_participants
+      WHERE event_participants.event_id = chat_rooms.event_id
+        AND event_participants.user_id = auth.uid()
+        AND event_participants.status = 'joined'
+    ) OR EXISTS (
+      SELECT 1 FROM events
+      WHERE events.id = chat_rooms.event_id
+        AND events.creator_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Чат-комнаты создаются автоматически" ON chat_rooms
+  FOR INSERT WITH CHECK (true);
+
+-- Политики для chat_messages
+CREATE POLICY "Сообщения видны участникам чата" ON chat_messages
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM chat_rooms
+      JOIN event_participants ON event_participants.event_id = chat_rooms.event_id
+      WHERE chat_rooms.id = chat_messages.room_id
+        AND event_participants.user_id = auth.uid()
+        AND event_participants.status = 'joined'
+    ) OR EXISTS (
+      SELECT 1 FROM chat_rooms
+      JOIN events ON events.id = chat_rooms.event_id
+      WHERE chat_rooms.id = chat_messages.room_id
+        AND events.creator_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Участники могут отправлять сообщения" ON chat_messages
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND (
+      EXISTS (
+        SELECT 1 FROM chat_rooms
+        JOIN event_participants ON event_participants.event_id = chat_rooms.event_id
+        WHERE chat_rooms.id = chat_messages.room_id
+          AND event_participants.user_id = auth.uid()
+          AND event_participants.status = 'joined'
+      ) OR EXISTS (
+        SELECT 1 FROM chat_rooms
+        JOIN events ON events.id = chat_rooms.event_id
+        WHERE chat_rooms.id = chat_messages.room_id
+          AND events.creator_id = auth.uid()
+      )
+    )
+  );
+
+-- Функция для автоматического создания чат-комнаты при создании события
+CREATE OR REPLACE FUNCTION create_chat_room_for_event()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO chat_rooms (event_id) VALUES (NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Триггер для создания чат-комнаты
+CREATE TRIGGER on_event_created
+  AFTER INSERT ON events
+  FOR EACH ROW EXECUTE FUNCTION create_chat_room_for_event();

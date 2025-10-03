@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import EventMap from '../components/EventMap';
 import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
+import EventChat from '../components/EventChat';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import './EventDetails.css';
@@ -822,6 +823,13 @@ const EventDetails = () => {
                 {joining ? 'Присоединение...' : isFull ? 'Мест нет' : 'Присоединиться'}
               </button>
             )}
+          </div>
+        )}
+
+        {/* Чат события */}
+        {user && (
+          <div className="event-chat-section">
+            <EventChat eventId={id} />
           </div>
         )}
 

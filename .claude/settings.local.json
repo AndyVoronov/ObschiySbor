@@ -30,7 +30,11 @@
       "Bash(copy Events.refactored.jsx Events.jsx)",
       "Bash(npm uninstall:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: ObschiySbor - платформа для организации событий\n\nОсновные возможности:\n- 20+ категорий событий\n- Интеграция с Яндекс.Картами\n- Загрузка изображений\n- Real-time уведомления\n- Система отзывов и рейтингов\n- Адаптивный дизайн\n\nTech stack: React 19, Vite 7, Tailwind CSS, Supabase\nEOF\n)\")",
+      "Bash(git remote add origin https://github.com/AndyVoronov/ObschiySbor.git)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

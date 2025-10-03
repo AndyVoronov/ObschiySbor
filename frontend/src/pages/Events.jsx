@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import EventRating from '../components/EventRating';
 import EventsMapView from '../components/EventsMapView';
 import CategoryFilters from '../components/CategoryFilters';
 import { useEvents } from '../hooks/useEvents';
 import { getCategoryName, CATEGORIES } from '../constants/categories';
+import './Events.css';
 
 const Events = () => {
+  const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState('list');
   const [filters, setFilters] = useState({
     category: '',
@@ -20,6 +22,17 @@ const Events = () => {
     minDistance: '',
     maxDistance: '',
   });
+
+  // Читаем category из URL при загрузке И инициализируем filters один раз
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && Object.values(CATEGORIES).includes(categoryFromUrl)) {
+      setFilters(prev => ({
+        ...prev,
+        category: categoryFromUrl
+      }));
+    }
+  }, []); // Убираем searchParams из зависимостей - выполняется только при монтировании
 
   const { events, loading, error } = useEvents(filters);
 
@@ -38,7 +51,14 @@ const Events = () => {
     <div className="container-custom py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Поиск событий</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Поиск событий</h1>
+          {filters.category && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Категория: {getCategoryName(filters.category)} • Найдено: {events.length}
+            </p>
+          )}
+        </div>
         <div className="inline-flex rounded-lg border p-1 bg-muted">
           <button
             onClick={() => setViewMode('list')}
@@ -211,7 +231,7 @@ const Events = () => {
             <Link
               key={event.id}
               to={`/events/${event.id}`}
-              className="group bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
+              className="event-card group bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
             >
               {event.image_url && (
                 <div className="aspect-video w-full overflow-hidden bg-muted">

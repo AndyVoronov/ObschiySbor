@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import AvatarUpload from '../components/AvatarUpload';
+import OrganizerDashboard from '../components/OrganizerDashboard';
 import './Profile.css';
 
 const Profile = () => {
@@ -12,6 +13,7 @@ const Profile = () => {
   const [participatingEvents, setParticipatingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
     full_name: '',
     city: '',
@@ -150,101 +152,125 @@ const Profile = () => {
         </button>
       </div>
 
-      {editing && (
-        <form onSubmit={handleSubmit} className="profile-edit-form">
-          {/* Загрузка аватара */}
-          <AvatarUpload
-            currentAvatar={profile?.avatar_url}
-            userId={user.id}
-            onAvatarUpdate={handleAvatarUpdate}
-          />
+      {/* Табы */}
+      <div className="profile-tabs">
+        <button
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          Профиль
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          Дашборд организатора
+        </button>
+      </div>
 
-          <div className="form-group">
-            <label htmlFor="full_name">Имя</label>
-            <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleChange}
-            />
-          </div>
+      {activeTab === 'profile' && (
+        <>
+          {editing && (
+            <form onSubmit={handleSubmit} className="profile-edit-form">
+              {/* Загрузка аватара */}
+              <AvatarUpload
+                currentAvatar={profile?.avatar_url}
+                userId={user.id}
+                onAvatarUpdate={handleAvatarUpdate}
+              />
 
-          <div className="form-group">
-            <label htmlFor="gender">Пол</label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <option value="">Не указан</option>
-              <option value="male">Мужской</option>
-              <option value="female">Женский</option>
-              <option value="other">Другое</option>
-            </select>
-          </div>
+              <div className="form-group">
+                <label htmlFor="full_name">Имя</label>
+                <input
+                  type="text"
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="city">Город</label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-            />
+              <div className="form-group">
+                <label htmlFor="gender">Пол</label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Не указан</option>
+                  <option value="male">Мужской</option>
+                  <option value="female">Женский</option>
+                  <option value="other">Другое</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="city">Город</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="interests">Интересы</label>
+                <textarea
+                  id="interests"
+                  name="interests"
+                  value={formData.interests}
+                  onChange={handleChange}
+                  rows="3"
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Сохранить
+              </button>
+            </form>
+          )}
+
+          <div className="profile-events">
+            <section className="events-section">
+              <h2>Мои события ({myEvents.length})</h2>
+              {myEvents.length === 0 ? (
+                <p className="no-events">Вы еще не создали ни одного события</p>
+              ) : (
+                <div className="events-list">
+                  {myEvents.map(event => (
+                    <Link key={event.id} to={`/events/${event.id}`} className="event-item">
+                      <h3>{event.title}</h3>
+                      <p>{new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                      <span className="event-status">{event.status}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="events-section">
+              <h2>Участвую ({participatingEvents.length})</h2>
+              {participatingEvents.length === 0 ? (
+                <p className="no-events">Вы еще не участвуете ни в одном событии</p>
+              ) : (
+                <div className="events-list">
+                  {participatingEvents.map(event => (
+                    <Link key={event.id} to={`/events/${event.id}`} className="event-item">
+                      <h3>{event.title}</h3>
+                      <p>{new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
-          <div className="form-group">
-            <label htmlFor="interests">Интересы</label>
-            <textarea
-              id="interests"
-              name="interests"
-              value={formData.interests}
-              onChange={handleChange}
-              rows="3"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Сохранить
-          </button>
-        </form>
+        </>
       )}
 
-      <div className="profile-events">
-        <section className="events-section">
-          <h2>Мои события ({myEvents.length})</h2>
-          {myEvents.length === 0 ? (
-            <p className="no-events">Вы еще не создали ни одного события</p>
-          ) : (
-            <div className="events-list">
-              {myEvents.map(event => (
-                <Link key={event.id} to={`/events/${event.id}`} className="event-item">
-                  <h3>{event.title}</h3>
-                  <p>{new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
-                  <span className="event-status">{event.status}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="events-section">
-          <h2>Участвую ({participatingEvents.length})</h2>
-          {participatingEvents.length === 0 ? (
-            <p className="no-events">Вы еще не участвуете ни в одном событии</p>
-          ) : (
-            <div className="events-list">
-              {participatingEvents.map(event => (
-                <Link key={event.id} to={`/events/${event.id}`} className="event-item">
-                  <h3>{event.title}</h3>
-                  <p>{new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+      {activeTab === 'dashboard' && (
+        <OrganizerDashboard userId={user.id} />
+      )}
     </div>
   );
 };

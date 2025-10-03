@@ -300,8 +300,6 @@ const CreateEvent = () => {
 
   return (
     <div className="create-event-page">
-      <h1>Создать событие</h1>
-
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="create-event-form">

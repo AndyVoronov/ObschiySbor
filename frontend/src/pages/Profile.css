@@ -139,6 +139,43 @@
   padding: 2rem 0;
 }
 
+/* Табы */
+.profile-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px 0;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 15px 25px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #333;
+}
+
+.tab-button.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+}
+
 @media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
@@ -152,5 +189,14 @@
 
   .profile-events {
     grid-template-columns: 1fr;
+  }
+
+  .profile-tabs {
+    overflow-x: auto;
+  }
+
+  .tab-button {
+    padding: 12px 20px;
+    font-size: 14px;
   }
 }

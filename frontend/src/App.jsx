@@ -7,6 +7,7 @@ import CreateEvent from './pages/CreateEvent';
 import EventDetails from './pages/EventDetails';
 import BoardGameDetails from './pages/BoardGameDetails';
 import Profile from './pages/Profile';
+import Chats from './pages/Chats';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -37,6 +38,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="chats"
+              element={
+                <ProtectedRoute>
+                  <Chats />
                 </ProtectedRoute>
               }
             />
