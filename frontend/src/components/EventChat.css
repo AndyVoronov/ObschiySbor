@@ -6,6 +6,8 @@
   flex-direction: column;
   height: 600px;
   max-height: 80vh;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-loading,
@@ -158,6 +160,8 @@
   gap: 10px;
   background: white;
   border-radius: 0 0 12px 12px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-input {
@@ -167,6 +171,8 @@
   border-radius: 8px;
   font-size: 15px;
   transition: border-color 0.3s;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .chat-input:focus {
@@ -183,6 +189,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .chat-send-btn:hover:not(:disabled) {
@@ -211,9 +219,16 @@
 
   .chat-input-form {
     padding: 15px;
+    gap: 8px;
   }
 
   .chat-send-btn {
-    padding: 12px 20px;
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  .chat-input {
+    font-size: 14px;
+    padding: 10px 12px;
   }
 }

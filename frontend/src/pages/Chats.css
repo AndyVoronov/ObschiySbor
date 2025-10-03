@@ -2,6 +2,8 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .chats-page h1 {
@@ -43,6 +45,8 @@
   gap: 20px;
   height: calc(100vh - 200px);
   min-height: 600px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Список чатов */
