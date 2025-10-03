@@ -1,14 +1,15 @@
 .home {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 2rem;
 }
 
 .categories-section {
   background: transparent;
   color: white;
-  padding: 2rem;
+  padding: 1rem 2rem;
   text-align: center;
   position: relative;
   min-height: auto;
@@ -34,7 +35,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
+  min-height: 300px;
 }
 
 @media (max-width: 768px) {

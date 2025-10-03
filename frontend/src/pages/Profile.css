@@ -6,9 +6,9 @@
 .profile-header {
   background: white;
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: 10px 10px 0 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -149,8 +149,11 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   padding: 10px 20px 0;
-  border-radius: 10px 10px 0 0;
+  border-radius: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 80px;
+  z-index: 100;
 }
 
 .tab-button {
@@ -193,6 +196,9 @@
 
   .profile-tabs {
     overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   .tab-button {
