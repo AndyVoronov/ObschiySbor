@@ -184,8 +184,6 @@ function OrganizerDashboard({ userId }) {
 
   return (
     <div className="organizer-dashboard">
-      <h2>Дашборд организатора</h2>
-
       {/* Общая статистика */}
       <div className="stats-cards">
         <div className="stat-card">
