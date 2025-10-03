@@ -84,12 +84,14 @@
 .map-info {
   margin-top: 12px;
   text-align: center;
-  color: #666;
+  color: #000;
   font-size: 14px;
 }
 
 .map-info p {
   margin: 0;
+  color: #000;
+  font-weight: 500;
 }
 
 /* Leaflet popup customization */

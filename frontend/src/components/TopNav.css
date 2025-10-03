@@ -121,10 +121,14 @@
   color: white;
   transition: color 0.3s ease;
   font-size: 0.95rem;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .top-nav-gooey-container .effect.text.active {
   color: #764ba2;
+  opacity: 1;
+  visibility: visible;
 }
 
 .top-nav-gooey-container .effect.filter {

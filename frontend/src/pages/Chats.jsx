@@ -110,14 +110,16 @@ function Chats() {
     setSelectedRoom(room);
   };
 
+  const closeChat = () => {
+    setSelectedRoom(null);
+  };
+
   if (loading) {
     return <div className="chats-loading">Загрузка чатов...</div>;
   }
 
   return (
     <div className="chats-page">
-      <h1>Мои чаты</h1>
-
       {chatRooms.length === 0 ? (
         <div className="no-chats">
           <p>У вас пока нет чатов</p>
@@ -129,7 +131,7 @@ function Chats() {
       ) : (
         <div className="chats-container">
           {/* Список чатов */}
-          <div className="chats-list">
+          <div className={`chats-list ${selectedRoom ? 'mobile-hidden' : ''}`}>
             {chatRooms.map((room) => (
               <div
                 key={room.id}
@@ -171,10 +173,13 @@ function Chats() {
           </div>
 
           {/* Выбранный чат */}
-          <div className="chat-content">
+          <div className={`chat-content ${selectedRoom ? 'mobile-visible' : ''}`}>
             {selectedRoom ? (
               <div className="selected-chat">
                 <div className="chat-header-info">
+                  <button className="mobile-back-button" onClick={closeChat}>
+                    ← Назад к чатам
+                  </button>
                   <Link to={`/events/${selectedRoom.events.id}`} className="event-link">
                     <h2>{selectedRoom.events.title}</h2>
                   </Link>

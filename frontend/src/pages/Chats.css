@@ -199,6 +199,25 @@
   opacity: 0.9;
 }
 
+/* Кнопка "Назад" для мобильных */
+.mobile-back-button {
+  display: none;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.mobile-back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 /* Адаптивность */
 @media (max-width: 1024px) {
   .chats-container {
@@ -208,20 +227,54 @@
 
 @media (max-width: 768px) {
   .chats-container {
-    grid-template-columns: 1fr;
+    display: block;
     height: auto;
+    position: relative;
   }
 
+  /* На мобильных: список чатов на весь экран */
   .chats-list {
-    max-height: 400px;
+    max-height: none;
+    min-height: calc(100vh - 200px);
   }
 
+  /* Скрываем список чатов когда выбран чат */
+  .chats-list.mobile-hidden {
+    display: none;
+  }
+
+  /* Контент чата скрыт по умолчанию на мобильных */
   .chat-content {
-    min-height: 600px;
+    display: none;
+    min-height: calc(100vh - 200px);
+  }
+
+  /* Показываем контент чата на весь экран когда он выбран */
+  .chat-content.mobile-visible {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: white;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Показываем кнопку "Назад" на мобильных */
+  .mobile-back-button {
+    display: block;
   }
 
   .chat-room-item.active {
     border-left: none;
     border-top: 4px solid #667eea;
+  }
+
+  /* Заголовок чата на весь экран */
+  .chat-header-info {
+    border-radius: 0;
   }
 }

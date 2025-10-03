@@ -63,6 +63,8 @@
     box-shadow 0.3s ease;
   box-shadow: 0 0 0.5px 1.5px transparent;
   color: white;
+  min-width: 100px;
+  text-align: center;
 }
 
 .gooey-nav-container nav ul li a {
@@ -70,6 +72,7 @@
   padding: 0.6em 1em;
   text-decoration: none;
   color: inherit;
+  white-space: nowrap;
 }
 
 .gooey-nav-container nav ul li:focus-within:has(:focus-visible) {
@@ -114,10 +117,14 @@
 .gooey-nav-container .effect.text {
   color: white;
   transition: color 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .gooey-nav-container .effect.text.active {
   color: black;
+  opacity: 1;
+  visibility: visible;
 }
 
 .gooey-nav-container .effect.filter {

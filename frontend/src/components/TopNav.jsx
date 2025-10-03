@@ -152,7 +152,8 @@ const TopNav = () => {
     const activeLi = navRef.current.querySelectorAll('li')[activeIndex];
     if (activeLi) {
       updateEffectPosition(activeLi);
-      textRef.current?.classList.add('active');
+      // Не добавляем класс 'active' автоматически при монтировании
+      // textRef.current?.classList.add('active');
     }
 
     const resizeObserver = new ResizeObserver(() => {
