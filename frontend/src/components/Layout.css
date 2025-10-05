@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow-x: hidden; /* Предотвращаем горизонтальный скролл, но не влияем на fixed элементы */
 }
 
 .layout-main {
