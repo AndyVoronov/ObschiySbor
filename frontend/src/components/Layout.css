@@ -9,7 +9,7 @@
   flex: 1;
   width: 100%;
   background: transparent;
-  padding-top: 60px; /* Отступ для фиксированного хедера */
+  padding-top: 80px; /* Отступ для фиксированного хедера */
 }
 
 .layout-footer {
@@ -35,6 +35,10 @@
 }
 
 @media (max-width: 768px) {
+  .layout-main {
+    padding-top: 70px; /* Увеличенный отступ для мобильных */
+  }
+
   .layout-footer {
     padding: 2rem 1rem;
   }
