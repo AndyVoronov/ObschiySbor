@@ -18,6 +18,47 @@ function EventChat({ eventId }) {
     }
   }, [eventId, user]);
 
+  // Отдельный useEffect для подписки на real-time обновления
+  useEffect(() => {
+    if (!chatRoom) return;
+
+    const subscription = supabase
+      .channel(`chat-${chatRoom.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `room_id=eq.${chatRoom.id}`
+        },
+        async (payload) => {
+          // Добавляем новое сообщение напрямую в стейт
+          const { data: newMessageData } = await supabase
+            .from('chat_messages')
+            .select(`
+              *,
+              profiles:user_id (
+                full_name,
+                avatar_url
+              )
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (newMessageData) {
+            setMessages(prev => [...prev, newMessageData]);
+            scrollToBottom();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [chatRoom]);
+
   const initChat = async () => {
     try {
       // Проверяем, является ли пользователь участником события
@@ -71,27 +112,6 @@ function EventChat({ eventId }) {
 
       // Загружаем сообщения
       await loadMessages(room.id);
-
-      // Подписываемся на новые сообщения
-      const subscription = supabase
-        .channel(`chat-${room.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'chat_messages',
-            filter: `room_id=eq.${room.id}`
-          },
-          (payload) => {
-            loadMessages(room.id);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
     } catch (error) {
       console.error('Ошибка инициализации чата:', error);
     } finally {

@@ -238,26 +238,101 @@
   }
 }
 
+/* Кнопка гамбургер-меню */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+}
+
+.mobile-menu-toggle span {
+  width: 100%;
+  height: 3px;
+  background: white;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.mobile-menu-toggle span.open:nth-child(1) {
+  transform: translateY(11px) rotate(45deg);
+}
+
+.mobile-menu-toggle span.open:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle span.open:nth-child(3) {
+  transform: translateY(-11px) rotate(-45deg);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .top-nav-content {
-    flex-direction: column;
-    gap: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
     padding: 1rem;
   }
 
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
   .top-nav-gooey-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+  }
+
+  .top-nav-gooey-container.mobile-open {
+    max-height: 500px;
+  }
+
+  .top-nav-gooey-container nav {
+    padding: 1rem;
     width: 100%;
+    display: flex;
     justify-content: center;
   }
 
   .top-nav-gooey-container nav ul {
-    gap: 0.5em;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: auto;
+    align-items: center;
+  }
+
+  .top-nav-gooey-container nav ul li {
+    width: auto;
+    text-align: center;
   }
 
   .top-nav-gooey-container nav ul li a {
-    padding: 0.4em 0.8em;
-    font-size: 0.875rem;
+    display: block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  /* Включаем эффекты gooey для мобильной версии */
+  .top-nav-gooey-container .effect.filter {
+    display: grid;
+  }
+
+  .top-nav-gooey-container .effect.text {
+    display: grid;
   }
 }

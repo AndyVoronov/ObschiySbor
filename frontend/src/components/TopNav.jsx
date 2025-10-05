@@ -11,6 +11,7 @@ const TopNav = () => {
   const filterRef = useRef(null);
   const textRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -26,9 +27,7 @@ const TopNav = () => {
         { label: 'Главная', href: '/' },
         { label: 'События', href: '/events' },
         { label: 'Профиль', href: '/profile' },
-        { label: 'Чаты', href: '/chats' },
-        { label: 'Создать событие', href: '/create-event' },
-        { label: 'Выход', href: '#', onClick: handleSignOut }
+        { label: 'Чаты', href: '/chats' }
       ]
     : [
         { label: 'Главная', href: '/' },
@@ -121,6 +120,10 @@ const TopNav = () => {
 
   const handleClick = (e, index, onClick) => {
     const liEl = e.currentTarget;
+
+    // Закрываем мобильное меню при клике на пункт
+    setIsMobileMenuOpen(false);
+
     if (activeIndex === index) {
       if (onClick) onClick(e);
       return;
@@ -174,7 +177,18 @@ const TopNav = () => {
           ObschiySbor
         </Link>
 
-        <div className="top-nav-gooey-container" ref={containerRef}>
+        {/* Кнопка гамбургер для мобильной версии */}
+        <button
+          className="mobile-menu-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Меню"
+        >
+          <span className={isMobileMenuOpen ? 'open' : ''}></span>
+          <span className={isMobileMenuOpen ? 'open' : ''}></span>
+          <span className={isMobileMenuOpen ? 'open' : ''}></span>
+        </button>
+
+        <div className={`top-nav-gooey-container ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={containerRef}>
           <nav>
             <ul ref={navRef}>
               {navItems.map((item, index) => (

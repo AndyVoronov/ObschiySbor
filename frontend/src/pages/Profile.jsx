@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AvatarUpload from '../components/AvatarUpload';
 import OrganizerDashboard from '../components/OrganizerDashboard';
 import './Profile.css';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [myEvents, setMyEvents] = useState([]);
   const [participatingEvents, setParticipatingEvents] = useState([]);
@@ -126,6 +127,15 @@ const Profile = () => {
     return labels[gender] || '';
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Ошибка выхода:', error.message);
+    }
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -144,12 +154,20 @@ const Profile = () => {
             {profile?.gender && <p className="profile-gender">{getGenderLabel(profile.gender)}</p>}
           </div>
         </div>
-        <button
-          onClick={() => setEditing(!editing)}
-          className="btn btn-secondary"
-        >
-          {editing ? 'Отмена' : 'Редактировать'}
-        </button>
+        <div className="profile-header-actions">
+          <button
+            onClick={() => setEditing(!editing)}
+            className="btn btn-secondary"
+          >
+            {editing ? 'Отмена' : 'Редактировать'}
+          </button>
+          <button
+            onClick={handleSignOut}
+            className="btn btn-danger"
+          >
+            🚪 Выход
+          </button>
+        </div>
       </div>
 
       {/* Табы */}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import EventRating from '../components/EventRating';
 import EventsMapView from '../components/EventsMapView';
 import CategoryFilters from '../components/CategoryFilters';
@@ -8,8 +9,10 @@ import { getCategoryName, CATEGORIES } from '../constants/categories';
 import './Events.css';
 
 const Events = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState('list');
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
     search: '',
@@ -51,56 +54,51 @@ const Events = () => {
     <div className="container-custom py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Поиск событий</h1>
+        <div className="flex items-center gap-4">
           {filters.category && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-foreground">
               Категория: {getCategoryName(filters.category)} • Найдено: {events.length}
             </p>
           )}
         </div>
-        <div className="inline-flex rounded-lg border p-1 bg-muted">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              viewMode === 'list'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            📋 Список
-          </button>
-          <button
-            onClick={() => setViewMode('map')}
-            className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              viewMode === 'map'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            🗺️ Карта
-          </button>
+        <div className="flex items-center gap-3">
+          {user && (
+            <Link
+              to="/create-event"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              ➕ Создать
+            </Link>
+          )}
+          <div className="inline-flex rounded-lg border p-1 bg-muted">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              📋 Список
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'map'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              🗺️ Карта
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-card rounded-lg border p-6 mb-8 space-y-4">
-        {/* Поиск и категория */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Поиск по названию
-            </label>
-            <input
-              type="text"
-              name="search"
-              placeholder="Введите название..."
-              value={filters.search}
-              onChange={handleFilterChange}
-              className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
+      <div className="bg-card rounded-lg border mb-8">
+        {/* Всегда видимая категория */}
+        <div className="p-6 pb-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
               Категория
@@ -134,6 +132,32 @@ const Events = () => {
               <option value={CATEGORIES.ECO_TOUR}>{getCategoryName(CATEGORIES.ECO_TOUR)}</option>
             </select>
           </div>
+        </div>
+
+        {/* Кнопка показа дополнительных фильтров */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors border-t"
+        >
+          {showFilters ? '▲ Скрыть дополнительные фильтры' : '▼ Показать дополнительные фильтры'}
+        </button>
+
+      {/* Дополнительные фильтры */}
+      {showFilters && (
+        <div className="p-6 pt-4 space-y-4 border-t">
+        {/* Поиск по названию */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Поиск по названию
+          </label>
+          <input
+            type="text"
+            name="search"
+            placeholder="Введите название..."
+            value={filters.search}
+            onChange={handleFilterChange}
+            className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
         </div>
 
         {/* Фильтры дат */}
@@ -201,6 +225,8 @@ const Events = () => {
           filters={filters}
           onChange={handleCategoryFiltersChange}
         />
+        </div>
+      )}
       </div>
 
       {/* Error */}
