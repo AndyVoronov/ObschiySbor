@@ -29,18 +29,6 @@ const Contacts = () => {
           </div>
 
           <div className="contact-card">
-            <div className="contact-icon">📧</div>
-            <h3>Email</h3>
-            <p>Отправьте нам письмо</p>
-            <a
-              href="mailto:support@obschiysbor.ru"
-              className="contact-link"
-            >
-              support@obschiysbor.ru
-            </a>
-          </div>
-
-          <div className="contact-card">
             <div className="contact-icon">🐛</div>
             <h3>Сообщить об ошибке</h3>
             <p>Нашли баг? Дайте нам знать!</p>
