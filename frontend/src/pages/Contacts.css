@@ -1,0 +1,226 @@
+.contacts-page {
+  min-height: calc(100vh - 200px);
+}
+
+.contacts-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.contacts-hero-content h1 {
+  font-size: 3rem;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.contacts-subtitle {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.contacts-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.contact-card {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.contact-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+}
+
+.contact-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.contact-card h3 {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.contact-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.contact-link {
+  display: inline-block;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #667eea;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.contact-link:hover {
+  background: #667eea;
+  color: white;
+  transform: scale(1.05);
+}
+
+.faq-section {
+  margin-bottom: 4rem;
+}
+
+.faq-section h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.faq-section h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.12);
+  transform: translateX(5px);
+}
+
+.faq-item h4 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+}
+
+.faq-item p {
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.contact-form-section {
+  text-align: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.contact-form-section h2 {
+  color: #2c3e50;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.form-description {
+  color: #555;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.telegram-cta {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-telegram {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2.5rem;
+  background: linear-gradient(135deg, #0088cc 0%, #00c6ff 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 136, 204, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-telegram:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 136, 204, 0.4);
+}
+
+.telegram-icon {
+  font-size: 1.5rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .contacts-hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .contacts-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .contacts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-telegram {
+    width: 100%;
+    max-width: 300px;
+  }
+}

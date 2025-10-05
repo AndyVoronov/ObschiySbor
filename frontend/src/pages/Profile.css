@@ -218,7 +218,7 @@
   .profile-tabs {
     overflow-x: auto;
     position: sticky;
-    top: 150px;
+    top: 60px;
     z-index: 100;
   }
 

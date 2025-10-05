@@ -5,9 +5,9 @@ import './Layout.css';
 
 const Layout = () => {
   const footerItems = [
-    { label: 'О нас', href: '#about' },
-    { label: 'Контакты', href: '#contacts' },
-    { label: 'Правила', href: '#rules' }
+    { label: 'О нас', href: '/about' },
+    { label: 'Контакты', href: '/contacts' },
+    { label: 'Правила', href: '/rules' }
   ];
 
   return (

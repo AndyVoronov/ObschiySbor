@@ -10,6 +10,9 @@ import Profile from './pages/Profile';
 import Chats from './pages/Chats';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import About from './pages/About';
+import Contacts from './pages/Contacts';
+import Rules from './pages/Rules';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -49,6 +52,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="about" element={<About />} />
+            <Route path="contacts" element={<Contacts />} />
+            <Route path="rules" element={<Rules />} />
           </Route>
         </Routes>
       </Router>
