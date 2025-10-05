@@ -4,14 +4,10 @@
   left: 0;
   right: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 9999;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 .top-nav-content {
@@ -48,7 +44,6 @@
 .top-nav-gooey-container nav {
   display: flex;
   position: relative;
-  transform: translate3d(0, 0, 0.01px);
 }
 
 .top-nav-gooey-container nav ul {
@@ -285,7 +280,6 @@
   .top-nav-header {
     position: fixed !important;
     top: 0 !important;
-    transform: translate3d(0, 0, 0) !important;
   }
 
   .top-nav-content {
