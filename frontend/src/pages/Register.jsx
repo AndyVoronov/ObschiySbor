@@ -128,26 +128,12 @@ const Register = () => {
       console.log('VK Auth Data:', vkAuthData);
 
       const vkUserId = vkAuthData.user_id;
-      const accessToken = vkAuthData.access_token;
 
       if (!vkUserId) {
         throw new Error('Не удалось получить VK ID пользователя');
       }
 
       console.log('VK User ID:', vkUserId);
-
-      // Получаем информацию о пользователе через VK API
-      const userInfoResponse = await fetch(`https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131`);
-      const userInfoData = await userInfoResponse.json();
-
-      console.log('VK API Response:', userInfoData);
-
-      if (!userInfoData.response || !userInfoData.response[0]) {
-        throw new Error('Не удалось получить данные пользователя из VK API');
-      }
-
-      const vkUser = userInfoData.response[0];
-      console.log('VK User:', vkUser);
 
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
@@ -165,10 +151,9 @@ const Register = () => {
 
       const email = `vk${vkUserId}@obschiysbor.local`;
       const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
-      const fullName = `${vkUser.first_name} ${vkUser.last_name}`;
-      const avatarUrl = vkUser.photo_200 || null;
+      const fullName = `Пользователь VK ${vkUserId}`;
 
-      console.log('Creating new user with email:', email, 'Name:', fullName);
+      console.log('Creating new user with email:', email);
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email,
@@ -176,7 +161,6 @@ const Register = () => {
         options: {
           data: {
             full_name: fullName,
-            avatar_url: avatarUrl,
             vk_id: vkUserId,
           }
         }
