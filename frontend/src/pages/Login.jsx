@@ -110,20 +110,34 @@ const Login = () => {
     try {
       console.log('VK Auth Data:', vkAuthData);
 
-      // Получаем информацию о пользователе VK
-      const vkUser = vkAuthData.user;
+      // VK ID возвращает user_id напрямую, а не в объекте user
+      const vkUserId = vkAuthData.user_id;
+      const accessToken = vkAuthData.access_token;
 
-      if (!vkUser || !vkUser.id) {
-        throw new Error('Не удалось получить данные пользователя VK');
+      if (!vkUserId) {
+        throw new Error('Не удалось получить VK ID пользователя');
       }
 
+      console.log('VK User ID:', vkUserId);
+
+      // Получаем информацию о пользователе через VK API
+      const userInfoResponse = await fetch(`https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131`);
+      const userInfoData = await userInfoResponse.json();
+
+      console.log('VK API Response:', userInfoData);
+
+      if (!userInfoData.response || !userInfoData.response[0]) {
+        throw new Error('Не удалось получить данные пользователя из VK API');
+      }
+
+      const vkUser = userInfoData.response[0];
       console.log('VK User:', vkUser);
 
       // Проверяем, существует ли пользователь в Supabase
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id, user_id')
-        .eq('vk_id', vkUser.id)
+        .eq('vk_id', vkUserId)
         .single();
 
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
@@ -137,19 +151,21 @@ const Login = () => {
       }
 
       // Новый пользователь - создаём аккаунт
-      const email = vkUser.email || `vk${vkUser.id}@obschiysbor.local`;
+      const email = `vk${vkUserId}@obschiysbor.local`;
       const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
+      const fullName = `${vkUser.first_name} ${vkUser.last_name}`;
+      const avatarUrl = vkUser.photo_200 || null;
 
-      console.log('Creating new user with email:', email);
+      console.log('Creating new user with email:', email, 'Name:', fullName);
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email,
         password: password,
         options: {
           data: {
-            full_name: `${vkUser.first_name} ${vkUser.last_name}`,
-            avatar_url: vkUser.avatar,
-            vk_id: vkUser.id,
+            full_name: fullName,
+            avatar_url: avatarUrl,
+            vk_id: vkUserId,
           }
         }
       });
@@ -168,7 +184,7 @@ const Login = () => {
       // Обновляем профиль с VK ID
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ vk_id: vkUser.id })
+        .update({ vk_id: vkUserId })
         .eq('id', signUpData.user.id);
 
       if (updateError) {
