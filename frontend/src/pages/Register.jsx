@@ -81,8 +81,13 @@ const Register = () => {
 
     const VKID = window.VKIDSDK;
 
-    // Используем production URL для работы с VK
-    const redirectUrl = 'https://obschiy-sbor.vercel.app/';
+    // Определяем redirect URL в зависимости от окружения
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const redirectUrl = isLocalhost
+      ? 'http://localhost:5173/'
+      : 'https://obschiy-sbor.vercel.app/';
+
+    console.log('VK ID Redirect URL:', redirectUrl);
 
     VKID.Config.init({
       app: 54212508,
@@ -120,43 +125,73 @@ const Register = () => {
 
   const handleVKAuth = async (vkAuthData) => {
     try {
+      console.log('VK Auth Data:', vkAuthData);
+
       const vkUser = vkAuthData.user;
 
-      const { data: existingProfile } = await supabase
+      if (!vkUser || !vkUser.id) {
+        throw new Error('Не удалось получить данные пользователя VK');
+      }
+
+      console.log('VK User:', vkUser);
+
+      const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, user_id')
         .eq('vk_id', vkUser.id)
         .single();
 
+      console.log('Existing profile:', existingProfile, 'Error:', profileError);
+
       if (existingProfile) {
-        navigate('/');
-      } else {
-        const email = vkUser.email || `vk${vkUser.id}@obschiysbor.local`;
-
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: email,
-          password: Math.random().toString(36).slice(-16),
-          options: {
-            data: {
-              full_name: `${vkUser.first_name} ${vkUser.last_name}`,
-              avatar_url: vkUser.avatar,
-              vk_id: vkUser.id,
-            }
-          }
-        });
-
-        if (signUpError) throw signUpError;
-
-        await supabase
-          .from('profiles')
-          .update({ vk_id: vkUser.id })
-          .eq('id', signUpData.user.id);
-
-        navigate('/');
+        console.log('Пользователь с VK ID уже существует');
+        setError('Аккаунт с этим VK уже существует. Используйте вход через VK.');
+        return;
       }
+
+      const email = vkUser.email || `vk${vkUser.id}@obschiysbor.local`;
+      const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
+
+      console.log('Creating new user with email:', email);
+
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: `${vkUser.first_name} ${vkUser.last_name}`,
+            avatar_url: vkUser.avatar,
+            vk_id: vkUser.id,
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('SignUp Error:', signUpError);
+        throw signUpError;
+      }
+
+      console.log('User created:', signUpData);
+
+      if (!signUpData.user) {
+        throw new Error('Не удалось создать пользователя');
+      }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ vk_id: vkUser.id })
+        .eq('id', signUpData.user.id);
+
+      if (updateError) {
+        console.error('Update Profile Error:', updateError);
+        throw updateError;
+      }
+
+      console.log('VK ID updated in profile');
+      navigate('/');
     } catch (err) {
       console.error('Ошибка VK регистрации:', err);
-      setError('Не удалось создать аккаунт через ВКонтакте');
+      setError(`Не удалось создать аккаунт через ВКонтакте: ${err.message}`);
     }
   };
 
