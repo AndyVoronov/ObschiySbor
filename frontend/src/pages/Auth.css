@@ -98,22 +98,24 @@
   transition: all 0.3s;
 }
 
-.btn-google {
-  background-color: #db4437;
+.btn-telegram {
+  background-color: #0088cc;
   color: white;
 }
 
-.btn-google:hover {
-  background-color: #c23321;
+.btn-telegram:hover {
+  background-color: #006699;
 }
 
-.btn-facebook {
-  background-color: #4267B2;
-  color: white;
+#vk-auth-container,
+#vk-auth-container-register {
+  margin-bottom: 1rem;
 }
 
-.btn-facebook:hover {
-  background-color: #365899;
+#vk-auth-container iframe,
+#vk-auth-container-register iframe {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .auth-link {

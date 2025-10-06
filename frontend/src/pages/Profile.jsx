@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import AvatarUpload from '../components/AvatarUpload';
 import OrganizerDashboard from '../components/OrganizerDashboard';
+import ConnectedAccounts from '../components/ConnectedAccounts';
 import './Profile.css';
 
 const Profile = () => {
@@ -179,6 +180,12 @@ const Profile = () => {
           Профиль
         </button>
         <button
+          className={`tab-button ${activeTab === 'accounts' ? 'active' : ''}`}
+          onClick={() => setActiveTab('accounts')}
+        >
+          Подключенные аккаунты
+        </button>
+        <button
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
@@ -284,6 +291,10 @@ const Profile = () => {
             </section>
           </div>
         </>
+      )}
+
+      {activeTab === 'accounts' && (
+        <ConnectedAccounts />
       )}
 
       {activeTab === 'dashboard' && (
