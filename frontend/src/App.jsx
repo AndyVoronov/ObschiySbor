@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { useTelegramAuth } from './hooks/useTelegramAuth';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Events from './pages/Events';
@@ -16,10 +17,49 @@ import Rules from './pages/Rules';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
-function App() {
+function AppContent() {
+  // Автоматическая авторизация через Telegram Mini App
+  const { isLoading, error, isTelegramApp } = useTelegramAuth();
+
+  // Показываем индикатор загрузки во время авторизации в Telegram Mini App
+  if (isTelegramApp && isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div className="spinner"></div>
+        <p>Авторизация через Telegram...</p>
+      </div>
+    );
+  }
+
+  // Показываем ошибку если авторизация не удалась
+  if (error) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '1rem',
+        padding: '2rem'
+      }}>
+        <p style={{ color: 'red' }}>Ошибка авторизации: {error}</p>
+        <button onClick={() => window.location.reload()}>
+          Попробовать снова
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -58,6 +98,13 @@ function App() {
           </Route>
         </Routes>
       </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
