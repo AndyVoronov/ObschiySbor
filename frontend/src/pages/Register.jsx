@@ -157,9 +157,9 @@ const Register = () => {
 
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, user_id')
+        .select('id, user_id, vk_password')
         .eq('vk_id', vkUserId)
-        .single();
+        .maybeSingle(); // Используем maybeSingle() вместо single() чтобы не было ошибки если записи нет
 
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
 
@@ -167,16 +167,10 @@ const Register = () => {
         // Пользователь уже существует - перенаправляем на вход
         console.log('Пользователь с VK ID уже существует, выполняем вход');
 
-        // Получаем сохранённый пароль из профиля
-        const { data: profileData, error: profileFetchError } = await supabase
-          .from('profiles')
-          .select('vk_password')
-          .eq('vk_id', vkUserId)
-          .single();
-
-        if (profileFetchError || !profileData?.vk_password) {
-          console.error('Не удалось получить сохранённый пароль:', profileFetchError);
-          setError('Аккаунт с этим VK уже существует. Пожалуйста, используйте страницу входа.');
+        // Проверяем, есть ли сохранённый пароль
+        if (!existingProfile.vk_password) {
+          console.error('У существующего VK пользователя нет сохранённого пароля');
+          setError('Это старый VK аккаунт без сохранённого пароля. Обратитесь к администратору или используйте восстановление пароля.');
           return;
         }
 
@@ -184,7 +178,7 @@ const Register = () => {
         const email = `vk${vkUserId}@obschiysbor.local`;
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: email,
-          password: profileData.vk_password,
+          password: existingProfile.vk_password,
         });
 
         if (signInError) {
