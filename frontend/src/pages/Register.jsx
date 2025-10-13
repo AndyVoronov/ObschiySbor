@@ -128,12 +128,32 @@ const Register = () => {
       console.log('VK Auth Data:', vkAuthData);
 
       const vkUserId = vkAuthData.user_id;
+      const accessToken = vkAuthData.access_token;
 
-      if (!vkUserId) {
-        throw new Error('Не удалось получить VK ID пользователя');
+      if (!vkUserId || !accessToken) {
+        throw new Error('Не удалось получить VK ID или access token');
       }
 
       console.log('VK User ID:', vkUserId);
+
+      // Получаем реальные данные пользователя из VK через Edge Function
+      let vkUserData = null;
+      try {
+        const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('vk-get-user', {
+          body: { user_id: vkUserId, access_token: accessToken }
+        });
+
+        if (edgeFunctionError) {
+          console.error('Edge Function Error:', edgeFunctionError);
+          throw edgeFunctionError;
+        }
+
+        vkUserData = edgeFunctionData;
+        console.log('VK User Data from API:', vkUserData);
+      } catch (apiError) {
+        console.error('Не удалось получить данные из VK API:', apiError);
+        // Продолжаем с базовыми данными если Edge Function не доступна
+      }
 
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
@@ -144,16 +164,49 @@ const Register = () => {
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
 
       if (existingProfile) {
-        console.log('Пользователь с VK ID уже существует');
-        setError('Аккаунт с этим VK уже существует. Используйте вход через VK.');
+        // Пользователь уже существует - перенаправляем на вход
+        console.log('Пользователь с VK ID уже существует, выполняем вход');
+
+        // Получаем сохранённый пароль из профиля
+        const { data: profileData, error: profileFetchError } = await supabase
+          .from('profiles')
+          .select('vk_password')
+          .eq('vk_id', vkUserId)
+          .single();
+
+        if (profileFetchError || !profileData?.vk_password) {
+          console.error('Не удалось получить сохранённый пароль:', profileFetchError);
+          setError('Аккаунт с этим VK уже существует. Пожалуйста, используйте страницу входа.');
+          return;
+        }
+
+        // Выполняем вход с сохранённым паролем
+        const email = `vk${vkUserId}@obschiysbor.local`;
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: profileData.vk_password,
+        });
+
+        if (signInError) {
+          console.error('Sign In Error:', signInError);
+          setError('Аккаунт с этим VK уже существует. Пожалуйста, используйте страницу входа.');
+          return;
+        }
+
+        console.log('Успешный вход через VK:', signInData);
+        navigate('/');
         return;
       }
 
       const email = `vk${vkUserId}@obschiysbor.local`;
       const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
-      const fullName = `Пользователь VK ${vkUserId}`;
 
-      console.log('Creating new user with email:', email);
+      // Используем реальное имя из VK если получили, иначе базовое
+      const fullName = vkUserData
+        ? `${vkUserData.first_name} ${vkUserData.last_name}`
+        : `Пользователь VK ${vkUserId}`;
+
+      console.log('Creating new user with email:', email, 'name:', fullName);
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email,
@@ -162,6 +215,7 @@ const Register = () => {
           data: {
             full_name: fullName,
             vk_id: vkUserId,
+            avatar_url: vkUserData?.photo_200 || null,
           }
         }
       });
@@ -177,9 +231,18 @@ const Register = () => {
         throw new Error('Не удалось создать пользователя');
       }
 
+      // Обновляем профиль с VK ID, паролем и данными
+      const updateData = {
+        vk_id: vkUserId,
+        vk_password: password  // Сохраняем пароль для последующих входов
+      };
+      if (vkUserData?.photo_200) {
+        updateData.avatar_url = vkUserData.photo_200;
+      }
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ vk_id: vkUserId })
+        .update(updateData)
         .eq('id', signUpData.user.id);
 
       if (updateError) {
@@ -187,7 +250,7 @@ const Register = () => {
         throw updateError;
       }
 
-      console.log('VK ID updated in profile');
+      console.log('VK ID and user data updated in profile');
       navigate('/');
     } catch (err) {
       console.error('Ошибка VK регистрации:', err);

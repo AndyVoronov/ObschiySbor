@@ -110,20 +110,34 @@ const Login = () => {
     try {
       console.log('VK Auth Data:', vkAuthData);
 
-      // VK ID возвращает user_id напрямую
+      // VK ID возвращает user_id и access_token напрямую
       const vkUserId = vkAuthData.user_id;
+      const accessToken = vkAuthData.access_token;
 
-      if (!vkUserId) {
-        throw new Error('Не удалось получить VK ID пользователя');
+      if (!vkUserId || !accessToken) {
+        throw new Error('Не удалось получить VK ID или access token');
       }
 
       console.log('VK User ID:', vkUserId);
 
-      // Используем JSONP для обхода CORS или просто создаём пользователя без доп данных
-      // Получаем базовую информацию из VK через их виджет или используем дефолтные значения
+      // Получаем реальные данные пользователя из VK через Edge Function
+      let vkUserData = null;
+      try {
+        const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('vk-get-user', {
+          body: { user_id: vkUserId, access_token: accessToken }
+        });
 
-      // Для получения имени можно использовать VK Widget API или создать пользователя с базовым именем
-      // Пользователь сможет изменить имя в профиле позже
+        if (edgeFunctionError) {
+          console.error('Edge Function Error:', edgeFunctionError);
+          throw edgeFunctionError;
+        }
+
+        vkUserData = edgeFunctionData;
+        console.log('VK User Data from API:', vkUserData);
+      } catch (apiError) {
+        console.error('Не удалось получить данные из VK API:', apiError);
+        // Продолжаем с базовыми данными если Edge Function не доступна
+      }
 
       // Проверяем, существует ли пользователь в Supabase
       const { data: existingProfile, error: profileError } = await supabase
@@ -135,20 +149,50 @@ const Login = () => {
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
 
       if (existingProfile) {
-        // Пользователь уже существует
-        // Для полноценного входа нужна Edge Function для создания сессии
-        console.log('Пользователь с VK ID уже существует');
-        setError('Вход для существующих VK пользователей временно недоступен. Используйте email/пароль.');
+        // Пользователь уже существует - выполняем вход
+        console.log('Пользователь с VK ID уже существует, выполняем вход');
+
+        // Получаем сохранённый пароль из профиля
+        const { data: profileData, error: profileFetchError } = await supabase
+          .from('profiles')
+          .select('vk_password')
+          .eq('vk_id', vkUserId)
+          .single();
+
+        if (profileFetchError || !profileData?.vk_password) {
+          console.error('Не удалось получить сохранённый пароль:', profileFetchError);
+          setError('Ошибка входа через VK. Попробуйте использовать восстановление пароля на email.');
+          return;
+        }
+
+        // Выполняем вход с сохранённым паролем
+        const email = `vk${vkUserId}@obschiysbor.local`;
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: profileData.vk_password,
+        });
+
+        if (signInError) {
+          console.error('Sign In Error:', signInError);
+          setError('Не удалось выполнить вход через VK. Попробуйте позже.');
+          return;
+        }
+
+        console.log('Успешный вход через VK:', signInData);
+        navigate('/');
         return;
       }
 
       // Новый пользователь - создаём аккаунт
       const email = `vk${vkUserId}@obschiysbor.local`;
       const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
-      // Используем базовое имя, пользователь сможет изменить его в профиле
-      const fullName = `Пользователь VK ${vkUserId}`;
 
-      console.log('Creating new user with email:', email);
+      // Используем реальное имя из VK если получили, иначе базовое
+      const fullName = vkUserData
+        ? `${vkUserData.first_name} ${vkUserData.last_name}`
+        : `Пользователь VK ${vkUserId}`;
+
+      console.log('Creating new user with email:', email, 'name:', fullName);
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email,
@@ -157,6 +201,7 @@ const Login = () => {
           data: {
             full_name: fullName,
             vk_id: vkUserId,
+            avatar_url: vkUserData?.photo_200 || null,
           }
         }
       });
@@ -172,10 +217,18 @@ const Login = () => {
         throw new Error('Не удалось создать пользователя');
       }
 
-      // Обновляем профиль с VK ID
+      // Обновляем профиль с VK ID, паролем и данными
+      const updateData = {
+        vk_id: vkUserId,
+        vk_password: password  // Сохраняем пароль для последующих входов
+      };
+      if (vkUserData?.photo_200) {
+        updateData.avatar_url = vkUserData.photo_200;
+      }
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ vk_id: vkUserId })
+        .update(updateData)
         .eq('id', signUpData.user.id);
 
       if (updateError) {
@@ -183,7 +236,7 @@ const Login = () => {
         throw updateError;
       }
 
-      console.log('VK ID updated in profile');
+      console.log('VK ID and user data updated in profile');
       navigate('/');
     } catch (err) {
       console.error('Ошибка VK аутентификации:', err);
