@@ -83,7 +83,7 @@ const authenticateTelegramUser = async (telegramUser, tg) => {
     // Проверяем, существует ли пользователь с этим Telegram ID
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, user_id, telegram_password')
+      .select('id, telegram_password')
       .eq('telegram_id', telegramId)
       .maybeSingle();
 
