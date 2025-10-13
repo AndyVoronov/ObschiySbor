@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import TelegramLoginButton from '../components/TelegramLoginButton';
 import './Auth.css';
 
 const Register = () => {
@@ -51,6 +52,112 @@ const Register = () => {
       console.error('Ошибка регистрации:', error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTelegramAuth = async (telegramUser) => {
+    try {
+      console.log('Telegram User Data:', telegramUser);
+
+      const telegramId = telegramUser.id;
+      const firstName = telegramUser.first_name;
+      const lastName = telegramUser.last_name || '';
+      const username = telegramUser.username || '';
+      const photoUrl = telegramUser.photo_url || null;
+
+      // Проверяем, существует ли пользователь с этим Telegram ID
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, user_id, telegram_password')
+        .eq('telegram_id', telegramId)
+        .maybeSingle();
+
+      console.log('Existing Telegram profile:', existingProfile, 'Error:', profileError);
+
+      if (existingProfile) {
+        // Пользователь уже существует - выполняем вход
+        console.log('Пользователь с Telegram ID уже существует, выполняем вход');
+
+        if (!existingProfile.telegram_password) {
+          console.error('У существующего Telegram пользователя нет сохранённого пароля');
+          setError('Это старый Telegram аккаунт без сохранённого пароля. Обратитесь к администратору.');
+          return;
+        }
+
+        // Выполняем вход с сохранённым паролем
+        const email = `tg${telegramId}@obschiysbor.local`;
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: existingProfile.telegram_password,
+        });
+
+        if (signInError) {
+          console.error('Sign In Error:', signInError);
+          setError('Аккаунт с этим Telegram уже существует. Пожалуйста, используйте страницу входа.');
+          return;
+        }
+
+        console.log('Успешный вход через Telegram:', signInData);
+        navigate('/');
+        return;
+      }
+
+      // Новый пользователь - создаём аккаунт
+      const email = `tg${telegramId}@obschiysbor.local`;
+      const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
+      const fullName = `${firstName} ${lastName}`.trim() || `Пользователь Telegram ${telegramId}`;
+
+      console.log('Creating new Telegram user with email:', email, 'name:', fullName);
+
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: fullName,
+            telegram_id: telegramId,
+            telegram_username: username,
+            avatar_url: photoUrl,
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('SignUp Error:', signUpError);
+        throw signUpError;
+      }
+
+      console.log('Telegram user created:', signUpData);
+
+      if (!signUpData.user) {
+        throw new Error('Не удалось создать пользователя');
+      }
+
+      // Обновляем профиль с Telegram ID, паролем и данными
+      const updateData = {
+        telegram_id: telegramId,
+        telegram_password: password,
+        telegram_username: username,
+      };
+      if (photoUrl) {
+        updateData.avatar_url = photoUrl;
+      }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', signUpData.user.id);
+
+      if (updateError) {
+        console.error('Update Profile Error:', updateError);
+        throw updateError;
+      }
+
+      console.log('Telegram ID and user data updated in profile');
+      navigate('/');
+    } catch (err) {
+      console.error('Ошибка Telegram регистрации:', err);
+      setError(`Не удалось создать аккаунт через Telegram: ${err.message}`);
     }
   };
 
@@ -324,12 +431,12 @@ const Register = () => {
 
         <div className="social-login">
           <div id="vk-auth-container-register"></div>
-          <button
-            className="btn btn-social btn-telegram"
-            onClick={() => signInWithProvider('telegram')}
-          >
-            Войти через Telegram
-          </button>
+          <TelegramLoginButton
+            botUsername="ObschiySbor_bot"
+            onAuth={handleTelegramAuth}
+            buttonSize="large"
+            cornerRadius={10}
+          />
         </div>
 
         <p className="auth-link">
