@@ -85,7 +85,7 @@ const CreateEvent = () => {
         max_participants: parseInt(formData.max_participants),
         current_participants: 1,
         creator_id: user.id,
-        status: 'active',
+        moderation_status: 'active',
         image_url: formData.image_url,
         gender_filter: formData.gender_filter,
       };
