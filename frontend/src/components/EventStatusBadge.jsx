@@ -11,15 +11,6 @@ const EventStatusBadge = ({ event, showEmoji = true, className = '' }) => {
   const color = EVENT_STATUS_COLORS[status];
   const emoji = showEmoji ? EVENT_STATUS_EMOJI[status] : '';
 
-  // Debug: проверяем что приходит
-  console.log('EventStatusBadge event:', {
-    id: event.id,
-    title: event.title,
-    lifecycle_status: event.lifecycle_status,
-    event_date: event.event_date,
-    calculated_status: status
-  });
-
   return (
     <span
       className={`event-status-badge ${className}`}
