@@ -35,7 +35,7 @@ const EventDetails = () => {
     try {
       // Автоматически обновляем статусы событий перед загрузкой
       try {
-        await supabase.rpc('update_event_status');
+        await supabase.rpc('update_event_lifecycle_status');
       } catch (statusError) {
         console.error('Ошибка обновления статусов:', statusError);
       }
@@ -450,7 +450,7 @@ const EventDetails = () => {
       const { error: updateError } = await supabase
         .from('events')
         .update({
-          status: EVENT_STATUS.CANCELLED,
+          lifecycle_status: EVENT_STATUS.CANCELLED,
           cancellation_reason: cancellationReason
         })
         .eq('id', id);
@@ -480,7 +480,7 @@ const EventDetails = () => {
       }
 
       // Обновляем локальное состояние
-      setEvent({ ...event, status: EVENT_STATUS.CANCELLED, cancellation_reason: cancellationReason });
+      setEvent({ ...event, lifecycle_status: EVENT_STATUS.CANCELLED, cancellation_reason: cancellationReason });
       setShowCancelDialog(false);
       alert('Событие отменено. Всем участникам отправлены уведомления.');
     } catch (error) {

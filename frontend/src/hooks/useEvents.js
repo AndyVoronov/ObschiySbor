@@ -4,18 +4,18 @@ import { applyCategoryFilters } from '../utils/eventFilters';
 
 /**
  * Автоматически обновляет статусы событий в базе данных
- * Вызывает SQL функцию update_event_status()
+ * Вызывает SQL функцию update_event_lifecycle_status()
  */
 const updateEventStatuses = async () => {
   try {
-    const { error } = await supabase.rpc('update_event_status');
+    const { error } = await supabase.rpc('update_event_lifecycle_status');
     if (error) {
       console.error('Ошибка обновления статусов событий:', error);
     } else {
       console.log('Статусы событий обновлены');
     }
   } catch (err) {
-    console.error('Ошибка вызова update_event_status:', err);
+    console.error('Ошибка вызова update_event_lifecycle_status:', err);
   }
 };
 

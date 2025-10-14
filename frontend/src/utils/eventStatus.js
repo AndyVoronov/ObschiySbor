@@ -40,14 +40,14 @@ export const EVENT_STATUS_EMOJI = {
  * @returns {string} - статус события
  */
 export const getEventStatus = (event) => {
-  // Если статус уже установлен и это отмена - возвращаем его
-  if (event.status === EVENT_STATUS.CANCELLED) {
+  // Если lifecycle_status уже установлен и это отмена - возвращаем его
+  if (event.lifecycle_status === EVENT_STATUS.CANCELLED) {
     return EVENT_STATUS.CANCELLED;
   }
 
-  // Если статус явно указан в БД - используем его
-  if (event.status && event.status !== EVENT_STATUS.UPCOMING) {
-    return event.status;
+  // Если lifecycle_status явно указан в БД - используем его
+  if (event.lifecycle_status && event.lifecycle_status !== EVENT_STATUS.UPCOMING) {
+    return event.lifecycle_status;
   }
 
   const now = new Date();

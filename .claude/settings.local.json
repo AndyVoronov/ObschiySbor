@@ -36,7 +36,10 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(where ngrok)"
+      "Bash(where ngrok)",
+      "Bash(supabase:*)",
+      "Bash(scoop:*)",
+      "Bash(choco install:*)"
     ],
     "deny": [],
     "ask": []

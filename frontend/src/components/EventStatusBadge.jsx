@@ -15,7 +15,7 @@ const EventStatusBadge = ({ event, showEmoji = true, className = '' }) => {
   console.log('EventStatusBadge event:', {
     id: event.id,
     title: event.title,
-    status: event.status,
+    lifecycle_status: event.lifecycle_status,
     event_date: event.event_date,
     calculated_status: status
   });
