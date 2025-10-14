@@ -1,23 +1,40 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './contexts/AuthContext';
 import { useTelegramAuth } from './hooks/useTelegramAuth';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import Events from './pages/Events';
-import CreateEvent from './pages/CreateEvent';
-import EventDetails from './pages/EventDetails';
-import BoardGameDetails from './pages/BoardGameDetails';
-import Profile from './pages/Profile';
-import Chats from './pages/Chats';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import About from './pages/About';
-import Contacts from './pages/Contacts';
-import Rules from './pages/Rules';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+
+// Lazy loading для страниц - разделение кода
+const Home = lazy(() => import('./pages/Home'));
+const Events = lazy(() => import('./pages/Events'));
+const CreateEvent = lazy(() => import('./pages/CreateEvent'));
+const EventDetails = lazy(() => import('./pages/EventDetails'));
+const BoardGameDetails = lazy(() => import('./pages/BoardGameDetails'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Chats = lazy(() => import('./pages/Chats'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const About = lazy(() => import('./pages/About'));
+const Contacts = lazy(() => import('./pages/Contacts'));
+const Rules = lazy(() => import('./pages/Rules'));
+
+// Компонент загрузки
+const LoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    fontSize: '1.2rem'
+  }}>
+    <div className="spinner"></div>
+    <span style={{ marginLeft: '1rem' }}>Загрузка...</span>
+  </div>
+);
 
 // Создаём QueryClient с оптимизированными настройками
 const queryClient = new QueryClient({
@@ -75,6 +92,7 @@ function AppContent() {
 
   return (
     <Router>
+      <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -112,7 +130,8 @@ function AppContent() {
             <Route path="rules" element={<Rules />} />
           </Route>
         </Routes>
-      </Router>
+      </Suspense>
+    </Router>
   );
 }
 
