@@ -1,0 +1,42 @@
+.event-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-emoji {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.status-label {
+  line-height: 1;
+}
+
+/* Размеры */
+.event-status-badge.small {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+}
+
+.event-status-badge.large {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .event-status-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+}

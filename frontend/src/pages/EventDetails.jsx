@@ -3,11 +3,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import EventMap from '../components/EventMap';
+import EventStatusBadge from '../components/EventStatusBadge';
 import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
 import EventChat from '../components/EventChat';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
+import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
 import './EventDetails.css';
 
 const EventDetails = () => {
@@ -20,6 +22,9 @@ const EventDetails = () => {
   const [joining, setJoining] = useState(false);
   const [boardGames, setBoardGames] = useState([]);
   const [categoryRelatedData, setCategoryRelatedData] = useState(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
   const reviewsRef = useRef(null);
 
   useEffect(() => {
@@ -425,8 +430,64 @@ const EventDetails = () => {
     }
   };
 
+  // Функция отмены события
+  const handleCancelEvent = async () => {
+    if (!cancellationReason.trim()) {
+      alert('Пожалуйста, укажите причину отмены');
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      // Обновляем статус события на cancelled
+      const { error: updateError } = await supabase
+        .from('events')
+        .update({
+          status: EVENT_STATUS.CANCELLED,
+          cancellation_reason: cancellationReason
+        })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      // Получаем всех участников события
+      const { data: participants, error: participantsError } = await supabase
+        .from('event_participants')
+        .select('user_id, profiles(full_name)')
+        .eq('event_id', id);
+
+      if (participantsError) throw participantsError;
+
+      // Отправляем уведомления всем участникам
+      for (const participant of participants) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: participant.user_id,
+            type: 'event_cancelled',
+            title: 'Событие отменено',
+            message: `Событие "${event.title}" было отменено. Причина: ${cancellationReason}`,
+            link: `/events/${id}`,
+            read: false
+          });
+      }
+
+      // Обновляем локальное состояние
+      setEvent({ ...event, status: EVENT_STATUS.CANCELLED, cancellation_reason: cancellationReason });
+      setShowCancelDialog(false);
+      alert('Событие отменено. Всем участникам отправлены уведомления.');
+    } catch (error) {
+      console.error('Ошибка отмены события:', error.message);
+      alert('Не удалось отменить событие. Попробуйте позже.');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   // Проверяем, завершилось ли событие
   const isEventCompleted = new Date(event?.event_date) < new Date();
+  const eventStatus = getEventStatus(event);
+  const canCancel = isCreator && canCancelEvent(event);
 
   return (
     <div className="event-details">
@@ -437,8 +498,19 @@ const EventDetails = () => {
       <div className="event-detail-content">
         <div className="event-header">
           <h1>{event.title}</h1>
-          <span className="event-category-badge">{getCategoryName(event.category)}</span>
+          <div className="event-badges">
+            <span className="event-category-badge">{getCategoryName(event.category)}</span>
+            <EventStatusBadge event={event} showEmoji={true} />
+          </div>
         </div>
+
+        {/* Причина отмены */}
+        {eventStatus === EVENT_STATUS.CANCELLED && event.cancellation_reason && (
+          <div className="cancellation-notice">
+            <strong>❌ Событие отменено</strong>
+            <p>Причина: {event.cancellation_reason}</p>
+          </div>
+        )}
 
         <div className="event-info">
           <div className="info-item">
@@ -804,7 +876,20 @@ const EventDetails = () => {
           </div>
         </div>
 
-        {user && !isCreator && (
+        {/* Кнопка отмены для организатора */}
+        {canCancel && (
+          <div className="event-actions organizer-actions">
+            <button
+              onClick={() => setShowCancelDialog(true)}
+              className="btn btn-danger"
+            >
+              ❌ Отменить событие
+            </button>
+          </div>
+        )}
+
+        {/* Кнопки присоединения/выхода для участников */}
+        {user && !isCreator && eventStatus !== EVENT_STATUS.CANCELLED && (
           <div className="event-actions">
             {isParticipant ? (
               <button
@@ -823,6 +908,46 @@ const EventDetails = () => {
                 {joining ? 'Присоединение...' : isFull ? 'Мест нет' : 'Присоединиться'}
               </button>
             )}
+          </div>
+        )}
+
+        {/* Диалог отмены события */}
+        {showCancelDialog && (
+          <div className="cancel-dialog-overlay" onClick={() => !cancelling && setShowCancelDialog(false)}>
+            <div className="cancel-dialog" onClick={(e) => e.stopPropagation()}>
+              <h2>Отменить событие</h2>
+              <p>Вы уверены, что хотите отменить это событие? Всем участникам будет отправлено уведомление.</p>
+              <div className="form-group">
+                <label htmlFor="cancellation-reason">
+                  Причина отмены <span className="required">*</span>
+                </label>
+                <textarea
+                  id="cancellation-reason"
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  placeholder="Укажите причину отмены события..."
+                  rows={4}
+                  disabled={cancelling}
+                  required
+                />
+              </div>
+              <div className="dialog-actions">
+                <button
+                  onClick={() => setShowCancelDialog(false)}
+                  className="btn btn-secondary"
+                  disabled={cancelling}
+                >
+                  Отмена
+                </button>
+                <button
+                  onClick={handleCancelEvent}
+                  className="btn btn-danger"
+                  disabled={cancelling || !cancellationReason.trim()}
+                >
+                  {cancelling ? 'Отмена события...' : 'Подтвердить отмену'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

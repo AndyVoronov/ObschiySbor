@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getCategoryName } from '../constants/categories';
 import { formatDateCompact } from '../utils/dateUtils';
+import { getEventStatus, EVENT_STATUS_LABELS, EVENT_STATUS_EMOJI } from '../utils/eventStatus';
 import './EventsMapView.css';
 
 const MOSCOW_CENTER = [55.751244, 37.618423];
@@ -82,6 +83,10 @@ const EventsMapView = ({ events }) => {
 
     // Добавляем метки для каждого события
     eventsWithLocation.forEach((event) => {
+      const status = getEventStatus(event);
+      const statusLabel = EVENT_STATUS_LABELS[status];
+      const statusEmoji = EVENT_STATUS_EMOJI[status];
+
       const placemark = new window.ymaps.Placemark(
         [parseFloat(event.latitude), parseFloat(event.longitude)],
         {
@@ -89,6 +94,7 @@ const EventsMapView = ({ events }) => {
           balloonContentBody: `
             ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" style="max-width: 200px; height: auto; margin-bottom: 10px;" />` : ''}
             <p><strong>${getCategoryName(event.category)}</strong></p>
+            <p>${statusEmoji} <strong>Статус:</strong> ${statusLabel}</p>
             <p>📅 ${formatDateCompact(event.event_date)}</p>
             <p>📍 ${event.location}</p>
             <p>👥 ${event.current_participants}/${event.max_participants} участников</p>

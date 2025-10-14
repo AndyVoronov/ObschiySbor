@@ -254,6 +254,143 @@
   margin: 3rem 0;
 }
 
+/* Бейджи события */
+.event-badges {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Уведомление об отмене */
+.cancellation-notice {
+  background-color: #ffe5e5;
+  border-left: 4px solid #e74c3c;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.cancellation-notice strong {
+  display: block;
+  color: #e74c3c;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.cancellation-notice p {
+  color: #c0392b;
+  margin: 0;
+}
+
+/* Действия организатора */
+.organizer-actions {
+  border-top: 2px solid #e74c3c20;
+  background-color: #fff5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+/* Диалог отмены */
+.cancel-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.cancel-dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-dialog h2 {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.cancel-dialog p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.cancel-dialog .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.cancel-dialog label {
+  display: block;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cancel-dialog .required {
+  color: #e74c3c;
+}
+
+.cancel-dialog textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ecf0f1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+
+.cancel-dialog textarea:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.cancel-dialog textarea:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.dialog-actions .btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dialog-actions .btn-secondary {
+  background-color: #95a5a6;
+}
+
+.dialog-actions .btn-secondary:hover:not(:disabled) {
+  background-color: #7f8c8d;
+}
+
+.dialog-actions .btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .board-games-list {
     grid-template-columns: 1fr;
@@ -266,5 +403,17 @@
   .board-game-image {
     width: 100%;
     height: 150px;
+  }
+
+  .cancel-dialog {
+    padding: 1.5rem;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+  }
+
+  .dialog-actions .btn {
+    width: 100%;
   }
 }

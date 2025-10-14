@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import EventRating from '../components/EventRating';
+import EventStatusBadge from '../components/EventStatusBadge';
 import EventsMapView from '../components/EventsMapView';
 import CategoryFilters from '../components/CategoryFilters';
 import { useEvents } from '../hooks/useEvents';
@@ -269,9 +270,12 @@ const Events = () => {
                 </div>
               )}
               <div className="p-4">
-                <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2">
-                  {event.title}
-                </h3>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold text-lg text-foreground line-clamp-2 flex-1">
+                    {event.title}
+                  </h3>
+                  <EventStatusBadge event={event} showEmoji={true} className="small" />
+                </div>
                 <p className="text-sm text-primary font-medium mb-2">
                   {getCategoryName(event.category)}
                 </p>
