@@ -5,8 +5,10 @@
 Этот документ описывает процесс применения индексов для оптимизации производительности базы данных ObschiySbor.
 
 **Дата:** 2025-10-14
-**Версия:** 1.0
-**Миграция:** `database/migration_performance_indexes.sql`
+**Версия:** 1.1 (исправленная)
+**Миграция:** `database/migration_performance_indexes_fixed.sql`
+
+⚠️ **ВАЖНО:** Используйте файл `migration_performance_indexes_fixed.sql` - он безопасно обрабатывает отсутствующие таблицы и колонки!
 
 ## Зачем нужны индексы?
 
@@ -30,11 +32,17 @@
 ### Шаг 2: Выполните SQL миграцию
 
 1. Нажмите **New Query**
-2. Скопируйте содержимое файла `database/migration_performance_indexes.sql`
+2. Скопируйте содержимое файла `database/migration_performance_indexes_fixed.sql`
 3. Вставьте в редактор
 4. Нажмите **RUN** или `Ctrl+Enter`
 
 **Время выполнения:** ~30-60 секунд (зависит от объёма данных)
+
+**Почему исправленная версия?**
+- Проверяет существование таблиц перед созданием индексов
+- Проверяет существование колонок (end_date, lifecycle_status, vk_id и т.д.)
+- Использует условные блоки DO $$ для безопасности
+- Не упадёт если таблица notifications или reviews не существует
 
 ### Шаг 3: Проверьте создание индексов
 
@@ -194,7 +202,15 @@ ERROR: must be owner of table events
 
 **Решение:** Используйте **SQL Editor** в Supabase Dashboard с правами admin.
 
-### ❌ Ошибка 3: Таймаут при создании
+### ❌ Ошибка 3: Таблица не существует
+
+```
+ERROR: relation "notifications" does not exist
+```
+
+**Решение:** Используйте **исправленную миграцию** `migration_performance_indexes_fixed.sql` - она автоматически пропускает несуществующие таблицы.
+
+### ❌ Ошибка 4: Таймаут при создании
 
 ```
 ERROR: timeout exceeded
@@ -272,6 +288,7 @@ DROP INDEX IF EXISTS idx_events_event_date CASCADE;
 
 ## Связанные файлы
 
-- `/database/migration_performance_indexes.sql` — SQL миграция с индексами
+- `/database/migration_performance_indexes_fixed.sql` — ⭐ **Рекомендуемая** SQL миграция с индексами (безопасная)
+- `/database/migration_performance_indexes.sql` — Оригинальная версия (может упасть на отсутствующих таблицах)
 - `/frontend/src/hooks/useEvents.js` — оптимизированные запросы событий
 - `/frontend/src/hooks/useEvent.js` — оптимизированные запросы одного события
