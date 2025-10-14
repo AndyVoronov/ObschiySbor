@@ -29,7 +29,23 @@ const fetchEvents = async (filters) => {
   let query = supabase
     .from('events')
     .select(`
-      *,
+      id,
+      title,
+      description,
+      category,
+      event_date,
+      end_date,
+      location,
+      latitude,
+      longitude,
+      max_participants,
+      current_participants,
+      price,
+      image_url,
+      lifecycle_status,
+      creator_id,
+      created_at,
+      category_data,
       profiles:creator_id (
         id,
         full_name,

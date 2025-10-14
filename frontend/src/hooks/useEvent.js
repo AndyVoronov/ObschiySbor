@@ -15,7 +15,25 @@ const fetchEvent = async (eventId) => {
   const { data, error } = await supabase
     .from('events')
     .select(`
-      *,
+      id,
+      title,
+      description,
+      category,
+      event_date,
+      end_date,
+      location,
+      latitude,
+      longitude,
+      max_participants,
+      current_participants,
+      price,
+      image_url,
+      lifecycle_status,
+      creator_id,
+      created_at,
+      updated_at,
+      category_data,
+      gender_filter,
       profiles:creator_id (
         id,
         full_name,
@@ -60,7 +78,7 @@ const checkParticipation = async (eventId, userId) => {
 
   const { data, error } = await supabase
     .from('event_participants')
-    .select('*')
+    .select('id')
     .eq('event_id', eventId)
     .eq('user_id', userId)
     .maybeSingle();
