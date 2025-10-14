@@ -33,6 +33,13 @@ const EventDetails = () => {
 
   const fetchEventDetails = async () => {
     try {
+      // Автоматически обновляем статусы событий перед загрузкой
+      try {
+        await supabase.rpc('update_event_status');
+      } catch (statusError) {
+        console.error('Ошибка обновления статусов:', statusError);
+      }
+
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select(`

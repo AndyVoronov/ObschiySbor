@@ -3,6 +3,23 @@ import { supabase } from '../lib/supabase';
 import { applyCategoryFilters } from '../utils/eventFilters';
 
 /**
+ * Автоматически обновляет статусы событий в базе данных
+ * Вызывает SQL функцию update_event_status()
+ */
+const updateEventStatuses = async () => {
+  try {
+    const { error } = await supabase.rpc('update_event_status');
+    if (error) {
+      console.error('Ошибка обновления статусов событий:', error);
+    } else {
+      console.log('Статусы событий обновлены');
+    }
+  } catch (err) {
+    console.error('Ошибка вызова update_event_status:', err);
+  }
+};
+
+/**
  * Custom hook для загрузки и фильтрации событий
  */
 export const useEvents = (filters) => {
@@ -15,6 +32,8 @@ export const useEvents = (filters) => {
     setError(null);
 
     try {
+      // Автоматически обновляем статусы событий перед загрузкой
+      await updateEventStatuses();
       let query = supabase
         .from('events')
         .select(`
