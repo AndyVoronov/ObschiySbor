@@ -25,10 +25,28 @@ const Events = () => {
     difficulty: '',
     minDistance: '',
     maxDistance: '',
+    // Новые фильтры
+    priceType: '', // 'free', 'paid', 'range'
+    minPrice: '',
+    maxPrice: '',
+    status: '', // 'upcoming', 'ongoing', 'completed', 'cancelled'
+    maxDistance: '', // расстояние в км
   });
 
-  // Читаем category из URL при загрузке И инициализируем filters один раз
+  // Читаем category из URL и восстанавливаем сохраненные фильтры
   useEffect(() => {
+    // Восстанавливаем фильтры из localStorage
+    const savedFilters = localStorage.getItem('eventFilters');
+    if (savedFilters) {
+      try {
+        const parsed = JSON.parse(savedFilters);
+        setFilters(prev => ({ ...prev, ...parsed }));
+      } catch (e) {
+        console.error('Ошибка восстановления фильтров:', e);
+      }
+    }
+
+    // Category из URL имеет приоритет над сохраненным
     const categoryFromUrl = searchParams.get('category');
     if (categoryFromUrl && Object.values(CATEGORIES).includes(categoryFromUrl)) {
       setFilters(prev => ({
@@ -37,6 +55,17 @@ const Events = () => {
       }));
     }
   }, []); // Убираем searchParams из зависимостей - выполняется только при монтировании
+
+  // Сохраняем фильтры в localStorage при изменении
+  useEffect(() => {
+    // Не сохраняем пустые значения
+    const filtersToSave = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value !== '' && value !== null)
+    );
+    if (Object.keys(filtersToSave).length > 0) {
+      localStorage.setItem('eventFilters', JSON.stringify(filtersToSave));
+    }
+  }, [filters]);
 
   const { events, loading, error } = useEvents(filters);
 
@@ -49,6 +78,44 @@ const Events = () => {
 
   const handleCategoryFiltersChange = (newFilters) => {
     setFilters(newFilters);
+  };
+
+  // Подсчет активных фильтров
+  const countActiveFilters = () => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.search) count++;
+    if (filters.startDateFrom || filters.startDateTo) count++;
+    if (filters.endDateFrom || filters.endDateTo) count++;
+    if (filters.priceType) count++;
+    if (filters.status) count++;
+    if (filters.boardGameId) count++;
+    if (filters.difficulty) count++;
+    if (filters.minDistance || filters.maxDistance) count++;
+    return count;
+  };
+
+  // Очистка всех фильтров
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      category: '',
+      search: '',
+      startDateFrom: '',
+      startDateTo: '',
+      endDateFrom: '',
+      endDateTo: '',
+      boardGameId: '',
+      difficulty: '',
+      minDistance: '',
+      maxDistance: '',
+      priceType: '',
+      minPrice: '',
+      maxPrice: '',
+      status: '',
+      maxDistance: '',
+    };
+    setFilters(clearedFilters);
+    localStorage.removeItem('eventFilters');
   };
 
   return (
@@ -136,29 +203,48 @@ const Events = () => {
         </div>
 
         {/* Кнопка показа дополнительных фильтров */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors border-t"
-        >
-          {showFilters ? '▲ Скрыть дополнительные фильтры' : '▼ Показать дополнительные фильтры'}
-        </button>
+        <div className="border-t flex items-center justify-between">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            {showFilters ? '▲ Скрыть дополнительные фильтры' : '▼ Показать дополнительные фильтры'}
+            {countActiveFilters() > 0 && (
+              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">
+                {countActiveFilters()}
+              </span>
+            )}
+          </button>
+          {countActiveFilters() > 0 && (
+            <button
+              onClick={handleClearFilters}
+              className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-l"
+              title="Очистить все фильтры"
+            >
+              ✕ Очистить
+            </button>
+          )}
+        </div>
 
       {/* Дополнительные фильтры */}
       {showFilters && (
         <div className="p-6 pt-4 space-y-4 border-t">
-        {/* Поиск по названию */}
+        {/* Умный поиск */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Поиск по названию
+            🔍 Поиск
           </label>
           <input
             type="text"
             name="search"
-            placeholder="Введите название..."
+            placeholder="Название, описание или адрес..."
             value={filters.search}
             onChange={handleFilterChange}
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            Поиск по названию, описанию и локации события
+          </p>
         </div>
 
         {/* Фильтры дат */}
@@ -218,6 +304,72 @@ const Events = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Фильтр по цене */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            💰 Цена
+          </label>
+          <select
+            name="priceType"
+            value={filters.priceType}
+            onChange={handleFilterChange}
+            className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-2"
+          >
+            <option value="">Любая</option>
+            <option value="free">Бесплатные</option>
+            <option value="paid">Платные</option>
+            <option value="range">Диапазон цен</option>
+          </select>
+
+          {filters.priceType === 'range' && (
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">От (₽)</label>
+                <input
+                  type="number"
+                  name="minPrice"
+                  min="0"
+                  placeholder="0"
+                  value={filters.minPrice}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">До (₽)</label>
+                <input
+                  type="number"
+                  name="maxPrice"
+                  min="0"
+                  placeholder="10000"
+                  value={filters.maxPrice}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Фильтр по статусу */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            📊 Статус события
+          </label>
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Все статусы</option>
+            <option value="upcoming">📅 Запланировано</option>
+            <option value="ongoing">🔴 Идёт сейчас</option>
+            <option value="completed">✅ Завершено</option>
+            <option value="cancelled">❌ Отменено</option>
+          </select>
         </div>
 
         {/* Динамические фильтры по категориям */}

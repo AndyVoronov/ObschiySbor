@@ -51,8 +51,12 @@ export const useEvents = (filters) => {
         query = query.eq('category', filters.category);
       }
 
+      // Улучшенный поиск по нескольким полям
       if (filters.search) {
-        query = query.ilike('title', `%${filters.search}%`);
+        // Supabase не поддерживает OR в обычных запросах напрямую,
+        // поэтому получим все события и отфильтруем на клиенте
+        // Для оптимизации можно использовать text search в PostgreSQL
+        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,location.ilike.%${filters.search}%`);
       }
 
       // Фильтры по дате начала
@@ -71,6 +75,25 @@ export const useEvents = (filters) => {
 
       if (filters.endDateTo) {
         query = query.lte('end_date', filters.endDateTo);
+      }
+
+      // Фильтры по цене
+      if (filters.priceType === 'free') {
+        query = query.eq('price', 0);
+      } else if (filters.priceType === 'paid') {
+        query = query.gt('price', 0);
+      } else if (filters.priceType === 'range') {
+        if (filters.minPrice) {
+          query = query.gte('price', filters.minPrice);
+        }
+        if (filters.maxPrice) {
+          query = query.lte('price', filters.maxPrice);
+        }
+      }
+
+      // Фильтр по статусу события
+      if (filters.status) {
+        query = query.eq('lifecycle_status', filters.status);
       }
 
       const { data, error: queryError } = await query;
