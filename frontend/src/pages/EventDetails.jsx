@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useEvent, useBoardGames, useParticipation, useJoinEvent, useLeaveEvent } from '../hooks/useEvent';
 import EventMap from '../components/EventMap';
 import EventStatusBadge from '../components/EventStatusBadge';
 import Reviews from '../components/Reviews';
@@ -16,97 +17,60 @@ const EventDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [event, setEvent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isParticipant, setIsParticipant] = useState(false);
-  const [joining, setJoining] = useState(false);
-  const [boardGames, setBoardGames] = useState([]);
+
+  // React Query hooks
+  const { data: event, isLoading: loading, error: eventError } = useEvent(id);
+  const { data: boardGames = [] } = useBoardGames(id, event?.category);
+  const { data: isParticipant = false } = useParticipation(id, user?.id);
+  const joinMutation = useJoinEvent();
+  const leaveMutation = useLeaveEvent();
+
+  // Local state
   const [categoryRelatedData, setCategoryRelatedData] = useState(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const reviewsRef = useRef(null);
 
+  // Загрузка связанных данных для категорий
   useEffect(() => {
-    fetchEventDetails();
-  }, [id, user]);
+    if (event?.category_data) {
+      fetchCategoryRelatedData();
+    }
+  }, [event]);
 
-  const fetchEventDetails = async () => {
+  // Функция загрузки связанных данных (справочники для категорий)
+  const fetchCategoryRelatedData = async () => {
+    if (!event?.category_data) return;
+
     try {
-      // Автоматически обновляем статусы событий перед загрузкой
-      try {
-        await supabase.rpc('update_event_lifecycle_status');
-      } catch (statusError) {
-        console.error('Ошибка обновления статусов:', statusError);
-      }
+      const relatedData = {};
 
-      const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          profiles:creator_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('id', id)
-        .single();
-
-      if (eventError) throw eventError;
-      setEvent(eventData);
-
-      // Загружаем настольные игры для события
-      if (eventData.category === 'board_games') {
-        const { data: gamesData } = await supabase
-          .from('event_board_games')
-          .select(`
-            board_games (
-              id,
-              name,
-              description,
-              min_players,
-              max_players,
-              avg_playtime_minutes,
-              image_url
-            )
-          `)
-          .eq('event_id', id);
-
-        if (gamesData) {
-          setBoardGames(gamesData.map(item => item.board_games));
-        }
-      }
-
-      // Загружаем данные справочников для других категорий
-      if (eventData.category_data) {
-        const relatedData = {};
-
-        // Загружаем данные в зависимости от категории
-        if (eventData.category === 'yoga' && eventData.category_data.yoga_practice_type_id) {
+      // Загружаем данные в зависимости от категории
+      if (event.category === 'yoga' && event.category_data.yoga_practice_type_id) {
           const { data } = await supabase
             .from('yoga_practice_types')
             .select('name')
-            .eq('id', eventData.category_data.yoga_practice_type_id)
+            .eq('id', event.category_data.yoga_practice_type_id)
             .single();
           if (data) relatedData.practice_type = data.name;
         }
 
-        if (eventData.category === 'cooking' && eventData.category_data.cuisine_type_id) {
+        if (event.category === 'cooking' && event.category_data.cuisine_type_id) {
           const { data } = await supabase
             .from('cuisine_types')
             .select('name')
-            .eq('id', eventData.category_data.cuisine_type_id)
+            .eq('id', event.category_data.cuisine_type_id)
             .single();
           if (data) relatedData.cuisine_type = data.name;
         }
 
-        if (eventData.category === 'music_jam') {
-          if (eventData.category_data.genre_id) {
+        if (event.category === 'music_jam') {
+          if (event.category_data.genre_id) {
             const { data } = await supabase
               .from('music_genres')
               .select('name')
-              .eq('id', eventData.category_data.genre_id)
+              .eq('id', event.category_data.genre_id)
               .single();
             if (data) relatedData.genre = data.name;
           }
@@ -118,30 +82,30 @@ const EventDetails = () => {
           if (instruments) relatedData.instruments = instruments.map(i => i.musical_instruments.name);
         }
 
-        if (eventData.category === 'seminar' && eventData.category_data.topic_id) {
+        if (event.category === 'seminar' && event.category_data.topic_id) {
           const { data } = await supabase
             .from('seminar_topics')
             .select('name')
-            .eq('id', eventData.category_data.topic_id)
+            .eq('id', event.category_data.topic_id)
             .single();
           if (data) relatedData.topic = data.name;
         }
 
-        if (eventData.category === 'picnic' && eventData.category_data.picnic_type_id) {
+        if (event.category === 'picnic' && event.category_data.picnic_type_id) {
           const { data } = await supabase
             .from('picnic_types')
             .select('name')
-            .eq('id', eventData.category_data.picnic_type_id)
+            .eq('id', event.category_data.picnic_type_id)
             .single();
           if (data) relatedData.picnic_type = data.name;
         }
 
-        if (eventData.category === 'photo_walk') {
-          if (eventData.category_data.theme_id) {
+        if (event.category === 'photo_walk') {
+          if (event.category_data.theme_id) {
             const { data } = await supabase
               .from('photography_themes')
               .select('name')
-              .eq('id', eventData.category_data.theme_id)
+              .eq('id', event.category_data.theme_id)
               .single();
             if (data) relatedData.theme = data.name;
           }
@@ -153,30 +117,30 @@ const EventDetails = () => {
           if (equipment) relatedData.equipment = equipment.map(e => e.photography_equipment.name);
         }
 
-        if (eventData.category === 'quest' && eventData.category_data.theme_id) {
+        if (event.category === 'quest' && event.category_data.theme_id) {
           const { data } = await supabase
             .from('quest_themes')
             .select('name')
-            .eq('id', eventData.category_data.theme_id)
+            .eq('id', event.category_data.theme_id)
             .single();
           if (data) relatedData.theme = data.name;
         }
 
-        if (eventData.category === 'dance' && eventData.category_data.style_id) {
+        if (event.category === 'dance' && event.category_data.style_id) {
           const { data } = await supabase
             .from('dance_styles')
             .select('name')
-            .eq('id', eventData.category_data.style_id)
+            .eq('id', event.category_data.style_id)
             .single();
           if (data) relatedData.style = data.name;
         }
 
-        if (eventData.category === 'volunteer') {
-          if (eventData.category_data.activity_type_id) {
+        if (event.category === 'volunteer') {
+          if (event.category_data.activity_type_id) {
             const { data } = await supabase
               .from('volunteer_activity_types')
               .select('name')
-              .eq('id', eventData.category_data.activity_type_id)
+              .eq('id', event.category_data.activity_type_id)
               .single();
             if (data) relatedData.activity_type = data.name;
           }
@@ -188,30 +152,30 @@ const EventDetails = () => {
           if (skills) relatedData.skills = skills.map(s => s.volunteer_skills.name);
         }
 
-        if (eventData.category === 'fitness' && eventData.category_data.workout_type_id) {
+        if (event.category === 'fitness' && event.category_data.workout_type_id) {
           const { data } = await supabase
             .from('fitness_workout_types')
             .select('name')
-            .eq('id', eventData.category_data.workout_type_id)
+            .eq('id', event.category_data.workout_type_id)
             .single();
           if (data) relatedData.workout_type = data.name;
         }
 
-        if (eventData.category === 'theater' && eventData.category_data.genre_id) {
+        if (event.category === 'theater' && event.category_data.genre_id) {
           const { data } = await supabase
             .from('theater_genres')
             .select('name')
-            .eq('id', eventData.category_data.genre_id)
+            .eq('id', event.category_data.genre_id)
             .single();
           if (data) relatedData.genre = data.name;
         }
 
-        if (eventData.category === 'craft') {
-          if (eventData.category_data.craft_type_id) {
+        if (event.category === 'craft') {
+          if (event.category_data.craft_type_id) {
             const { data } = await supabase
               .from('craft_types')
               .select('name')
-              .eq('id', eventData.category_data.craft_type_id)
+              .eq('id', event.category_data.craft_type_id)
               .single();
             if (data) relatedData.craft_type = data.name;
           }
@@ -223,112 +187,54 @@ const EventDetails = () => {
           if (materials) relatedData.materials = materials.map(m => m.craft_materials.name);
         }
 
-        if (eventData.category === 'concert' && eventData.category_data.genre_id) {
+        if (event.category === 'concert' && event.category_data.genre_id) {
           const { data } = await supabase
             .from('music_genres')
             .select('name')
-            .eq('id', eventData.category_data.genre_id)
+            .eq('id', event.category_data.genre_id)
             .single();
           if (data) relatedData.genre = data.name;
         }
 
-        if (eventData.category === 'sports' && eventData.category_data.sport_type_id) {
+        if (event.category === 'sports' && event.category_data.sport_type_id) {
           const { data } = await supabase
             .from('sports_types')
             .select('name')
-            .eq('id', eventData.category_data.sport_type_id)
+            .eq('id', event.category_data.sport_type_id)
             .single();
           if (data) relatedData.sport_type = data.name;
         }
 
-        if (eventData.category === 'eco_tour' && eventData.category_data.tour_type_id) {
+        if (event.category === 'eco_tour' && event.category_data.tour_type_id) {
           const { data } = await supabase
             .from('eco_tour_types')
             .select('name')
-            .eq('id', eventData.category_data.tour_type_id)
+            .eq('id', event.category_data.tour_type_id)
             .single();
           if (data) relatedData.tour_type = data.name;
         }
 
-        setCategoryRelatedData(relatedData);
-      }
-
-      if (user) {
-        const { data: participantData } = await supabase
-          .from('event_participants')
-          .select('*')
-          .eq('event_id', id)
-          .eq('user_id', user.id)
-          .single();
-
-        setIsParticipant(!!participantData);
-      }
+      setCategoryRelatedData(relatedData);
     } catch (error) {
-      console.error('Ошибка загрузки события:', error.message);
-    } finally {
-      setLoading(false);
+      console.error('Ошибка загрузки связанных данных:', error.message);
     }
   };
 
+  // Присоединение к событию с использованием React Query
   const handleJoinEvent = async () => {
     if (!user) {
       navigate('/login');
       return;
     }
 
-    setJoining(true);
     try {
-      // Проверка фильтра по полу
-      if (event.gender_filter && event.gender_filter !== 'all') {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('gender')
-          .eq('id', user.id)
-          .single();
-
-        if (!profile.gender) {
-          alert('Пожалуйста, укажите ваш пол в профиле для участия в этом событии');
-          navigate('/profile');
-          return;
-        }
-
-        if (event.gender_filter !== profile.gender) {
-          const genderLabels = {
-            male: 'только для мужчин',
-            female: 'только для женщин'
-          };
-          alert(`Это событие ${genderLabels[event.gender_filter]}`);
-          setJoining(false);
-          return;
-        }
-      }
-
-      const { error } = await supabase
-        .from('event_participants')
-        .insert([{
-          event_id: id,
-          user_id: user.id,
-          status: 'joined',
-        }]);
-
-      if (error) throw error;
-
-      // Обновляем количество участников с использованием SQL инкремента
-      const { error: updateError } = await supabase.rpc('increment_participants', {
-        event_id: id
+      await joinMutation.mutateAsync({
+        eventId: id,
+        userId: user.id,
+        genderFilter: event.gender_filter,
       });
 
-      // Если RPC функция не существует, используем обычное обновление
-      if (updateError && updateError.code === '42883') {
-        await supabase
-          .from('events')
-          .update({ current_participants: event.current_participants + 1 })
-          .eq('id', id);
-      } else if (updateError) {
-        throw updateError;
-      }
-
-      // Получаем имя текущего пользователя для уведомления
+      // Получаем имя пользователя для уведомления
       const { data: profileData } = await supabase
         .from('profiles')
         .select('full_name')
@@ -339,50 +245,38 @@ const EventDetails = () => {
 
       // Отправляем уведомление организатору
       await notifyNewParticipant(id, event.creator_id, participantName);
-
-      setIsParticipant(true);
-      fetchEventDetails();
     } catch (error) {
-      console.error('Ошибка присоединения к событию:', error.message);
-    } finally {
-      setJoining(false);
-    }
-  };
-
-  const handleLeaveEvent = async () => {
-    setJoining(true);
-    try {
-      const { error } = await supabase
-        .from('event_participants')
-        .delete()
-        .eq('event_id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Обновляем количество участников с использованием SQL декремента
-      const { error: updateError } = await supabase.rpc('decrement_participants', {
-        event_id: id
-      });
-
-      // Если RPC функция не существует, используем обычное обновление
-      if (updateError && updateError.code === '42883') {
-        await supabase
-          .from('events')
-          .update({ current_participants: event.current_participants - 1 })
-          .eq('id', id);
-      } else if (updateError) {
-        throw updateError;
+      if (error.message === 'GENDER_NOT_SET') {
+        alert('Пожалуйста, укажите ваш пол в профиле для участия в этом событии');
+        navigate('/profile');
+      } else if (error.message === 'GENDER_MISMATCH') {
+        const genderLabels = {
+          male: 'только для мужчин',
+          female: 'только для женщин'
+        };
+        alert(`Это событие ${genderLabels[event.gender_filter]}`);
+      } else {
+        console.error('Ошибка присоединения к событию:', error);
+        alert('Не удалось присоединиться к событию');
       }
-
-      setIsParticipant(false);
-      fetchEventDetails();
-    } catch (error) {
-      console.error('Ошибка выхода из события:', error.message);
-    } finally {
-      setJoining(false);
     }
   };
+
+  // Выход из события с использованием React Query
+  const handleLeaveEvent = async () => {
+    try {
+      await leaveMutation.mutateAsync({
+        eventId: id,
+        userId: user.id,
+      });
+    } catch (error) {
+      console.error('Ошибка выхода из события:', error);
+      alert('Не удалось покинуть событие');
+    }
+  };
+
+  // Статус загрузки для кнопок
+  const joining = joinMutation.isPending || leaveMutation.isPending;
 
   if (loading) {
     return <div className="loading">Загрузка...</div>;

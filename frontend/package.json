@@ -14,6 +14,8 @@
   "dependencies": {
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.58.0",
+    "@tanstack/react-query": "^5.90.3",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",

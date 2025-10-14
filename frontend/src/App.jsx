@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './contexts/AuthContext';
 import { useTelegramAuth } from './hooks/useTelegramAuth';
 import Layout from './components/Layout';
@@ -16,6 +18,19 @@ import Contacts from './pages/Contacts';
 import Rules from './pages/Rules';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+
+// Создаём QueryClient с оптимизированными настройками
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
+      gcTime: 10 * 60 * 1000, // 10 минут - время жизни кэша (было cacheTime)
+      retry: 1, // 1 повторная попытка при ошибке
+      refetchOnWindowFocus: false, // Не перезагружать при фокусе окна
+      refetchOnReconnect: true, // Перезагружать при восстановлении соединения
+    },
+  },
+});
 
 function AppContent() {
   // Автоматическая авторизация через Telegram Mini App
@@ -103,9 +118,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+      {/* DevTools для отладки React Query (только в development) */}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

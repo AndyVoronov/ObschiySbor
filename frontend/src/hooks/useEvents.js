@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { applyCategoryFilters } from '../utils/eventFilters';
 
@@ -20,117 +20,117 @@ const updateEventStatuses = async () => {
 };
 
 /**
- * Custom hook для загрузки и фильтрации событий
+ * Функция загрузки событий с фильтрами
  */
-export const useEvents = (filters) => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const fetchEvents = async (filters) => {
+  // Автоматически обновляем статусы событий перед загрузкой
+  await updateEventStatuses();
 
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  let query = supabase
+    .from('events')
+    .select(`
+      *,
+      profiles:creator_id (
+        id,
+        full_name,
+        avatar_url
+      )
+    `)
+    .order('created_at', { ascending: false });
 
-    try {
-      // Автоматически обновляем статусы событий перед загрузкой
-      await updateEventStatuses();
-      let query = supabase
-        .from('events')
-        .select(`
-          *,
-          profiles:creator_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
-        .order('created_at', { ascending: false });
+  // Базовые фильтры (выполняются на сервере)
+  if (filters.category) {
+    query = query.eq('category', filters.category);
+  }
 
-      // Базовые фильтры (выполняются на сервере)
-      if (filters.category) {
-        query = query.eq('category', filters.category);
-      }
+  // Улучшенный поиск по нескольким полям
+  if (filters.search) {
+    query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,location.ilike.%${filters.search}%`);
+  }
 
-      // Улучшенный поиск по нескольким полям
-      if (filters.search) {
-        // Supabase не поддерживает OR в обычных запросах напрямую,
-        // поэтому получим все события и отфильтруем на клиенте
-        // Для оптимизации можно использовать text search в PostgreSQL
-        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,location.ilike.%${filters.search}%`);
-      }
+  // Фильтры по дате начала
+  if (filters.startDateFrom) {
+    query = query.gte('event_date', filters.startDateFrom);
+  }
 
-      // Фильтры по дате начала
-      if (filters.startDateFrom) {
-        query = query.gte('event_date', filters.startDateFrom);
-      }
+  if (filters.startDateTo) {
+    query = query.lte('event_date', filters.startDateTo);
+  }
 
-      if (filters.startDateTo) {
-        query = query.lte('event_date', filters.startDateTo);
-      }
+  // Фильтры по дате окончания
+  if (filters.endDateFrom) {
+    query = query.gte('end_date', filters.endDateFrom);
+  }
 
-      // Фильтры по дате окончания
-      if (filters.endDateFrom) {
-        query = query.gte('end_date', filters.endDateFrom);
-      }
+  if (filters.endDateTo) {
+    query = query.lte('end_date', filters.endDateTo);
+  }
 
-      if (filters.endDateTo) {
-        query = query.lte('end_date', filters.endDateTo);
-      }
-
-      // Фильтры по цене
-      if (filters.priceType === 'free') {
-        query = query.eq('price', 0);
-      } else if (filters.priceType === 'paid') {
-        query = query.gt('price', 0);
-      } else if (filters.priceType === 'range') {
-        if (filters.minPrice) {
-          query = query.gte('price', filters.minPrice);
-        }
-        if (filters.maxPrice) {
-          query = query.lte('price', filters.maxPrice);
-        }
-      }
-
-      // Фильтр по статусу события
-      if (filters.status) {
-        query = query.eq('lifecycle_status', filters.status);
-      }
-
-      const { data, error: queryError } = await query;
-
-      if (queryError) throw queryError;
-
-      // Фильтр по настольной игре (если выбрана)
-      let filteredData = data || [];
-      if (filters.boardGameId && filters.category === 'board_games') {
-        const { data: gameEvents } = await supabase
-          .from('event_board_games')
-          .select('event_id')
-          .eq('board_game_id', filters.boardGameId);
-
-        const eventIds = new Set(gameEvents?.map(eg => eg.event_id) || []);
-        filteredData = filteredData.filter(event => eventIds.has(event.id));
-      }
-
-      // Применяем фильтры по category_data на клиенте
-      const filteredEvents = applyCategoryFilters(
-        filteredData,
-        filters.category,
-        filters
-      );
-
-      setEvents(filteredEvents);
-    } catch (err) {
-      console.error('Ошибка загрузки событий:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  // Фильтры по цене
+  if (filters.priceType === 'free') {
+    query = query.eq('price', 0);
+  } else if (filters.priceType === 'paid') {
+    query = query.gt('price', 0);
+  } else if (filters.priceType === 'range') {
+    if (filters.minPrice) {
+      query = query.gte('price', filters.minPrice);
     }
-  }, [filters]);
+    if (filters.maxPrice) {
+      query = query.lte('price', filters.maxPrice);
+    }
+  }
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+  // Фильтр по статусу события
+  if (filters.status) {
+    query = query.eq('lifecycle_status', filters.status);
+  }
 
-  return { events, loading, error, refetch: fetchEvents };
+  const { data, error: queryError } = await query;
+
+  if (queryError) throw queryError;
+
+  // Фильтр по настольной игре (если выбрана)
+  let filteredData = data || [];
+  if (filters.boardGameId && filters.category === 'board_games') {
+    const { data: gameEvents } = await supabase
+      .from('event_board_games')
+      .select('event_id')
+      .eq('board_game_id', filters.boardGameId);
+
+    const eventIds = new Set(gameEvents?.map(eg => eg.event_id) || []);
+    filteredData = filteredData.filter(event => eventIds.has(event.id));
+  }
+
+  // Применяем фильтры по category_data на клиенте
+  const filteredEvents = applyCategoryFilters(
+    filteredData,
+    filters.category,
+    filters
+  );
+
+  return filteredEvents;
+};
+
+/**
+ * Custom hook для загрузки и фильтрации событий с React Query
+ */
+export const useEvents = (filters = {}) => {
+  const {
+    data: events = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['events', filters],
+    queryFn: () => fetchEvents(filters),
+    staleTime: 2 * 60 * 1000, // 2 минуты - данные событий меняются чаще
+    gcTime: 5 * 60 * 1000, // 5 минут - кэш для событий
+  });
+
+  return {
+    events,
+    loading,
+    error: error?.message,
+    refetch,
+  };
 };
