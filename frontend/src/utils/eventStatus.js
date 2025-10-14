@@ -51,7 +51,7 @@ export const getEventStatus = (event) => {
   }
 
   const now = new Date();
-  const eventDate = new Date(event.date);
+  const eventDate = new Date(event.event_date);
   const eventEndDate = event.end_date ? new Date(event.end_date) : null;
 
   // Событие завершилось

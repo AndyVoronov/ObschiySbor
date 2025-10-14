@@ -31,7 +31,7 @@ BEGIN
     UPDATE events
     SET status = 'ongoing'
     WHERE status = 'upcoming'
-      AND date <= NOW()
+      AND event_date <= NOW()
       AND (end_date IS NULL OR end_date >= NOW());
 
     -- Обновляем статус на 'completed' для событий, которые завершились
@@ -39,7 +39,7 @@ BEGIN
     SET status = 'completed'
     WHERE status IN ('upcoming', 'ongoing')
       AND ((end_date IS NOT NULL AND end_date < NOW())
-           OR (end_date IS NULL AND date < NOW() - INTERVAL '1 day'));
+           OR (end_date IS NULL AND event_date < NOW() - INTERVAL '1 day'));
 END;
 $$ LANGUAGE plpgsql;
 
