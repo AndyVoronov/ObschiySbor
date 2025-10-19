@@ -6,6 +6,8 @@ import ImageUpload from '../components/ImageUpload';
 import MapPicker from '../components/MapPicker';
 import BoardGameSelector from '../components/BoardGameSelector';
 import DictionarySelector from '../components/DictionarySelector';
+import RecurringEventSettings from '../components/RecurringEventSettings';
+import { createRecurringEvents } from '../utils/recurringEvents';
 import './CreateEvent.css';
 
 const CreateEvent = () => {
@@ -34,6 +36,17 @@ const CreateEvent = () => {
     distance: '',
     terrain: '',
     equipment: '',
+  });
+
+  // Состояние для повторяющихся событий
+  const [recurrenceConfig, setRecurrenceConfig] = useState({
+    isRecurring: false,
+    frequency: 'weekly',
+    interval: 1,
+    occurrenceCount: 10,
+    daysOfWeek: null,
+    endDate: null,
+    endType: 'count',
   });
 
   const handleChange = (e) => {
@@ -288,6 +301,22 @@ const CreateEvent = () => {
           user_id: user.id,
           status: 'joined',
         }]);
+
+      // Создаём повторяющиеся события если настроено
+      if (recurrenceConfig.isRecurring) {
+        try {
+          await createRecurringEvents(data.id, {
+            frequency: recurrenceConfig.frequency,
+            interval: recurrenceConfig.interval,
+            occurrenceCount: recurrenceConfig.occurrenceCount,
+            daysOfWeek: recurrenceConfig.daysOfWeek,
+            endDate: recurrenceConfig.endDate,
+          });
+        } catch (recError) {
+          console.error('Ошибка создания повторяющихся событий:', recError);
+          // Не прерываем процесс, основное событие уже создано
+        }
+      }
 
       navigate(`/events/${data.id}`);
     } catch (error) {
@@ -1241,6 +1270,12 @@ const CreateEvent = () => {
             </div>
           </>
         )}
+
+        {/* Настройки повторяющихся событий */}
+        <RecurringEventSettings
+          value={recurrenceConfig}
+          onChange={setRecurrenceConfig}
+        />
 
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
           {loading ? 'Создание...' : 'Создать событие'}
