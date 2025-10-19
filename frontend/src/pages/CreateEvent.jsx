@@ -1,4 +1,4 @@
-import { useState, useCallback, Suspense } from 'react';
+import { useState, useCallback, useRef, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -7,6 +7,7 @@ import { MapPicker, MapLoadingFallback } from '../components/LazyComponents';
 import BoardGameSelector from '../components/BoardGameSelector';
 import DictionarySelector from '../components/DictionarySelector';
 import RecurringEventSettings from '../components/RecurringEventSettings';
+import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import { createRecurringEvents } from '../utils/recurringEvents';
 import './CreateEvent.css';
 
@@ -15,6 +16,8 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -22,9 +25,12 @@ const CreateEvent = () => {
     event_date: '',
     end_date: '',
     has_end_date: true,
+    event_type: 'offline', // 'offline' или 'online'
     location: '',
     latitude: null,
     longitude: null,
+    online_platform: 'zoom', // Платформа для онлайн-мероприятий
+    online_link: '', // Ссылка на онлайн-мероприятие
     max_participants: 10,
     image_url: null,
     gender_filter: 'all', // Фильтр по полу: male, female, all
@@ -82,6 +88,14 @@ const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Проверка reCAPTCHA (только если ключ настроен)
+    const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+    if (recaptchaSiteKey && !recaptchaToken) {
+      setError('Пожалуйста, подтвердите, что вы не робот');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -92,9 +106,12 @@ const CreateEvent = () => {
         event_date: formData.event_date,
         end_date: formData.has_end_date && formData.end_date ? formData.end_date : null,
         has_end_date: formData.has_end_date,
-        location: formData.location,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
+        event_type: formData.event_type,
+        location: formData.event_type === 'offline' ? formData.location : null,
+        latitude: formData.event_type === 'offline' ? formData.latitude : null,
+        longitude: formData.event_type === 'offline' ? formData.longitude : null,
+        online_platform: formData.event_type === 'online' ? formData.online_platform : null,
+        online_link: formData.event_type === 'online' ? formData.online_link : null,
         max_participants: parseInt(formData.max_participants),
         current_participants: 1,
         creator_id: user.id,
@@ -322,6 +339,11 @@ const CreateEvent = () => {
     } catch (error) {
       setError('Ошибка создания события: ' + error.message);
       console.error('Ошибка:', error);
+      // Сбрасываем reCAPTCHA при ошибке
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -449,18 +471,86 @@ const CreateEvent = () => {
           />
         </div>
 
+        {/* Переключатель типа мероприятия */}
         <div className="form-group">
-          <label>Место проведения *</label>
-          <Suspense fallback={<MapLoadingFallback />}>
-            <MapPicker
-              onLocationSelect={handleLocationSelect}
-              onAddressChange={handleAddressChange}
-            />
-          </Suspense>
-          {!formData.location && (
-            <p className="field-hint">Выберите место на карте или найдите по адресу</p>
-          )}
+          <label>Тип мероприятия *</label>
+          <div className="radio-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="event_type"
+                value="offline"
+                checked={formData.event_type === 'offline'}
+                onChange={handleChange}
+              />
+              <span>📍 Офлайн (встреча на месте)</span>
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="event_type"
+                value="online"
+                checked={formData.event_type === 'online'}
+                onChange={handleChange}
+              />
+              <span>💻 Онлайн (через интернет)</span>
+            </label>
+          </div>
         </div>
+
+        {/* Поля для офлайн-мероприятий */}
+        {formData.event_type === 'offline' && (
+          <div className="form-group">
+            <label>Место проведения *</label>
+            <Suspense fallback={<MapLoadingFallback />}>
+              <MapPicker
+                onLocationSelect={handleLocationSelect}
+                onAddressChange={handleAddressChange}
+              />
+            </Suspense>
+            {!formData.location && (
+              <p className="field-hint">Выберите место на карте или найдите по адресу</p>
+            )}
+          </div>
+        )}
+
+        {/* Поля для онлайн-мероприятий */}
+        {formData.event_type === 'online' && (
+          <>
+            <div className="form-group">
+              <label htmlFor="online_platform">Платформа для проведения *</label>
+              <select
+                id="online_platform"
+                name="online_platform"
+                value={formData.online_platform}
+                onChange={handleChange}
+                required
+              >
+                <option value="zoom">Zoom</option>
+                <option value="google_meet">Google Meet</option>
+                <option value="telegram">Telegram</option>
+                <option value="discord">Discord</option>
+                <option value="skype">Skype</option>
+                <option value="other">Другое</option>
+              </select>
+              <p className="field-hint">Выберите платформу, где будет проходить мероприятие</p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="online_link">Ссылка на мероприятие *</label>
+              <input
+                type="url"
+                id="online_link"
+                name="online_link"
+                value={formData.online_link}
+                onChange={handleChange}
+                placeholder="https://zoom.us/j/..."
+                required
+              />
+              <p className="field-hint">Ссылка для подключения к мероприятию. Будет видна только участникам.</p>
+            </div>
+          </>
+        )}
 
         {/* Фильтр по полу участников */}
         <div className="form-group">
@@ -1278,6 +1368,15 @@ const CreateEvent = () => {
           value={recurrenceConfig}
           onChange={setRecurrenceConfig}
         />
+
+        {/* reCAPTCHA */}
+        <div className="form-group" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+          <RecaptchaWrapper
+            ref={recaptchaRef}
+            onChange={(token) => setRecaptchaToken(token)}
+            onExpired={() => setRecaptchaToken(null)}
+          />
+        </div>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
           {loading ? 'Создание...' : 'Создать событие'}

@@ -432,8 +432,29 @@ const EventDetails = () => {
           )}
           <div className="info-item">
             <strong>Место:</strong>
-            <span>{event.location}</span>
+            <span>
+              {event.event_type === 'online' ? (
+                <>💻 Онлайн • {event.online_platform === 'zoom' ? 'Zoom' :
+                  event.online_platform === 'google_meet' ? 'Google Meet' :
+                  event.online_platform === 'telegram' ? 'Telegram' :
+                  event.online_platform === 'discord' ? 'Discord' :
+                  event.online_platform === 'skype' ? 'Skype' :
+                  'Другое'}</>
+              ) : (
+                event.location
+              )}
+            </span>
           </div>
+
+          {/* Ссылка на онлайн-мероприятие (видна только участникам и организатору) */}
+          {event.event_type === 'online' && event.online_link && (user && (isParticipant || isCreator)) && (
+            <div className="info-item online-link-item">
+              <strong>Ссылка для подключения:</strong>
+              <a href={event.online_link} target="_blank" rel="noopener noreferrer" className="online-link">
+                {event.online_link}
+              </a>
+            </div>
+          )}
           <div className="info-item">
             <strong>Участники:</strong>
             <span>{event.current_participants}/{event.max_participants}</span>
@@ -482,14 +503,17 @@ const EventDetails = () => {
           </div>
         )}
 
-        <Suspense fallback={<MapLoadingFallback />}>
-          <EventMap
-            latitude={event.latitude}
-            longitude={event.longitude}
-            location={event.location}
-            eventTitle={event.title}
-          />
-        </Suspense>
+        {/* Карта только для офлайн-мероприятий */}
+        {event.event_type === 'offline' && event.latitude && event.longitude && (
+          <Suspense fallback={<MapLoadingFallback />}>
+            <EventMap
+              latitude={event.latitude}
+              longitude={event.longitude}
+              location={event.location}
+              eventTitle={event.title}
+            />
+          </Suspense>
+        )}
 
         {event.category_data && event.category !== 'board_games' && (
           <div className="category-details">

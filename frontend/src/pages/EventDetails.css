@@ -80,6 +80,27 @@
   font-size: 1rem;
 }
 
+.online-link-item {
+  grid-column: 1 / -1;
+  background-color: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.online-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 600;
+  word-break: break-all;
+  transition: color 0.3s;
+}
+
+.online-link:hover {
+  color: #0d47a1;
+  text-decoration: underline;
+}
+
 .event-description,
 .category-details {
   margin-bottom: 2rem;

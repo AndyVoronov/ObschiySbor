@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import TelegramLoginButton from '../components/TelegramLoginButton';
+import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import './Auth.css';
 
 const Register = () => {
@@ -15,6 +16,8 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
   const { signUp, signInWithProvider } = useAuth();
   const navigate = useNavigate();
 
@@ -39,6 +42,13 @@ const Register = () => {
       return;
     }
 
+    // Проверка reCAPTCHA (только если ключ настроен)
+    const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+    if (recaptchaSiteKey && !recaptchaToken) {
+      setError('Пожалуйста, подтвердите, что вы не робот');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -50,6 +60,11 @@ const Register = () => {
     } catch (error) {
       setError('Ошибка регистрации: ' + error.message);
       console.error('Ошибка регистрации:', error.message);
+      // Сбрасываем reCAPTCHA при ошибке
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -420,6 +435,16 @@ const Register = () => {
               required
             />
           </div>
+
+          {/* reCAPTCHA */}
+          <div className="form-group" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <RecaptchaWrapper
+              ref={recaptchaRef}
+              onChange={(token) => setRecaptchaToken(token)}
+              onExpired={() => setRecaptchaToken(null)}
+            />
+          </div>
+
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>

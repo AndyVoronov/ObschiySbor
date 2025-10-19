@@ -34,6 +34,7 @@ const Events = () => {
     maxPrice: '',
     status: '', // 'upcoming', 'ongoing', 'completed', 'cancelled'
     distanceFilter: '', // '5', '10', '25', '50' (км) - фильтр по расстоянию
+    eventType: '', // 'online', 'offline', '' (все)
   });
 
   // Геолокация пользователя
@@ -131,6 +132,7 @@ const Events = () => {
     if (filters.difficulty) count++;
     if (filters.minDistance || filters.maxDistance) count++;
     if (filters.distanceFilter) count++;
+    if (filters.eventType) count++;
     return count;
   };
 
@@ -152,6 +154,7 @@ const Events = () => {
       maxPrice: '',
       status: '',
       distanceFilter: '',
+      eventType: '',
     };
     setFilters(clearedFilters);
     setSortBy('date');
@@ -412,6 +415,23 @@ const Events = () => {
           </select>
         </div>
 
+        {/* Фильтр по типу мероприятия */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            🌐 Тип мероприятия
+          </label>
+          <select
+            name="eventType"
+            value={filters.eventType}
+            onChange={handleFilterChange}
+            className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Все типы</option>
+            <option value="offline">📍 Офлайн (встреча на месте)</option>
+            <option value="online">💻 Онлайн (через интернет)</option>
+          </select>
+        </div>
+
         {/* Фильтр по расстоянию */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
@@ -562,11 +582,21 @@ const Events = () => {
                   📅 {new Date(event.event_date).toLocaleDateString('ru-RU')}
                 </p>
                 <p className="text-sm text-muted-foreground line-clamp-1">
-                  📍 {event.location}
-                  {event.distance && (
-                    <span className="ml-2 text-xs font-medium text-primary">
-                      • {formatDistance(event.distance)}
-                    </span>
+                  {event.event_type === 'online' ? (
+                    <>💻 Онлайн • {event.online_platform === 'zoom' ? 'Zoom' :
+                      event.online_platform === 'google_meet' ? 'Google Meet' :
+                      event.online_platform === 'telegram' ? 'Telegram' :
+                      event.online_platform === 'discord' ? 'Discord' :
+                      event.online_platform === 'skype' ? 'Skype' :
+                      'Другое'}</>
+                  ) : (
+                    <>📍 {event.location}
+                      {event.distance && (
+                        <span className="ml-2 text-xs font-medium text-primary">
+                          • {formatDistance(event.distance)}
+                        </span>
+                      )}
+                    </>
                   )}
                 </p>
                 <div className="flex items-center justify-between mt-3 pt-3 border-t">
