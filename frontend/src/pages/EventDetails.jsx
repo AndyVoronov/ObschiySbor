@@ -8,6 +8,7 @@ import EventStatusBadge from '../components/EventStatusBadge';
 import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
 import EventChat from '../components/EventChat';
+import ReportButton from '../components/ReportButton';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
@@ -809,6 +810,13 @@ const EventDetails = () => {
                 {joining ? 'Присоединение...' : isFull ? 'Мест нет' : 'Присоединиться'}
               </button>
             )}
+          </div>
+        )}
+
+        {/* Кнопка жалобы (доступна всем авторизованным пользователям, кроме создателя) */}
+        {user && !isCreator && (
+          <div className="report-section">
+            <ReportButton eventId={id} eventTitle={event.title} />
           </div>
         )}
 

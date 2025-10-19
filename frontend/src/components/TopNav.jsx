@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import './TopNav.css';
 
 const TopNav = () => {
@@ -12,6 +13,32 @@ const TopNav = () => {
   const textRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
+
+  // Проверка роли модератора
+  useEffect(() => {
+    const checkModeratorRole = async () => {
+      if (!user) {
+        setIsModerator(false);
+        return;
+      }
+
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        setIsModerator(profile?.role === 'moderator' || profile?.role === 'admin');
+      } catch (error) {
+        console.error('Ошибка проверки роли:', error);
+        setIsModerator(false);
+      }
+    };
+
+    checkModeratorRole();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -22,12 +49,14 @@ const TopNav = () => {
     }
   };
 
+  // Формируем список навигации в зависимости от роли пользователя
   const navItems = user
     ? [
         { label: 'Главная', href: '/' },
         { label: 'События', href: '/events' },
         { label: 'Профиль', href: '/profile' },
-        { label: 'Чаты', href: '/chats' }
+        { label: 'Чаты', href: '/chats' },
+        ...(isModerator ? [{ label: 'Админ', href: '/admin' }] : [])
       ]
     : [
         { label: 'Главная', href: '/' },

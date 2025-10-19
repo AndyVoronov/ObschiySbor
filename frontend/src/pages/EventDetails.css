@@ -391,6 +391,15 @@
   cursor: not-allowed;
 }
 
+/* Секция жалобы */
+.report-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 768px) {
   .board-games-list {
     grid-template-columns: 1fr;
@@ -415,5 +424,9 @@
 
   .dialog-actions .btn {
     width: 100%;
+  }
+
+  .report-section {
+    justify-content: center;
   }
 }

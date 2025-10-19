@@ -39,17 +39,35 @@ const Profile = () => {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
-
-      setProfile(data);
-      setFormData({
-        full_name: data.full_name || '',
-        city: data.city || '',
-        interests: data.interests || '',
-        gender: data.gender || '',
-      });
+      if (error) {
+        console.error('Ошибка загрузки профиля:', error);
+        // Если профиль не найден, создаём пустой объект
+        setProfile({
+          id: user.id,
+          full_name: '',
+          city: '',
+          interests: '',
+          gender: '',
+        });
+      } else {
+        setProfile(data);
+        setFormData({
+          full_name: data.full_name || '',
+          city: data.city || '',
+          interests: data.interests || '',
+          gender: data.gender || '',
+        });
+      }
     } catch (error) {
-      console.error('Ошибка загрузки профиля:', error.message);
+      console.error('Ошибка загрузки профиля:', error);
+      // В случае любой ошибки создаём пустой профиль
+      setProfile({
+        id: user.id,
+        full_name: '',
+        city: '',
+        interests: '',
+        gender: '',
+      });
     } finally {
       setLoading(false);
     }

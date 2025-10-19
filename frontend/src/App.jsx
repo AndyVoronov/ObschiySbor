@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { useTelegramAuth } from './hooks/useTelegramAuth';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import './App.css';
 
 // Lazy loading для страниц - разделение кода
@@ -16,6 +17,7 @@ const EventDetails = lazy(() => import('./pages/EventDetails'));
 const BoardGameDetails = lazy(() => import('./pages/BoardGameDetails'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Chats = lazy(() => import('./pages/Chats'));
+const Admin = lazy(() => import('./pages/Admin'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const About = lazy(() => import('./pages/About'));
@@ -123,6 +125,14 @@ function AppContent() {
                 <ProtectedRoute>
                   <Chats />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin"
+              element={
+                <ProtectedAdminRoute>
+                  <Admin />
+                </ProtectedAdminRoute>
               }
             />
             <Route path="about" element={<About />} />
