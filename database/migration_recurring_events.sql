@@ -88,7 +88,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   parent_event RECORD;
-  current_date TIMESTAMP WITH TIME ZONE;
+  next_date TIMESTAMP WITH TIME ZONE;
   iteration_count INTEGER := 0;
   max_iterations INTEGER := 100; -- Защита от бесконечного цикла
   new_event_id UUID;
@@ -109,7 +109,7 @@ BEGIN
   END IF;
 
   -- Начинаем с даты родительского события
-  current_date := parent_event.date;
+  next_date := parent_event.date;
 
   -- Помечаем родительское событие
   UPDATE events
@@ -128,26 +128,26 @@ BEGIN
     -- Вычисляем следующую дату
     CASE frequency
       WHEN 'daily' THEN
-        current_date := current_date + (interval_count || ' days')::INTERVAL;
+        next_date := next_date + (interval_count || ' days')::INTERVAL;
       WHEN 'weekly' THEN
         IF days_of_week IS NOT NULL AND array_length(days_of_week, 1) > 0 THEN
           -- Для недельных событий с указанными днями недели
           LOOP
-            current_date := current_date + INTERVAL '1 day';
-            EXIT WHEN EXTRACT(ISODOW FROM current_date)::INTEGER = ANY(days_of_week);
+            next_date := next_date + INTERVAL '1 day';
+            EXIT WHEN EXTRACT(ISODOW FROM next_date)::INTEGER = ANY(days_of_week);
           END LOOP;
         ELSE
           -- Простой недельный интервал
-          current_date := current_date + (interval_count || ' weeks')::INTERVAL;
+          next_date := next_date + (interval_count || ' weeks')::INTERVAL;
         END IF;
       WHEN 'monthly' THEN
-        current_date := current_date + (interval_count || ' months')::INTERVAL;
+        next_date := next_date + (interval_count || ' months')::INTERVAL;
       ELSE
         RAISE EXCEPTION 'Неизвестная частота повторения: %', frequency;
     END CASE;
 
     -- Проверяем, не превысили ли конечную дату
-    IF end_date IS NOT NULL AND current_date > end_date THEN
+    IF end_date IS NOT NULL AND next_date > end_date THEN
       EXIT;
     END IF;
 
@@ -171,8 +171,8 @@ BEGIN
     ) VALUES (
       parent_event.title,
       parent_event.description,
-      current_date,
-      current_date + event_duration,
+      next_date,
+      next_date + event_duration,
       parent_event.location,
       parent_event.latitude,
       parent_event.longitude,
@@ -187,7 +187,7 @@ BEGIN
     ) RETURNING id INTO new_event_id;
 
     -- Возвращаем информацию о созданном событии
-    RETURN QUERY SELECT new_event_id, current_date, NOW();
+    RETURN QUERY SELECT new_event_id, next_date, NOW();
 
     iteration_count := iteration_count + 1;
   END LOOP;
