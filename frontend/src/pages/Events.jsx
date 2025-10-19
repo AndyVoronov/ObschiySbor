@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import EventRating from '../components/EventRating';
@@ -6,6 +6,8 @@ import EventStatusBadge from '../components/EventStatusBadge';
 import EventsMapView from '../components/EventsMapView';
 import CategoryFilters from '../components/CategoryFilters';
 import { useEvents } from '../hooks/useEvents';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { addDistanceToEvents, filterEventsByDistance, sortEventsByDistance, formatDistance } from '../utils/geoUtils';
 import { getCategoryName, CATEGORIES } from '../constants/categories';
 import './Events.css';
 
@@ -14,6 +16,7 @@ const Events = () => {
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState('list');
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState('date'); // 'date' или 'distance'
   const [filters, setFilters] = useState({
     category: '',
     search: '',
@@ -25,13 +28,22 @@ const Events = () => {
     difficulty: '',
     minDistance: '',
     maxDistance: '',
-    // Новые фильтры
     priceType: '', // 'free', 'paid', 'range'
     minPrice: '',
     maxPrice: '',
     status: '', // 'upcoming', 'ongoing', 'completed', 'cancelled'
-    maxDistance: '', // расстояние в км
+    distanceFilter: '', // '5', '10', '25', '50' (км) - фильтр по расстоянию
   });
+
+  // Геолокация пользователя
+  const {
+    location: userLocation,
+    loading: locationLoading,
+    error: locationError,
+    requestLocation,
+    clearLocation,
+    hasLocation,
+  } = useGeolocation();
 
   // Читаем category из URL и восстанавливаем сохраненные фильтры
   useEffect(() => {
@@ -67,7 +79,32 @@ const Events = () => {
     }
   }, [filters]);
 
-  const { events, loading, error } = useEvents(filters);
+  const { events: rawEvents, loading, error } = useEvents(filters);
+
+  // Добавляем расстояния к событиям и применяем фильтры/сортировку
+  const processedEvents = useMemo(() => {
+    if (!rawEvents || rawEvents.length === 0) return [];
+
+    let result = [...rawEvents];
+
+    // Добавляем расстояние если есть геолокация
+    if (hasLocation && userLocation) {
+      result = addDistanceToEvents(result, userLocation.lat, userLocation.lng);
+    }
+
+    // Фильтруем по расстоянию если выбран фильтр
+    if (filters.distanceFilter && hasLocation) {
+      const maxDistance = parseFloat(filters.distanceFilter);
+      result = filterEventsByDistance(result, maxDistance);
+    }
+
+    // Сортируем
+    if (sortBy === 'distance' && hasLocation) {
+      result = sortEventsByDistance(result, 'asc');
+    }
+
+    return result;
+  }, [rawEvents, hasLocation, userLocation, filters.distanceFilter, sortBy]);
 
   const handleFilterChange = (e) => {
     setFilters({
@@ -92,6 +129,7 @@ const Events = () => {
     if (filters.boardGameId) count++;
     if (filters.difficulty) count++;
     if (filters.minDistance || filters.maxDistance) count++;
+    if (filters.distanceFilter) count++;
     return count;
   };
 
@@ -112,9 +150,10 @@ const Events = () => {
       minPrice: '',
       maxPrice: '',
       status: '',
-      maxDistance: '',
+      distanceFilter: '',
     };
     setFilters(clearedFilters);
+    setSortBy('date');
     localStorage.removeItem('eventFilters');
   };
 
@@ -125,7 +164,7 @@ const Events = () => {
         <div className="flex items-center gap-4">
           {filters.category && (
             <p className="text-sm text-foreground">
-              Категория: {getCategoryName(filters.category)} • Найдено: {events.length}
+              Категория: {getCategoryName(filters.category)} • Найдено: {processedEvents.length}
             </p>
           )}
         </div>
@@ -372,6 +411,87 @@ const Events = () => {
           </select>
         </div>
 
+        {/* Фильтр по расстоянию */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            📍 Расстояние от меня
+          </label>
+
+          {!hasLocation ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Разрешите доступ к геолокации для поиска событий рядом
+              </p>
+              <button
+                type="button"
+                onClick={requestLocation}
+                disabled={locationLoading}
+                className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {locationLoading ? '🔄 Определение местоположения...' : '📍 Определить моё местоположение'}
+              </button>
+              {locationError && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {locationError}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-md">
+                <span className="text-sm text-green-800 dark:text-green-200">
+                  ✓ Местоположение определено
+                </span>
+                <button
+                  type="button"
+                  onClick={clearLocation}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ✕ Отключить
+                </button>
+              </div>
+
+              <select
+                name="distanceFilter"
+                value={filters.distanceFilter}
+                onChange={handleFilterChange}
+                className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Любое расстояние</option>
+                <option value="5">До 5 км</option>
+                <option value="10">До 10 км</option>
+                <option value="25">До 25 км</option>
+                <option value="50">До 50 км</option>
+                <option value="100">До 100 км</option>
+              </select>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSortBy('distance')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                    sortBy === 'distance'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Сортировать по расстоянию
+                </button>
+                {sortBy === 'distance' && (
+                  <button
+                    type="button"
+                    onClick={() => setSortBy('date')}
+                    className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    title="Сбросить сортировку"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Динамические фильтры по категориям */}
         <CategoryFilters
           category={filters.category}
@@ -394,7 +514,7 @@ const Events = () => {
         <div className="flex justify-center items-center py-12">
           <div className="text-muted-foreground">Загрузка событий...</div>
         </div>
-      ) : events.length === 0 ? (
+      ) : processedEvents.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground mb-4">События не найдены</p>
           <Link
@@ -406,7 +526,7 @@ const Events = () => {
         </div>
       ) : viewMode === 'list' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
+          {processedEvents.map((event) => (
             <Link
               key={event.id}
               to={`/events/${event.id}`}
@@ -437,6 +557,11 @@ const Events = () => {
                 </p>
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   📍 {event.location}
+                  {event.distance && (
+                    <span className="ml-2 text-xs font-medium text-primary">
+                      • {formatDistance(event.distance)}
+                    </span>
+                  )}
                 </p>
                 <div className="flex items-center justify-between mt-3 pt-3 border-t">
                   <span className="text-sm text-muted-foreground">
@@ -451,7 +576,7 @@ const Events = () => {
           ))}
         </div>
       ) : (
-        <EventsMapView events={events} />
+        <EventsMapView events={processedEvents} />
       )}
     </div>
   );
