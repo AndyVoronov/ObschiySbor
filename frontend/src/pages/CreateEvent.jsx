@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import ImageUpload from '../components/ImageUpload';
-import MapPicker from '../components/MapPicker';
+import { MapPicker, MapLoadingFallback } from '../components/LazyComponents';
 import BoardGameSelector from '../components/BoardGameSelector';
 import DictionarySelector from '../components/DictionarySelector';
 import RecurringEventSettings from '../components/RecurringEventSettings';
@@ -451,10 +451,12 @@ const CreateEvent = () => {
 
         <div className="form-group">
           <label>Место проведения *</label>
-          <MapPicker
-            onLocationSelect={handleLocationSelect}
-            onAddressChange={handleAddressChange}
-          />
+          <Suspense fallback={<MapLoadingFallback />}>
+            <MapPicker
+              onLocationSelect={handleLocationSelect}
+              onAddressChange={handleAddressChange}
+            />
+          </Suspense>
           {!formData.location && (
             <p className="field-hint">Выберите место на карте или найдите по адресу</p>
           )}

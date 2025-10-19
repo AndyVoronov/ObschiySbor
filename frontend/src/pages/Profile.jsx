@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import AvatarUpload from '../components/AvatarUpload';
-import OrganizerDashboard from '../components/OrganizerDashboard';
+import { OrganizerDashboard, ChartLoadingFallback } from '../components/LazyComponents';
 import ConnectedAccounts from '../components/ConnectedAccounts';
 import './Profile.css';
 
@@ -316,7 +316,9 @@ const Profile = () => {
       )}
 
       {activeTab === 'dashboard' && (
-        <OrganizerDashboard userId={user.id} />
+        <Suspense fallback={<ChartLoadingFallback />}>
+          <OrganizerDashboard userId={user.id} />
+        </Suspense>
       )}
     </div>
   );

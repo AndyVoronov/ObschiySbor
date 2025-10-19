@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import EventRating from '../components/EventRating';
 import EventStatusBadge from '../components/EventStatusBadge';
-import EventsMapView from '../components/EventsMapView';
+import { EventsMapView, MapLoadingFallback } from '../components/LazyComponents';
+import LazyImage from '../components/LazyImage';
 import CategoryFilters from '../components/CategoryFilters';
 import { useEvents } from '../hooks/useEvents';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -534,10 +535,15 @@ const Events = () => {
             >
               {event.image_url && (
                 <div className="aspect-video w-full overflow-hidden bg-muted">
-                  <img
+                  <LazyImage
                     src={event.image_url}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    placeholder={
+                      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                        Загрузка...
+                      </div>
+                    }
                   />
                 </div>
               )}
@@ -576,7 +582,9 @@ const Events = () => {
           ))}
         </div>
       ) : (
-        <EventsMapView events={processedEvents} />
+        <Suspense fallback={<MapLoadingFallback />}>
+          <EventsMapView events={processedEvents} />
+        </Suspense>
       )}
     </div>
   );

@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useEvent, useBoardGames, useParticipation, useJoinEvent, useLeaveEvent } from '../hooks/useEvent';
-import EventMap from '../components/EventMap';
+import { EventMap, EventChat, MapLoadingFallback, ChatLoadingFallback } from '../components/LazyComponents';
 import EventStatusBadge from '../components/EventStatusBadge';
 import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
-import EventChat from '../components/EventChat';
 import ReportButton from '../components/ReportButton';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
@@ -483,12 +482,14 @@ const EventDetails = () => {
           </div>
         )}
 
-        <EventMap
-          latitude={event.latitude}
-          longitude={event.longitude}
-          location={event.location}
-          eventTitle={event.title}
-        />
+        <Suspense fallback={<MapLoadingFallback />}>
+          <EventMap
+            latitude={event.latitude}
+            longitude={event.longitude}
+            location={event.location}
+            eventTitle={event.title}
+          />
+        </Suspense>
 
         {event.category_data && event.category !== 'board_games' && (
           <div className="category-details">
@@ -863,7 +864,9 @@ const EventDetails = () => {
         {/* Чат события */}
         {user && (
           <div className="event-chat-section">
-            <EventChat eventId={id} />
+            <Suspense fallback={<ChatLoadingFallback />}>
+              <EventChat eventId={id} />
+            </Suspense>
           </div>
         )}
 
