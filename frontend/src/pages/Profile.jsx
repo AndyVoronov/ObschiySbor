@@ -6,6 +6,7 @@ import AvatarUpload from '../components/AvatarUpload';
 import { OrganizerDashboard, ChartLoadingFallback } from '../components/LazyComponents';
 import ConnectedAccounts from '../components/ConnectedAccounts';
 import FriendsList from '../components/FriendsList';
+import EventInvitations from '../components/EventInvitations';
 import './Profile.css';
 
 const Profile = () => {
@@ -17,6 +18,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [invitationsCount, setInvitationsCount] = useState(0);
   const [formData, setFormData] = useState({
     full_name: '',
     city: '',
@@ -29,6 +31,7 @@ const Profile = () => {
       fetchProfile();
       fetchMyEvents();
       fetchParticipatingEvents();
+      fetchInvitationsCount();
     }
   }, [user]);
 
@@ -103,6 +106,21 @@ const Profile = () => {
       setParticipatingEvents(data?.map(p => p.events) || []);
     } catch (error) {
       console.error('Ошибка загрузки участий:', error.message);
+    }
+  };
+
+  const fetchInvitationsCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('event_invitations')
+        .select('*', { count: 'exact', head: true })
+        .eq('invitee_id', user.id)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      setInvitationsCount(count || 0);
+    } catch (error) {
+      console.error('Ошибка загрузки количества приглашений:', error.message);
     }
   };
 
@@ -197,6 +215,15 @@ const Profile = () => {
           onClick={() => setActiveTab('profile')}
         >
           Профиль
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
+          onClick={() => setActiveTab('invitations')}
+        >
+          Приглашения
+          {invitationsCount > 0 && (
+            <span className="tab-badge">{invitationsCount}</span>
+          )}
         </button>
         <button
           className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
@@ -316,6 +343,10 @@ const Profile = () => {
             </section>
           </div>
         </>
+      )}
+
+      {activeTab === 'invitations' && (
+        <EventInvitations />
       )}
 
       {activeTab === 'friends' && (
