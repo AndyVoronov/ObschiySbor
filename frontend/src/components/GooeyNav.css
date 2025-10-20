@@ -25,10 +25,10 @@
     1.001 85%,
     1
   );
-  --color-1: #ff6b6b;
-  --color-2: #4ecdc4;
-  --color-3: #45b7d1;
-  --color-4: #ffa07a;
+  --color-1: #8da9c4;
+  --color-2: #134074;
+  --color-3: #13315c;
+  --color-4: #eef4ed;
 }
 
 .gooey-nav-container {
@@ -49,8 +49,8 @@
   margin: 0;
   position: relative;
   z-index: 3;
-  color: white;
-  text-shadow: 0 1px 1px hsl(205deg 30% 10% / 0.2);
+  color: var(--mint-cream);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .gooey-nav-container nav ul li {
@@ -62,7 +62,7 @@
     color 0.3s ease,
     box-shadow 0.3s ease;
   box-shadow: 0 0 0.5px 1.5px transparent;
-  color: white;
+  color: var(--mint-cream);
   min-width: 100px;
   text-align: center;
 }
@@ -76,7 +76,7 @@
 }
 
 .gooey-nav-container nav ul li:focus-within:has(:focus-visible) {
-  box-shadow: 0 0 0.5px 1.5px white;
+  box-shadow: 0 0 0.5px 1.5px var(--mint-cream);
 }
 
 .gooey-nav-container nav ul li::after {
@@ -84,7 +84,7 @@
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  background: white;
+  background: var(--mint-cream);
   opacity: 0;
   transform: scale(0);
   transition: all 0.3s ease;
@@ -92,7 +92,7 @@
 }
 
 .gooey-nav-container nav ul li.active {
-  color: black;
+  color: var(--oxford-blue);
   text-shadow: none;
 }
 
@@ -115,14 +115,14 @@
 }
 
 .gooey-nav-container .effect.text {
-  color: white;
+  color: var(--mint-cream);
   transition: color 0.3s ease;
   opacity: 0;
   visibility: hidden;
 }
 
 .gooey-nav-container .effect.text.active {
-  color: black;
+  color: var(--oxford-blue);
   opacity: 1;
   visibility: visible;
 }
@@ -144,7 +144,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: white;
+  background: var(--mint-cream);
   transform: scale(0);
   opacity: 0;
   z-index: -1;
