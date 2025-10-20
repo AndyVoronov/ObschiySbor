@@ -8,6 +8,7 @@ import EventStatusBadge from '../components/EventStatusBadge';
 import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
 import ReportButton from '../components/ReportButton';
+import EventParticipants from '../components/EventParticipants';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
@@ -473,6 +474,9 @@ const EventDetails = () => {
             </div>
           )}
         </div>
+
+        {/* Список участников */}
+        <EventParticipants eventId={id} creatorId={event.creator_id} />
 
         <div className="event-description">
           <h2>Описание</h2>

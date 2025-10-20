@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AvatarUpload from '../components/AvatarUpload';
 import { OrganizerDashboard, ChartLoadingFallback } from '../components/LazyComponents';
 import ConnectedAccounts from '../components/ConnectedAccounts';
+import FriendsList from '../components/FriendsList';
 import './Profile.css';
 
 const Profile = () => {
@@ -184,7 +185,7 @@ const Profile = () => {
             onClick={handleSignOut}
             className="btn btn-danger"
           >
-            🚪 Выход
+            Выход
           </button>
         </div>
       </div>
@@ -196,6 +197,12 @@ const Profile = () => {
           onClick={() => setActiveTab('profile')}
         >
           Профиль
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
+          onClick={() => setActiveTab('friends')}
+        >
+          Друзья
         </button>
         <button
           className={`tab-button ${activeTab === 'accounts' ? 'active' : ''}`}
@@ -309,6 +316,10 @@ const Profile = () => {
             </section>
           </div>
         </>
+      )}
+
+      {activeTab === 'friends' && (
+        <FriendsList />
       )}
 
       {activeTab === 'accounts' && (

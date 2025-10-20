@@ -1,0 +1,239 @@
+.event-participants {
+  margin: 2rem 0;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.event-participants:hover {
+  box-shadow: 0 6px 16px var(--card-shadow);
+  border-color: var(--primary);
+}
+
+.participants-toggle {
+  width: 100%;
+  background: var(--background-secondary);
+  border: none;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+}
+
+.participants-toggle:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+.participants-list {
+  padding: 1.5rem;
+  background: var(--card-bg);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.participants-loading,
+.participants-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--foreground-muted);
+  font-size: 1rem;
+}
+
+.participants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.participant-card {
+  background: var(--background-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.participant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px var(--card-shadow);
+  border-color: var(--primary);
+}
+
+.participant-card.creator {
+  border-color: var(--warning);
+  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(245, 158, 11, 0.1) 100%);
+}
+
+.participant-avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.participant-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 8px var(--card-shadow);
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--gradient-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--mint-cream);
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 8px var(--card-shadow);
+}
+
+.creator-badge {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--warning);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.participant-info {
+  text-align: center;
+  flex: 1;
+}
+
+.participant-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--foreground);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.participant-city {
+  color: var(--foreground-muted);
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
+.participant-joined {
+  color: var(--foreground-muted);
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0 0;
+  font-style: italic;
+}
+
+.participant-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-add-friend,
+.btn-invite {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: calc(var(--radius) * 0.75);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px var(--card-shadow);
+  white-space: nowrap;
+}
+
+.btn-add-friend:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.btn-add-friend:disabled,
+.btn-add-friend.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--muted);
+  color: var(--foreground-muted);
+}
+
+.btn-add-friend:disabled:hover,
+.btn-add-friend.disabled:hover {
+  transform: none;
+}
+
+.btn-invite {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.btn-invite:hover {
+  background: var(--secondary-hover);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+@media (max-width: 768px) {
+  .participants-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .participants-toggle {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .participants-list {
+    padding: 1rem;
+  }
+
+  .participant-card {
+    padding: 1rem;
+  }
+}

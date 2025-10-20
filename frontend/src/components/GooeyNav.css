@@ -62,7 +62,8 @@
     color 0.3s ease,
     box-shadow 0.3s ease;
   box-shadow: 0 0 0.5px 1.5px transparent;
-  color: var(--mint-cream);
+  color: var(--foreground);
+  background: var(--background-secondary);
   min-width: 100px;
   text-align: center;
 }
