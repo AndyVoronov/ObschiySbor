@@ -38,10 +38,11 @@
 }
 
 .contact-card {
-  background: white;
+  background: var(--card-bg);
   padding: 2.5rem 2rem;
   border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px var(--card-shadow);
+  border: 1px solid var(--border);
   text-align: center;
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
@@ -58,31 +59,31 @@
 }
 
 .contact-card h3 {
-  color: #2c3e50;
+  color: var(--foreground);
   margin-bottom: 0.75rem;
   font-size: 1.5rem;
 }
 
 .contact-card p {
-  color: #666;
+  color: var(--foreground-muted);
   margin-bottom: 1.5rem;
   font-size: 0.95rem;
 }
 
 .contact-link {
   display: inline-block;
-  color: #667eea;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
-  border: 2px solid #667eea;
+  border: 2px solid var(--primary);
   border-radius: 50px;
   transition: all 0.3s ease;
 }
 
 .contact-link:hover {
-  background: #667eea;
-  color: white;
+  background: var(--primary);
+  color: var(--primary-foreground);
   transform: scale(1.05);
 }
 
@@ -92,7 +93,7 @@
 
 .faq-section h2 {
   font-size: 2rem;
-  color: #2c3e50;
+  color: var(--foreground);
   margin-bottom: 2rem;
   text-align: center;
   position: relative;
@@ -120,10 +121,11 @@
 }
 
 .faq-item {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 10px var(--card-shadow);
+  border: 1px solid var(--border);
   transition: all 0.3s ease;
 }
 
@@ -133,33 +135,35 @@
 }
 
 .faq-item h4 {
-  color: #2c3e50;
+  color: var(--foreground);
   margin: 0 0 1rem 0;
   font-size: 1.2rem;
 }
 
 .faq-item p {
-  color: #555;
+  color: var(--foreground);
   line-height: 1.7;
   margin: 0;
 }
 
 .contact-form-section {
   text-align: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--card-bg);
   padding: 3rem 2rem;
   border-radius: 20px;
+  border: 2px solid var(--primary);
+  box-shadow: 0 4px 15px var(--card-shadow);
   animation: fadeInUp 0.8s ease-out;
 }
 
 .contact-form-section h2 {
-  color: #2c3e50;
+  color: var(--foreground);
   font-size: 2rem;
   margin-bottom: 1rem;
 }
 
 .form-description {
-  color: #555;
+  color: var(--foreground);
   font-size: 1.1rem;
   max-width: 600px;
   margin: 0 auto 2rem;

@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './About.css';
 
 const About = () => {
   const { user } = useAuth();
+  const [expandedSection, setExpandedSection] = useState('features');
+
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
 
   return (
     <div className="about-page">
@@ -27,9 +33,16 @@ const About = () => {
           </p>
         </section>
 
-        <section className="about-section">
-          <div className="about-section-icon">✨</div>
-          <h2>Что мы предлагаем</h2>
+        <section className="about-section collapsible">
+          <div
+            className="section-header"
+            onClick={() => toggleSection('features')}
+          >
+            <div className="about-section-icon">✨</div>
+            <h2>Что мы предлагаем</h2>
+            <span className={`toggle-arrow ${expandedSection === 'features' ? 'open' : ''}`}>▼</span>
+          </div>
+          {expandedSection === 'features' && (
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">🎲</div>
@@ -62,11 +75,19 @@ const About = () => {
               <p>Будьте в курсе всех обновлений по вашим событиям</p>
             </div>
           </div>
+          )}
         </section>
 
-        <section className="about-section">
-          <div className="about-section-icon">🚀</div>
-          <h2>Почему "Общий сбор!"?</h2>
+        <section className="about-section collapsible">
+          <div
+            className="section-header"
+            onClick={() => toggleSection('why')}
+          >
+            <div className="about-section-icon">🚀</div>
+            <h2>Почему "Общий сбор!"?</h2>
+            <span className={`toggle-arrow ${expandedSection === 'why' ? 'open' : ''}`}>▼</span>
+          </div>
+          {expandedSection === 'why' && (
           <div className="why-us-list">
             <div className="why-us-item">
               <span className="why-us-number">1</span>
@@ -97,6 +118,7 @@ const About = () => {
               </div>
             </div>
           </div>
+          )}
         </section>
 
         <section className="about-section about-cta">
