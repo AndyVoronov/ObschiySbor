@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import './TopNav.css';
@@ -147,14 +147,20 @@ const TopNav = () => {
     textRef.current.innerText = element.innerText;
   };
 
-  const handleClick = (e, index, onClick) => {
+  const handleClick = (e, index, href, onClick) => {
+    e.preventDefault();
     const liEl = e.currentTarget;
 
     // Закрываем мобильное меню при клике на пункт
     setIsMobileMenuOpen(false);
 
     if (activeIndex === index) {
-      if (onClick) onClick(e);
+      if (onClick) {
+        onClick(e);
+      } else if (href) {
+        // Принудительный переход через window.location
+        window.location.href = href;
+      }
       return;
     }
 
@@ -176,7 +182,15 @@ const TopNav = () => {
       makeParticles(filterRef.current);
     }
 
-    if (onClick) onClick(e);
+    // Небольшая задержка для анимации, затем переход
+    setTimeout(() => {
+      if (onClick) {
+        onClick(e);
+      } else if (href) {
+        // Принудительный переход через window.location
+        window.location.href = href;
+      }
+    }, 300);
   };
 
   useEffect(() => {
@@ -202,9 +216,9 @@ const TopNav = () => {
   return (
     <header className="top-nav-header">
       <div className="top-nav-content">
-        <Link to="/" className="top-nav-logo">
+        <a href="/" className="top-nav-logo">
           ObschiySbor
-        </Link>
+        </a>
 
         {/* Кнопка гамбургер для мобильной версии */}
         <button
@@ -222,21 +236,12 @@ const TopNav = () => {
             <ul ref={navRef}>
               {navItems.map((item, index) => (
                 <li key={index} className={activeIndex === index ? 'active' : ''}>
-                  {item.onClick ? (
-                    <a
-                      href={item.href}
-                      onClick={e => {
-                        e.preventDefault();
-                        handleClick(e, index, item.onClick);
-                      }}
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link to={item.href} onClick={e => handleClick(e, index)}>
-                      {item.label}
-                    </Link>
-                  )}
+                  <a
+                    href={item.href}
+                    onClick={e => handleClick(e, index, item.href, item.onClick)}
+                  >
+                    {item.label}
+                  </a>
                 </li>
               ))}
             </ul>
