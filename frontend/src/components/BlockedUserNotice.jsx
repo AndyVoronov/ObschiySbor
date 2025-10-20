@@ -1,15 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import AppealBlockModal from './AppealBlockModal';
 import './BlockedUserNotice.css';
 
 const BlockedUserNotice = ({ blockInfo, onAppealSubmitted }) => {
+  const { user } = useAuth();
   const [showAppealModal, setShowAppealModal] = useState(false);
+  const [isUnblocking, setIsUnblocking] = useState(false);
+  const [blockExpired, setBlockExpired] = useState(false);
 
   if (!blockInfo || !blockInfo.is_blocked) {
     return null;
   }
 
   const isPermanent = !blockInfo.blocked_until;
+
+  // Проверка истечения срока блокировки
+  useEffect(() => {
+    if (!isPermanent && blockInfo.blocked_until) {
+      const checkExpiration = () => {
+        const now = new Date();
+        const until = new Date(blockInfo.blocked_until);
+        setBlockExpired(until <= now);
+      };
+
+      checkExpiration();
+      // Проверяем каждую минуту
+      const interval = setInterval(checkExpiration, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [isPermanent, blockInfo.blocked_until]);
+
+  // Автоматическая разблокировка
+  const handleSelfUnblock = async () => {
+    if (!blockExpired) return;
+
+    setIsUnblocking(true);
+    try {
+      const { error } = await supabase.rpc('unblock_user', {
+        p_user_id: user.id,
+        p_unblocked_by: null,
+        p_reason: 'Срок блокировки истёк (автоматическая разблокировка)'
+      });
+
+      if (error) throw error;
+
+      alert('✅ Вы успешно разблокированы! Страница будет перезагружена.');
+      window.location.reload();
+    } catch (err) {
+      console.error('Ошибка разблокировки:', err);
+      alert('Ошибка при разблокировке. Попробуйте обновить страницу.');
+    } finally {
+      setIsUnblocking(false);
+    }
+  };
+
   const blockedUntilDate = blockInfo.blocked_until
     ? new Date(blockInfo.blocked_until).toLocaleString('ru-RU', {
         day: 'numeric',
@@ -59,24 +105,49 @@ const BlockedUserNotice = ({ blockInfo, onAppealSubmitted }) => {
           </div>
 
           <div className="blocked-notice-message">
-            <p>
-              Во время блокировки вы <strong>не можете</strong>:
-            </p>
-            <ul>
-              <li>Создавать новые события</li>
-              <li>Участвовать в событиях</li>
-            </ul>
-            <p className="blocked-notice-help">
-              Если вы считаете блокировку несправедливой, вы можете подать обжалование.
-            </p>
+            {blockExpired ? (
+              <div className="block-expired-message">
+                <p className="expired-text">
+                  ⏰ <strong>Срок блокировки истёк!</strong>
+                </p>
+                <p className="expired-help">
+                  Вы можете разблокировать себя самостоятельно, нажав кнопку ниже.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p>
+                  Во время блокировки вы <strong>не можете</strong>:
+                </p>
+                <ul>
+                  <li>Создавать новые события</li>
+                  <li>Участвовать в событиях</li>
+                </ul>
+                <p className="blocked-notice-help">
+                  Если вы считаете блокировку несправедливой, вы можете подать обжалование.
+                </p>
+              </>
+            )}
           </div>
 
-          <button
-            className="btn-appeal-block"
-            onClick={() => setShowAppealModal(true)}
-          >
-            📝 Обжаловать блокировку
-          </button>
+          <div className="blocked-actions">
+            {blockExpired ? (
+              <button
+                className="btn-unblock-self"
+                onClick={handleSelfUnblock}
+                disabled={isUnblocking}
+              >
+                {isUnblocking ? '⏳ Разблокировка...' : '✅ Разблокировать себя'}
+              </button>
+            ) : (
+              <button
+                className="btn-appeal-block"
+                onClick={() => setShowAppealModal(true)}
+              >
+                📝 Обжаловать блокировку
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -153,6 +153,63 @@
   transform: translateY(0);
 }
 
+/* Сообщение об истечении срока */
+.block-expired-message {
+  text-align: center;
+}
+
+.expired-text {
+  font-size: 1.3rem;
+  color: var(--success);
+  margin-bottom: 0.75rem;
+}
+
+.expired-help {
+  color: var(--foreground-muted);
+  font-size: 1rem;
+}
+
+/* Контейнер для кнопок действий */
+.blocked-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* Кнопка самостоятельной разблокировки */
+.btn-unblock-self {
+  background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+  color: white;
+  border: 2px solid transparent;
+  padding: 1rem 2rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.btn-unblock-self:hover:not(:disabled) {
+  background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+}
+
+.btn-unblock-self:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-unblock-self:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .blocked-user-notice {
     flex-direction: column;
@@ -174,7 +231,8 @@
     padding: 1rem;
   }
 
-  .btn-appeal-block {
+  .btn-appeal-block,
+  .btn-unblock-self {
     max-width: 100%;
     font-size: 1rem;
     padding: 0.875rem 1.5rem;
