@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import ThemeToggle from './ThemeToggle';
 import './TopNav.css';
 
 const TopNav = () => {
@@ -220,16 +221,21 @@ const TopNav = () => {
           ObschiySbor
         </a>
 
-        {/* Кнопка гамбургер для мобильной версии */}
-        <button
-          className="mobile-menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Меню"
-        >
-          <span className={isMobileMenuOpen ? 'open' : ''}></span>
-          <span className={isMobileMenuOpen ? 'open' : ''}></span>
-          <span className={isMobileMenuOpen ? 'open' : ''}></span>
-        </button>
+        <div className="top-nav-right">
+          {/* Переключатель темы */}
+          <ThemeToggle />
+
+          {/* Кнопка гамбургер для мобильной версии */}
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Меню"
+          >
+            <span className={isMobileMenuOpen ? 'open' : ''}></span>
+            <span className={isMobileMenuOpen ? 'open' : ''}></span>
+            <span className={isMobileMenuOpen ? 'open' : ''}></span>
+          </button>
+        </div>
 
         <div className={`top-nav-gooey-container ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={containerRef}>
           <nav>
