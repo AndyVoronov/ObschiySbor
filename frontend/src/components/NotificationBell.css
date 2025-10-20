@@ -36,9 +36,10 @@
   right: 0;
   width: 360px;
   max-height: 500px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px var(--card-shadow);
+  border: 2px solid var(--card-border);
   margin-top: 10px;
   z-index: 1000;
   overflow: hidden;
@@ -51,29 +52,30 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  border-bottom: 1px solid #eee;
-  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border);
+  background: var(--background-secondary);
 }
 
 .notification-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #2c3e50;
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 .mark-all-read {
   background: none;
   border: none;
-  color: #3498db;
+  color: var(--primary);
   font-size: 13px;
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
 }
 
 .mark-all-read:hover {
-  background-color: rgba(52, 152, 219, 0.1);
+  background: rgba(19, 64, 116, 0.1);
 }
 
 .notification-list {
@@ -84,24 +86,24 @@
 .no-notifications {
   padding: 40px 20px;
   text-align: center;
-  color: #95a5a6;
+  color: var(--foreground-muted);
 }
 
 .notification-item {
   display: flex;
   gap: 12px;
   padding: 12px 15px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.2s ease;
   position: relative;
 }
 
 .notification-item:hover {
-  background-color: #f8f9fa;
+  background: var(--background-secondary);
 }
 
 .notification-item.unread {
-  background-color: #e8f4fd;
+  background: rgba(19, 64, 116, 0.1);
 }
 
 .notification-item.unread::before {
@@ -111,7 +113,7 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background-color: #3498db;
+  background: var(--primary);
 }
 
 .notification-icon {
@@ -132,7 +134,7 @@
 .notification-message {
   margin: 0 0 4px 0;
   font-size: 14px;
-  color: #2c3e50;
+  color: var(--foreground);
   line-height: 1.4;
   word-wrap: break-word;
   cursor: pointer;
@@ -140,25 +142,25 @@
 
 .notification-time {
   font-size: 12px;
-  color: #95a5a6;
+  color: var(--foreground-muted);
 }
 
 .notification-delete {
   background: none;
   border: none;
-  color: #95a5a6;
+  color: var(--foreground-muted);
   font-size: 20px;
   cursor: pointer;
   padding: 0;
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  border-radius: 4px;
-  transition: all 0.2s;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
 }
 
 .notification-delete:hover {
-  background-color: #e74c3c;
+  background: var(--destructive);
   color: white;
 }
 

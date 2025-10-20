@@ -1,9 +1,10 @@
 .reviews-section {
   margin-top: 40px;
   padding: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
 }
 
 .reviews-header {
@@ -12,13 +13,14 @@
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border);
 }
 
 .reviews-header h2 {
   margin: 0;
   font-size: 28px;
-  color: #333;
+  color: var(--foreground);
+  font-weight: 700;
 }
 
 .average-rating {
@@ -44,37 +46,39 @@
 .rating-value {
   font-size: 24px;
   font-weight: bold;
-  color: #333;
+  color: var(--foreground);
 }
 
 .reviews-count {
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 14px;
 }
 
 .reviews-loading {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 16px;
 }
 
 .no-reviews {
   text-align: center;
   padding: 60px 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
 .no-reviews p {
   margin: 10px 0;
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 16px;
 }
 
 .no-reviews .hint {
-  color: #999;
+  color: var(--foreground-muted);
   font-size: 14px;
+  opacity: 0.8;
 }
 
 .reviews-list {
@@ -85,15 +89,16 @@
 
 .review-card {
   padding: 24px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  transition: all 0.3s ease;
 }
 
 .review-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border-color: var(--primary);
 }
 
 .review-header {
@@ -120,24 +125,24 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--mint-cream);
   font-size: 20px;
   font-weight: bold;
 }
 
 .user-name {
   font-weight: 600;
-  color: #333;
+  color: var(--foreground);
   font-size: 16px;
 }
 
 .review-date {
   font-size: 13px;
-  color: #999;
+  color: var(--foreground-muted);
   margin-top: 4px;
 }
 
@@ -151,7 +156,7 @@
 }
 
 .review-comment {
-  color: #555;
+  color: var(--foreground);
   line-height: 1.6;
   font-size: 15px;
   margin-top: 12px;

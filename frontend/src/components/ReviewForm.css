@@ -1,47 +1,52 @@
 .review-form-container {
   margin-top: 30px;
   padding: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
 }
 
 .review-form-container h3 {
   margin: 0 0 24px 0;
   font-size: 24px;
-  color: #333;
+  color: var(--foreground);
+  font-weight: 700;
 }
 
 .review-form-message {
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
   text-align: center;
+  border: 1px solid var(--border);
 }
 
 .review-form-message p {
   margin: 0;
-  color: #666;
+  color: var(--foreground-muted);
 }
 
 .success-message {
   padding: 16px;
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 8px;
-  color: #155724;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-left: 4px solid var(--success);
+  border-radius: var(--radius);
+  color: var(--success);
   margin-bottom: 20px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .error-message {
   padding: 16px;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 8px;
-  color: #721c24;
+  background: rgba(231, 76, 60, 0.1);
+  border: 2px solid rgba(231, 76, 60, 0.3);
+  border-left: 4px solid var(--destructive);
+  border-radius: var(--radius);
+  color: var(--destructive);
   margin-bottom: 20px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .review-form {
@@ -58,7 +63,7 @@
 
 .rating-input label {
   font-weight: 600;
-  color: #333;
+  color: var(--foreground);
   font-size: 16px;
 }
 
@@ -87,7 +92,7 @@
 }
 
 .rating-text {
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 14px;
   font-weight: 500;
   margin-top: 4px;
@@ -101,51 +106,56 @@
 
 .comment-input label {
   font-weight: 600;
-  color: #333;
+  color: var(--foreground);
   font-size: 16px;
 }
 
 .comment-input textarea {
   padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
   font-size: 15px;
   font-family: inherit;
   resize: vertical;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 .comment-input textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.1);
 }
 
 .comment-input textarea::placeholder {
-  color: #aaa;
+  color: var(--foreground-muted);
+  opacity: 0.6;
 }
 
 .char-count {
   text-align: right;
   font-size: 13px;
-  color: #999;
+  color: var(--foreground-muted);
 }
 
 .submit-button {
   padding: 14px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--gradient-secondary);
+  color: var(--mint-cream);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   align-self: flex-start;
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px var(--card-shadow);
 }
 
 .submit-button:disabled {
