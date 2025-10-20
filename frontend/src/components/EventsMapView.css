@@ -12,20 +12,22 @@
 .events-map-empty {
   text-align: center;
   padding: 60px 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
   margin-top: 20px;
+  border: 2px solid var(--border);
 }
 
 .events-map-empty p {
   margin: 10px 0;
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 16px;
 }
 
 .events-map-empty .hint {
-  color: #999;
+  color: var(--foreground-muted);
   font-size: 14px;
+  opacity: 0.8;
 }
 
 .event-popup {
