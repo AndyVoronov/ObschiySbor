@@ -16,7 +16,6 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -341,13 +340,8 @@ const CreateEvent = () => {
         }
       }
 
-      // Показываем сообщение об успехе
-      setSuccess(true);
-
-      // Небольшая задержка для отображения сообщения, затем редирект
-      setTimeout(() => {
-        navigate(`/events/${data.id}`);
-      }, 800);
+      // Сразу перенаправляем на страницу события
+      navigate(`/events/${data.id}`);
     } catch (error) {
       setError('Ошибка создания события: ' + error.message);
       console.error('Ошибка:', error);
@@ -364,7 +358,6 @@ const CreateEvent = () => {
   return (
     <div className="create-event-page">
       {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">✅ Событие успешно создано! Перенаправляем на страницу события...</div>}
 
       <form onSubmit={handleSubmit} className="create-event-form">
         <div className="form-group">
