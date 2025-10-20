@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import BlockUserModal from '../components/BlockUserModal';
 import './Admin.css';
 
 const Admin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('reports');
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('pending');
@@ -166,7 +168,29 @@ const Admin = () => {
     <div className="admin-container">
       <div className="admin-header">
         <h1>Панель модератора</h1>
-        <p>Управление жалобами и модерация контента</p>
+        <p>Управление жалобами, пользователями и обжалованиями</p>
+      </div>
+
+      {/* Вкладки */}
+      <div className="admin-tabs">
+        <button
+          className={`tab-button ${activeTab === 'reports' ? 'active' : ''}`}
+          onClick={() => setActiveTab('reports')}
+        >
+          📋 Жалобы
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          👥 Пользователи
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'appeals' ? 'active' : ''}`}
+          onClick={() => setActiveTab('appeals')}
+        >
+          ⚖️ Обжалования
+        </button>
       </div>
 
       {error && (
@@ -175,25 +199,28 @@ const Admin = () => {
         </div>
       )}
 
-      <div className="admin-filters">
-        <label htmlFor="status-filter">Фильтр по статусу:</label>
-        <select
-          id="status-filter"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="all">Все</option>
-          <option value="pending">Ожидает</option>
-          <option value="reviewed">Просмотрено</option>
-          <option value="resolved">Решено</option>
-          <option value="rejected">Отклонено</option>
-        </select>
-        <span className="reports-count">
-          Найдено жалоб: {reports.length}
-        </span>
-      </div>
+      {/* Вкладка Жалобы */}
+      {activeTab === 'reports' && (
+        <>
+          <div className="admin-filters">
+            <label htmlFor="status-filter">Фильтр по статусу:</label>
+            <select
+              id="status-filter"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">Все</option>
+              <option value="pending">Ожидает</option>
+              <option value="reviewed">Просмотрено</option>
+              <option value="resolved">Решено</option>
+              <option value="rejected">Отклонено</option>
+            </select>
+            <span className="reports-count">
+              Найдено жалоб: {reports.length}
+            </span>
+          </div>
 
-      {reports.length === 0 ? (
+          {reports.length === 0 ? (
         <div className="empty-state">
           <p>Нет жалоб с выбранным статусом</p>
         </div>
@@ -311,8 +338,332 @@ const Admin = () => {
             </div>
           ))}
         </div>
+          )}
+        </>
       )}
+
+      {/* Вкладка Пользователи */}
+      {activeTab === 'users' && <UsersTab />}
+
+      {/* Вкладка Обжалования */}
+      {activeTab === 'appeals' && <AppealsTab />}
     </div>
+  );
+};
+
+// ===========================================
+// Компонент UsersTab - Управление пользователями
+// ===========================================
+const UsersTab = () => {
+  const { user } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterBlocked, setFilterBlocked] = useState('all');
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    loadUsers();
+  }, [filterBlocked]);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (filterBlocked === 'blocked') {
+        query = query.eq('is_blocked', true);
+      } else if (filterBlocked === 'active') {
+        query = query.eq('is_blocked', false);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (err) {
+      console.error('Ошибка загрузки пользователей:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnblock = async (userId, userName) => {
+    if (!confirm(`Разблокировать пользователя "${userName}"?`)) return;
+
+    try {
+      const { error } = await supabase.rpc('unblock_user', {
+        p_user_id: userId,
+        p_unblocked_by: user.id,
+        p_reason: 'Разблокирован администратором'
+      });
+
+      if (error) throw error;
+      alert('Пользователь разблокирован');
+      loadUsers();
+    } catch (err) {
+      alert('Ошибка разблокировки: ' + err.message);
+    }
+  };
+
+  const filteredUsers = users.filter(u => {
+    const search = searchTerm.toLowerCase();
+    return (
+      u.full_name?.toLowerCase().includes(search) ||
+      u.email?.toLowerCase().includes(search)
+    );
+  });
+
+  if (loading) {
+    return <div className="loading">Загрузка пользователей...</div>;
+  }
+
+  return (
+    <>
+      <div className="admin-filters">
+        <input
+          type="text"
+          placeholder="Поиск по имени или email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        <select
+          value={filterBlocked}
+          onChange={(e) => setFilterBlocked(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">Все пользователи</option>
+          <option value="active">Активные</option>
+          <option value="blocked">Заблокированные</option>
+        </select>
+        <span className="reports-count">
+          Найдено: {filteredUsers.length}
+        </span>
+      </div>
+
+      <div className="users-table-container">
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Статус</th>
+              <th>Дата регистрации</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.map(u => (
+              <tr key={u.id} className={u.is_blocked ? 'blocked-row' : ''}>
+                <td>{u.full_name || '—'}</td>
+                <td>{u.email}</td>
+                <td>
+                  {u.is_blocked ? (
+                    <span className="status-badge" style={{ backgroundColor: '#e74c3c' }}>
+                      Заблокирован
+                    </span>
+                  ) : (
+                    <span className="status-badge" style={{ backgroundColor: '#28a745' }}>
+                      Активен
+                    </span>
+                  )}
+                </td>
+                <td>{new Date(u.created_at).toLocaleDateString('ru-RU')}</td>
+                <td>
+                  {u.is_blocked ? (
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() => handleUnblock(u.id, u.full_name || u.email)}
+                    >
+                      Разблокировать
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => {
+                        setSelectedUser(u);
+                        setShowBlockModal(true);
+                      }}
+                    >
+                      Заблокировать
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {showBlockModal && (
+        <BlockUserModal
+          isOpen={showBlockModal}
+          onClose={() => {
+            setShowBlockModal(false);
+            setSelectedUser(null);
+          }}
+          targetUser={selectedUser}
+          onSuccess={() => {
+            loadUsers();
+            setSelectedUser(null);
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+// ===========================================
+// Компонент AppealsTab - Обжалования блокировок
+// ===========================================
+const AppealsTab = () => {
+  const { user } = useAuth();
+  const [appeals, setAppeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(null);
+
+  useEffect(() => {
+    loadAppeals();
+  }, []);
+
+  const loadAppeals = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('block_appeals')
+        .select(`
+          *,
+          user:user_id(id, full_name, email, avatar_url),
+          block:block_id(reason, blocked_at, blocked_until)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAppeals(data || []);
+    } catch (err) {
+      console.error('Ошибка загрузки обжалований:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (appealId) => {
+    if (!confirm('Одобрить обжалование и разблокировать пользователя?')) return;
+
+    setProcessing(appealId);
+    try {
+      const { error } = await supabase.rpc('approve_block_appeal', {
+        p_appeal_id: appealId,
+        p_reviewed_by: user.id,
+        p_admin_comment: 'Обжалование одобрено'
+      });
+
+      if (error) throw error;
+      alert('Обжалование одобрено, пользователь разблокирован');
+      loadAppeals();
+    } catch (err) {
+      alert('Ошибка: ' + err.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleReject = async (appealId) => {
+    const adminComment = prompt('Укажите причину отклонения обжалования:');
+    if (!adminComment) return;
+
+    setProcessing(appealId);
+    try {
+      const { error } = await supabase.rpc('reject_block_appeal', {
+        p_appeal_id: appealId,
+        p_reviewed_by: user.id,
+        p_admin_comment: adminComment
+      });
+
+      if (error) throw error;
+      alert('Обжалование отклонено');
+      loadAppeals();
+    } catch (err) {
+      alert('Ошибка: ' + err.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Загрузка обжалований...</div>;
+  }
+
+  return (
+    <>
+      <div className="appeals-header">
+        <h2>Обжалования блокировок</h2>
+        <span className="reports-count">Ожидают рассмотрения: {appeals.length}</span>
+      </div>
+
+      {appeals.length === 0 ? (
+        <div className="empty-state">
+          <p>Нет обжалований, ожидающих рассмотрения</p>
+        </div>
+      ) : (
+        <div className="appeals-list">
+          {appeals.map(appeal => (
+            <div key={appeal.id} className="appeal-card">
+              <div className="appeal-header">
+                <div className="user-info-appeal">
+                  {appeal.user.avatar_url && (
+                    <img src={appeal.user.avatar_url} alt="Avatar" className="appeal-avatar" />
+                  )}
+                  <div>
+                    <h3>{appeal.user.full_name || 'Имя не указано'}</h3>
+                    <p>{appeal.user.email}</p>
+                  </div>
+                </div>
+                <div className="appeal-date">
+                  {new Date(appeal.created_at).toLocaleString('ru-RU')}
+                </div>
+              </div>
+
+              <div className="appeal-block-info">
+                <h4>📋 Информация о блокировке:</h4>
+                <p><strong>Причина блокировки:</strong> {appeal.block.reason}</p>
+                <p><strong>Дата блокировки:</strong> {new Date(appeal.block.blocked_at).toLocaleString('ru-RU')}</p>
+                {appeal.block.blocked_until && (
+                  <p><strong>Блокировка до:</strong> {new Date(appeal.block.blocked_until).toLocaleString('ru-RU')}</p>
+                )}
+              </div>
+
+              <div className="appeal-reason-box">
+                <h4>💬 Обжалование пользователя:</h4>
+                <p className="appeal-reason-text">{appeal.reason}</p>
+              </div>
+
+              <div className="appeal-actions">
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleApprove(appeal.id)}
+                  disabled={processing === appeal.id}
+                >
+                  ✓ Одобрить
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleReject(appeal.id)}
+                  disabled={processing === appeal.id}
+                >
+                  ✗ Отклонить
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, Suspense } from 'react';
+import { useState, useCallback, useRef, Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -8,6 +8,7 @@ import BoardGameSelector from '../components/BoardGameSelector';
 import DictionarySelector from '../components/DictionarySelector';
 import RecurringEventSettings from '../components/RecurringEventSettings';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
+import BlockedUserNotice from '../components/BlockedUserNotice';
 import { createRecurringEvents } from '../utils/recurringEvents';
 import './CreateEvent.css';
 
@@ -18,6 +19,8 @@ const CreateEvent = () => {
   const [error, setError] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef(null);
+  const [blockInfo, setBlockInfo] = useState(null);
+  const [checkingBlock, setCheckingBlock] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -54,6 +57,34 @@ const CreateEvent = () => {
     endDate: null,
     endType: 'count',
   });
+
+  // Проверка блокировки при загрузке
+  useEffect(() => {
+    const checkBlockStatus = async () => {
+      if (!user) {
+        setCheckingBlock(false);
+        return;
+      }
+
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('is_blocked, block_reason, blocked_at, blocked_until')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        setBlockInfo(profile);
+      } catch (err) {
+        console.error('Ошибка проверки блокировки:', err);
+      } finally {
+        setCheckingBlock(false);
+      }
+    };
+
+    checkBlockStatus();
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -355,8 +386,28 @@ const CreateEvent = () => {
     }
   };
 
+  // Обработчик после успешной подачи обжалования
+  const handleAppealSubmitted = () => {
+    alert('Ваше обжалование отправлено на рассмотрение администрации');
+  };
+
+  if (checkingBlock) {
+    return <div className="loading">Проверка доступа...</div>;
+  }
+
+  // Если пользователь заблокирован - показываем уведомление
+  if (blockInfo?.is_blocked) {
+    return (
+      <div className="create-event-page">
+        <h1>Создать событие</h1>
+        <BlockedUserNotice blockInfo={blockInfo} onAppealSubmitted={handleAppealSubmitted} />
+      </div>
+    );
+  }
+
   return (
     <div className="create-event-page">
+      <h1>Создать событие</h1>
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="create-event-form">

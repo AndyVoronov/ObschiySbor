@@ -9,6 +9,7 @@ import Reviews from '../components/Reviews';
 import ReviewForm from '../components/ReviewForm';
 import ReportButton from '../components/ReportButton';
 import EventParticipants from '../components/EventParticipants';
+import BlockedUserNotice from '../components/BlockedUserNotice';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
@@ -32,6 +33,8 @@ const EventDetails = () => {
   const [cancellationReason, setCancellationReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const reviewsRef = useRef(null);
+  const [blockInfo, setBlockInfo] = useState(null);
+  const [checkingBlock, setCheckingBlock] = useState(true);
 
   // Загрузка связанных данных для категорий
   useEffect(() => {
@@ -39,6 +42,34 @@ const EventDetails = () => {
       fetchCategoryRelatedData();
     }
   }, [event]);
+
+  // Проверка блокировки при загрузке
+  useEffect(() => {
+    const checkBlockStatus = async () => {
+      if (!user) {
+        setCheckingBlock(false);
+        return;
+      }
+
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('is_blocked, block_reason, blocked_at, blocked_until')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        setBlockInfo(profile);
+      } catch (err) {
+        console.error('Ошибка проверки блокировки:', err);
+      } finally {
+        setCheckingBlock(false);
+      }
+    };
+
+    checkBlockStatus();
+  }, [user]);
 
   // Функция загрузки связанных данных (справочники для категорий)
   const fetchCategoryRelatedData = async () => {
@@ -819,8 +850,16 @@ const EventDetails = () => {
           </div>
         )}
 
+        {/* Блокировка пользователя - показываем уведомление */}
+        {user && blockInfo?.is_blocked && (
+          <BlockedUserNotice
+            blockInfo={blockInfo}
+            onAppealSubmitted={() => alert('Ваше обжалование отправлено на рассмотрение администрации')}
+          />
+        )}
+
         {/* Кнопки присоединения/выхода для участников */}
-        {user && !isCreator && eventStatus !== EVENT_STATUS.CANCELLED && (
+        {user && !isCreator && !blockInfo?.is_blocked && eventStatus !== EVENT_STATUS.CANCELLED && (
           <div className="event-actions">
             {isParticipant ? (
               <button

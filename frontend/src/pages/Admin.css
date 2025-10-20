@@ -301,3 +301,250 @@
     gap: 0.5rem;
   }
 }
+
+/* ===========================================
+   Вкладки Admin панели
+   =========================================== */
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #e9ecef;
+}
+
+.admin-tabs .tab-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #7f8c8d;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -3px;
+}
+
+.admin-tabs .tab-button:hover {
+  color: #2c3e50;
+  background: #f8f9fa;
+}
+
+.admin-tabs .tab-button.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+/* ===========================================
+   Таблица пользователей
+   =========================================== */
+.search-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.users-table-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table thead {
+  background: #f8f9fa;
+}
+
+.users-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: #2c3e50;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  color: #2c3e50;
+}
+
+.users-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.users-table tbody tr.blocked-row {
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+/* ===========================================
+   Обжалования
+   =========================================== */
+.appeals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.appeals-header h2 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.appeals-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.appeal-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.appeal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.appeal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.user-info-appeal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.appeal-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3498db;
+}
+
+.user-info-appeal h3 {
+  margin: 0 0 0.25rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.user-info-appeal p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.appeal-date {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.appeal-block-info,
+.appeal-reason-box {
+  padding: 1.5rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.appeal-block-info h4,
+.appeal-reason-box h4 {
+  margin: 0 0 1rem 0;
+  color: #3498db;
+  font-size: 1rem;
+}
+
+.appeal-block-info p {
+  margin: 0.5rem 0;
+  color: #2c3e50;
+}
+
+.appeal-reason-text {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #3498db;
+  color: #2c3e50;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.appeal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+}
+
+/* ===========================================
+   Responsive для новых компонентов
+   =========================================== */
+@media (max-width: 768px) {
+  .admin-tabs {
+    overflow-x: auto;
+  }
+
+  .admin-tabs .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .users-table-container {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 600px;
+  }
+
+  .appeal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .appeal-actions {
+    flex-direction: column;
+  }
+
+  .appeal-actions .btn {
+    width: 100%;
+  }
+}
