@@ -41,7 +41,8 @@
       "Bash(scoop:*)",
       "Bash(choco install:*)",
       "Bash(git mv:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

@@ -16,6 +16,7 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -88,6 +89,11 @@ const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Предотвращаем повторную отправку
+    if (loading) {
+      return;
+    }
 
     // Проверка reCAPTCHA (только если ключ настроен)
     const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
@@ -335,7 +341,13 @@ const CreateEvent = () => {
         }
       }
 
-      navigate(`/events/${data.id}`);
+      // Показываем сообщение об успехе
+      setSuccess(true);
+
+      // Небольшая задержка для отображения сообщения, затем редирект
+      setTimeout(() => {
+        navigate(`/events/${data.id}`);
+      }, 800);
     } catch (error) {
       setError('Ошибка создания события: ' + error.message);
       console.error('Ошибка:', error);
@@ -352,6 +364,7 @@ const CreateEvent = () => {
   return (
     <div className="create-event-page">
       {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">✅ Событие успешно создано! Перенаправляем на страницу события...</div>}
 
       <form onSubmit={handleSubmit} className="create-event-form">
         <div className="form-group">
