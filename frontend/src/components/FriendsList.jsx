@@ -198,10 +198,10 @@ const FriendsList = () => {
                   </div>
                   <div className="friend-info">
                     <h4>{friend.full_name || 'Имя не указано'}</h4>
-                    {friend.city && <p className="friend-city">📍 {friend.city}</p>}
-                    <p className="friend-since">
-                      Друзья с {new Date(friend.since).toLocaleDateString('ru-RU')}
-                    </p>
+                    {friend.city && <span className="friend-city">📍 {friend.city}</span>}
+                    <span className="friend-since">
+                      с {new Date(friend.since).toLocaleDateString('ru-RU')}
+                    </span>
                   </div>
                   <div className="friend-actions">
                     <button
@@ -236,10 +236,10 @@ const FriendsList = () => {
                   </div>
                   <div className="friend-info">
                     <h4>{request.full_name || 'Имя не указано'}</h4>
-                    {request.city && <p className="friend-city">📍 {request.city}</p>}
-                    <p className="request-time">
-                      Запрос получен {new Date(request.receivedAt).toLocaleDateString('ru-RU')}
-                    </p>
+                    {request.city && <span className="friend-city">📍 {request.city}</span>}
+                    <span className="request-time">
+                      {new Date(request.receivedAt).toLocaleDateString('ru-RU')}
+                    </span>
                   </div>
                   <div className="friend-actions">
                     <button
@@ -281,10 +281,10 @@ const FriendsList = () => {
                   </div>
                   <div className="friend-info">
                     <h4>{request.full_name || 'Имя не указано'}</h4>
-                    {request.city && <p className="friend-city">📍 {request.city}</p>}
-                    <p className="request-time">
-                      Запрос отправлен {new Date(request.sentAt).toLocaleDateString('ru-RU')}
-                    </p>
+                    {request.city && <span className="friend-city">📍 {request.city}</span>}
+                    <span className="request-time">
+                      {new Date(request.sentAt).toLocaleDateString('ru-RU')}
+                    </span>
                   </div>
                   <div className="friend-actions">
                     <button

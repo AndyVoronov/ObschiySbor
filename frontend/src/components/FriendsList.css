@@ -60,41 +60,42 @@
 }
 
 .friends-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .friend-card {
   background: var(--background-secondary);
   border: 2px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 0.875rem 1rem;
   display: flex;
   gap: 1rem;
   align-items: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .friend-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px var(--card-shadow);
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px var(--card-shadow);
   border-color: var(--primary);
 }
 
 .friend-card.request {
   border-color: var(--warning);
-  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(245, 158, 11, 0.1) 100%);
+  background: linear-gradient(90deg, var(--background-secondary) 0%, rgba(245, 158, 11, 0.08) 100%);
 }
 
 .friend-card.sent {
   border-color: var(--muted);
+  opacity: 0.85;
 }
 
 .friend-avatar {
   flex-shrink: 0;
-  width: 70px;
-  height: 70px;
+  width: 48px;
+  height: 48px;
 }
 
 .friend-avatar img {
@@ -102,8 +103,7 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--primary);
-  box-shadow: 0 4px 8px var(--card-shadow);
+  border: 2px solid var(--primary);
 }
 
 .avatar-placeholder {
@@ -114,21 +114,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: var(--mint-cream);
-  border: 3px solid var(--primary);
-  box-shadow: 0 4px 8px var(--card-shadow);
+  border: 2px solid var(--primary);
 }
 
 .friend-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .friend-info h4 {
-  margin: 0 0 0.25rem 0;
+  margin: 0;
   color: var(--foreground);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -137,22 +139,26 @@
 
 .friend-city {
   color: var(--foreground-muted);
-  font-size: 0.9rem;
-  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .friend-since,
 .request-time {
   color: var(--foreground-muted);
-  font-size: 0.85rem;
-  margin: 0.5rem 0 0 0;
-  font-style: italic;
+  font-size: 0.8rem;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .friend-actions {
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .btn-remove-friend,
@@ -162,69 +168,57 @@
   background: var(--primary);
   color: var(--primary-foreground);
   border: none;
-  padding: 0.6rem 1rem;
-  border-radius: calc(var(--radius) * 0.75);
+  padding: 0.5rem;
+  border-radius: calc(var(--radius) * 0.6);
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px var(--card-shadow);
+  transition: all 0.2s ease;
+  min-width: 36px;
+  line-height: 1;
 }
 
 .btn-remove-friend {
   background: var(--error);
-  font-size: 1.2rem;
-  padding: 0.6rem 0.8rem;
 }
 
 .btn-remove-friend:hover {
   background: #c0392b;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px var(--card-shadow);
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .btn-accept {
   background: var(--success);
-  font-size: 1.2rem;
-  padding: 0.6rem 0.8rem;
 }
 
 .btn-accept:hover {
   background: #16a34a;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px var(--card-shadow);
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .btn-reject {
   background: var(--error);
-  font-size: 1.2rem;
-  padding: 0.6rem 0.8rem;
 }
 
 .btn-reject:hover {
   background: #c0392b;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px var(--card-shadow);
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .btn-cancel {
   background: var(--muted);
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.875rem;
 }
 
 .btn-cancel:hover {
   background: var(--secondary);
   color: var(--secondary-foreground);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--card-shadow);
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 @media (max-width: 768px) {
-  .friends-grid {
-    grid-template-columns: 1fr;
-  }
-
   .friends-tab {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
@@ -235,21 +229,41 @@
   }
 
   .friend-card {
-    flex-direction: column;
-    text-align: center;
-    padding: 1rem;
+    padding: 0.75rem;
+    gap: 0.75rem;
   }
 
   .friend-avatar {
-    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+  }
+
+  .friend-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .friend-info h4 {
-    white-space: normal;
+    font-size: 0.9rem;
   }
 
-  .friend-actions {
-    width: 100%;
-    justify-content: center;
+  .friend-city,
+  .friend-since,
+  .request-time {
+    font-size: 0.8rem;
+  }
+
+  .btn-cancel {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .btn-remove-friend,
+  .btn-accept,
+  .btn-reject {
+    padding: 0.4rem;
+    min-width: 32px;
+    font-size: 0.9rem;
   }
 }

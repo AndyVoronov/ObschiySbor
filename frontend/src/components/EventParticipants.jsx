@@ -168,16 +168,16 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
                       <div className="avatar-placeholder">👤</div>
                     )}
                     {participant.is_creator && (
-                      <span className="creator-badge">Организатор</span>
+                      <span className="creator-badge">★</span>
                     )}
                   </div>
                   <div className="participant-info">
                     <h4>{participant.full_name || 'Имя не указано'}</h4>
-                    {participant.city && <p className="participant-city">📍 {participant.city}</p>}
+                    {participant.city && <span className="participant-city">📍 {participant.city}</span>}
                     {participant.joined_at && (
-                      <p className="participant-joined">
-                        Присоединился: {new Date(participant.joined_at).toLocaleDateString('ru-RU')}
-                      </p>
+                      <span className="participant-joined">
+                        {new Date(participant.joined_at).toLocaleDateString('ru-RU')}
+                      </span>
                     )}
                   </div>
                   {user && user.id !== participant.id && (
