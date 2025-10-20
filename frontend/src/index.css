@@ -55,7 +55,7 @@
 /* Тёмная тема */
 [data-theme="dark"] {
   --background: #0b2545;
-  --background-secondary: #13315c;
+  --background-secondary: #0e2a4d;
   --foreground: #eef4ed;
   --foreground-muted: #8da9c4;
 
@@ -63,24 +63,24 @@
   --primary-hover: #9fb7cc;
   --primary-foreground: #0b2545;
 
-  --secondary: #13315c;
-  --secondary-hover: #134074;
+  --secondary: #134074;
+  --secondary-hover: #0e2a4d;
   --secondary-foreground: #eef4ed;
 
   --accent: #8da9c4;
   --accent-hover: #9fb7cc;
   --accent-foreground: #0b2545;
 
-  --muted: #13315c;
+  --muted: #0e2a4d;
   --muted-foreground: #8da9c4;
 
-  --border: #13315c;
-  --input-border: #13315c;
-  --input-bg: #13315c;
+  --border: rgba(141, 169, 196, 0.3);
+  --input-border: rgba(141, 169, 196, 0.3);
+  --input-bg: #0e2a4d;
 
-  --card-bg: #13315c;
-  --card-border: rgba(141, 169, 196, 0.2);
-  --card-shadow: rgba(0, 0, 0, 0.3);
+  --card-bg: #0e2a4d;
+  --card-border: rgba(141, 169, 196, 0.25);
+  --card-shadow: rgba(0, 0, 0, 0.4);
 
   --success: #22c55e;
   --warning: #f59e0b;
