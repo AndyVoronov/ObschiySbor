@@ -487,14 +487,6 @@ const EventDetails = () => {
               </a>
             </div>
           )}
-          <div className="info-item">
-            <strong>Участники:</strong>
-            <span>{event.current_participants}/{event.max_participants}</span>
-          </div>
-          <div className="info-item">
-            <strong>Организатор:</strong>
-            <span>{event.profiles?.full_name || 'Неизвестно'}</span>
-          </div>
           {event.gender_filter && event.gender_filter !== 'all' && (
             <div className="info-item">
               <strong>Кто может участвовать:</strong>

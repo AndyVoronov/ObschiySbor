@@ -42,30 +42,19 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
 
       if (error) throw error;
 
-      // Также добавим организатора в список
-      const { data: creatorData, error: creatorError } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url, city')
-        .eq('id', creatorId)
-        .single();
-
-      if (creatorError) throw creatorError;
-
-      // Формируем список участников
+      // Формируем список участников с отметкой организатора
       const participantsList = data.map(p => ({
         ...p.profiles,
         joined_at: p.joined_at,
-        is_creator: false
+        is_creator: p.user_id === creatorId
       }));
 
-      // Добавляем организатора в начало списка
-      if (creatorData) {
-        participantsList.unshift({
-          ...creatorData,
-          joined_at: null,
-          is_creator: true
-        });
-      }
+      // Сортируем: организатор первый, остальные по дате присоединения
+      participantsList.sort((a, b) => {
+        if (a.is_creator) return -1;
+        if (b.is_creator) return 1;
+        return new Date(b.joined_at) - new Date(a.joined_at);
+      });
 
       setParticipants(participantsList);
     } catch (error) {
