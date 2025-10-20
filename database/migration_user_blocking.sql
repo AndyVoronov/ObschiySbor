@@ -229,7 +229,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF NOT EXISTS trigger_update_block_appeals_updated_at ON block_appeals;
+DROP TRIGGER IF EXISTS trigger_update_block_appeals_updated_at ON block_appeals;
 CREATE TRIGGER trigger_update_block_appeals_updated_at
   BEFORE UPDATE ON block_appeals
   FOR EACH ROW
@@ -331,7 +331,7 @@ CREATE POLICY user_blocks_select_own ON user_blocks
   USING (auth.uid() = user_id);
 
 -- Админы и модераторы могут видеть все блокировки
-DROP POLICY IF NOT EXISTS user_blocks_select_admin ON user_blocks;
+DROP POLICY IF EXISTS user_blocks_select_admin ON user_blocks;
 CREATE POLICY user_blocks_select_admin ON user_blocks
   FOR SELECT
   USING (
