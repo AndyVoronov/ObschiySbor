@@ -6,7 +6,7 @@
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--foreground);
 }
 
 .selected-games {
@@ -21,9 +21,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.selected-game-card:hover {
+  box-shadow: 0 2px 8px var(--card-shadow);
+  border-color: var(--primary);
 }
 
 .game-info {
@@ -43,34 +49,35 @@
 .game-info h4 {
   margin: 0;
   font-size: 1rem;
-  color: #333;
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 .game-meta {
   margin: 0.25rem 0 0 0;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--foreground-muted);
 }
 
 .game-meta-small {
   margin: 0.15rem 0 0 0;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--foreground-muted);
 }
 
 .btn-remove {
   background: none;
   border: none;
-  color: #dc3545;
+  color: var(--destructive);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
 }
 
 .btn-remove:hover {
-  background-color: #ffe0e0;
+  background: rgba(231, 76, 60, 0.1);
 }
 
 .game-search {
@@ -80,15 +87,18 @@
 .search-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
   font-size: 1rem;
-  transition: border-color 0.2s;
+  background: var(--background);
+  color: var(--foreground);
+  transition: all 0.3s ease;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.1);
 }
 
 .games-dropdown {
@@ -96,14 +106,14 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
   border-top: none;
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 var(--radius) var(--radius);
   max-height: 250px;
   overflow-y: auto;
   z-index: 100;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px var(--card-shadow);
 }
 
 .game-option {
@@ -112,12 +122,12 @@
   gap: 0.75rem;
   padding: 0.75rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid var(--border);
 }
 
 .game-option:hover {
-  background-color: #f8f9fa;
+  background: var(--background-secondary);
 }
 
 .game-option:last-child {
@@ -137,12 +147,13 @@
 
 .game-option-info strong {
   display: block;
-  color: #333;
+  color: var(--foreground);
   font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .help-text {
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--foreground-muted);
 }

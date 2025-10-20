@@ -1,41 +1,50 @@
 .connected-accounts {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
 }
 
 .connected-accounts h3 {
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+  color: var(--foreground);
+  font-weight: 700;
 }
 
 .connected-accounts h4 {
   margin-bottom: 1rem;
-  color: #34495e;
+  color: var(--foreground);
   font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .connected-accounts-loading {
   text-align: center;
   padding: 2rem;
-  color: #7f8c8d;
+  color: var(--foreground-muted);
 }
 
 .error-message {
-  background-color: #e74c3c;
-  color: white;
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--destructive);
   padding: 1rem;
-  border-radius: 5px;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
+  border: 2px solid rgba(231, 76, 60, 0.3);
+  border-left: 4px solid var(--destructive);
+  font-weight: 600;
 }
 
 .success-message {
-  background-color: #27ae60;
-  color: white;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
   padding: 1rem;
-  border-radius: 5px;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-left: 4px solid var(--success);
+  font-weight: 600;
 }
 
 .accounts-section {
@@ -43,12 +52,13 @@
 }
 
 .no-accounts {
-  color: #7f8c8d;
+  color: var(--foreground-muted);
   font-style: italic;
   padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 5px;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
   text-align: center;
+  border: 1px solid var(--border);
 }
 
 .accounts-list {
@@ -62,9 +72,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e1e8ed;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.account-item:hover {
+  box-shadow: 0 2px 8px var(--card-shadow);
+  border-color: var(--primary);
 }
 
 .account-info {
@@ -85,13 +101,13 @@
 
 .account-provider {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--foreground);
 }
 
 .account-email,
 .account-name {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: var(--foreground-muted);
 }
 
 .btn-sm {
@@ -100,20 +116,24 @@
 }
 
 .btn-danger {
-  background-color: #e74c3c;
-  color: white;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #c0392b;
+  background: var(--destructive-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
 }
 
 .btn-danger:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -151,13 +171,15 @@
 
 .info-text {
   grid-column: 1 / -1;
-  color: #7f8c8d;
+  color: var(--foreground-muted);
   font-size: 0.95rem;
   margin-bottom: 0.5rem;
   padding: 0.75rem;
-  background: #f8f9fa;
-  border-radius: 5px;
-  border-left: 3px solid #3498db;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--primary);
+  border: 2px solid var(--border);
+  border-left: 4px solid var(--primary);
 }
 
 .provider-icon {
@@ -172,21 +194,22 @@
 .accounts-info {
   margin-top: 2rem;
   padding: 1rem;
-  background: #e8f4f8;
-  border-radius: 8px;
-  border-left: 4px solid #3498db;
+  background: rgba(19, 64, 116, 0.1);
+  border-radius: var(--radius);
+  border: 2px solid rgba(19, 64, 116, 0.3);
+  border-left: 4px solid var(--primary);
 }
 
 .accounts-info p {
   margin: 0.5rem 0;
-  color: #34495e;
+  color: var(--foreground);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .accounts-info .warning {
   color: #e67e22;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
