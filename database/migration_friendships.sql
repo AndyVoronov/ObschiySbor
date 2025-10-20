@@ -23,12 +23,12 @@ CREATE INDEX IF NOT EXISTS idx_friendships_user_friend ON friendships(user_id, f
 
 -- 3. Триггер для обновления updated_at
 CREATE OR REPLACE FUNCTION update_friendships_updated_at()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS trigger_update_friendships_updated_at ON friendships;
 CREATE TRIGGER trigger_update_friendships_updated_at
@@ -82,7 +82,7 @@ CREATE POLICY friendships_delete_own
 
 -- 5. Функция для принятия заявки в друзья
 CREATE OR REPLACE FUNCTION accept_friend_request(p_friendship_id UUID)
-RETURNS VOID AS $
+RETURNS VOID AS $$
 BEGIN
   -- Обновляем статус дружбы на accepted
   UPDATE friendships
@@ -98,11 +98,11 @@ BEGIN
   FROM friendships
   WHERE id = p_friendship_id;
 END;
-$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 6. Функция для отклонения заявки в друзья
 CREATE OR REPLACE FUNCTION reject_friend_request(p_friendship_id UUID)
-RETURNS VOID AS $
+RETURNS VOID AS $$
 BEGIN
   -- Обновляем статус дружбы на rejected или удаляем запись
   DELETE FROM friendships
@@ -110,11 +110,11 @@ BEGIN
     AND (friend_id = auth.uid() OR user_id = auth.uid())
     AND status = 'pending';
 END;
-$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 7. Функция для удаления из друзей
 CREATE OR REPLACE FUNCTION remove_friend(p_friend_id UUID)
-RETURNS VOID AS $
+RETURNS VOID AS $$
 BEGIN
   -- Удаляем дружескую связь
   DELETE FROM friendships
@@ -123,7 +123,7 @@ BEGIN
     (user_id = p_friend_id AND friend_id = auth.uid())
   );
 END;
-$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 COMMENT ON TABLE friendships IS 'Таблица дружеских связей между пользователями';
 COMMENT ON COLUMN friendships.status IS 'Статус дружбы: pending (ожидает), accepted (принят), rejected (отклонён)';
