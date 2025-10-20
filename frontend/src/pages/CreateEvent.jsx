@@ -340,8 +340,8 @@ const CreateEvent = () => {
         }
       }
 
-      // Сразу перенаправляем на страницу события
-      navigate(`/events/${data.id}`);
+      // Принудительный редирект через window.location для надёжности
+      window.location.href = `/events/${data.id}`;
     } catch (error) {
       setError('Ошибка создания события: ' + error.message);
       console.error('Ошибка:', error);
