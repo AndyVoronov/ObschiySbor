@@ -1,0 +1,169 @@
+.appeal-modal {
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.error-message-appeal {
+  background: rgba(231, 76, 60, 0.1);
+  border: 2px solid var(--error);
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--error);
+  font-weight: 500;
+}
+
+.appeal-info-box {
+  background: linear-gradient(135deg, rgba(19, 64, 116, 0.1) 0%, rgba(19, 49, 92, 0.1) 100%);
+  border: 2px solid var(--primary);
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.appeal-info-box h3 {
+  margin: 0 0 1rem 0;
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.appeal-info-box ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--foreground);
+}
+
+.appeal-info-box li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.appeal-info-box li:last-child {
+  margin-bottom: 0;
+}
+
+.appeal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.appeal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.appeal-form label {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.appeal-form label .required {
+  color: var(--error);
+  margin-left: 0.25rem;
+}
+
+.appeal-form textarea {
+  background: var(--background-secondary);
+  border: 2px solid var(--border);
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  resize: vertical;
+  min-height: 150px;
+}
+
+.appeal-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.1);
+}
+
+.appeal-form textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 2px solid var(--border);
+}
+
+.btn-cancel-appeal,
+.btn-submit-appeal {
+  padding: 0.875rem 1.75rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 6px var(--card-shadow);
+}
+
+.btn-cancel-appeal {
+  background: var(--background-secondary);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.btn-cancel-appeal:hover:not(:disabled) {
+  background: var(--border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.btn-submit-appeal {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-submit-appeal:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(19, 64, 116, 0.4);
+}
+
+.btn-cancel-appeal:disabled,
+.btn-submit-appeal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .appeal-modal {
+    max-width: 95%;
+    margin: 1rem;
+  }
+
+  .appeal-info-box {
+    padding: 1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancel-appeal,
+  .btn-submit-appeal {
+    width: 100%;
+  }
+}
