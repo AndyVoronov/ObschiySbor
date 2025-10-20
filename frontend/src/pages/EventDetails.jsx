@@ -476,7 +476,7 @@ const EventDetails = () => {
         </div>
 
         {/* Список участников */}
-        <EventParticipants eventId={id} creatorId={event.creator_id} />
+        <EventParticipants eventId={id} creatorId={event.creator_id} eventTitle={event.title} />
 
         <div className="event-description">
           <h2>Описание</h2>

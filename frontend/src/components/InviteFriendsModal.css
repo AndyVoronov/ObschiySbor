@@ -1,0 +1,330 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px var(--card-shadow);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--background-secondary);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--error);
+  transform: rotate(90deg);
+}
+
+.modal-event-info {
+  padding: 1rem 1.5rem;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-event-info p {
+  margin: 0;
+  color: var(--foreground-muted);
+  font-size: 0.95rem;
+}
+
+.modal-event-info strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-loading,
+.modal-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--foreground-muted);
+}
+
+.modal-empty .hint {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.friends-list-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.friend-item-modal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-secondary);
+  border: 2px solid var(--border);
+  border-radius: calc(var(--radius) * 0.75);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.friend-item-modal:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.friend-item-modal.selected {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(19, 64, 116, 0.15) 100%);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.friend-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.friend-avatar-modal {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.friend-avatar-modal img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.avatar-placeholder-modal {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--gradient-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--mint-cream);
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.friend-info-modal {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-info-modal h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friend-info-modal p {
+  margin: 0;
+  color: var(--foreground-muted);
+  font-size: 0.85rem;
+}
+
+.invitation-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invitation-message label {
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.invitation-message textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: calc(var(--radius) * 0.75);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.invitation-message textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.1);
+}
+
+.invitation-message textarea::placeholder {
+  color: var(--foreground-muted);
+  opacity: 0.6;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--foreground-muted);
+  font-style: italic;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 2px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  background: var(--background-secondary);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.btn-cancel-modal,
+.btn-invite-modal {
+  padding: 0.75rem 1.5rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-cancel-modal {
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.btn-cancel-modal:hover:not(:disabled) {
+  background: var(--background-secondary);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-invite-modal {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.btn-invite-modal:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.btn-invite-modal:disabled,
+.btn-cancel-modal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .friend-item-modal {
+    padding: 0.75rem;
+  }
+
+  .modal-footer {
+    padding: 1rem;
+    flex-direction: column;
+  }
+
+  .btn-cancel-modal,
+  .btn-invite-modal {
+    width: 100%;
+  }
+}

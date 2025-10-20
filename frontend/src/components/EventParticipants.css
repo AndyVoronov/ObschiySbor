@@ -48,6 +48,33 @@
   animation: slideDown 0.3s ease;
 }
 
+.participants-actions-bar {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-invite-friends {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.btn-invite-friends:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

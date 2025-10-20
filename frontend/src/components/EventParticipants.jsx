@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import InviteFriendsModal from './InviteFriendsModal';
 import './EventParticipants.css';
 
-const EventParticipants = ({ eventId, creatorId }) => {
+const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
   const { user } = useAuth();
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [friendships, setFriendships] = useState({}); // { userId: 'pending' | 'accepted' | null }
   const [addingFriend, setAddingFriend] = useState({});
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -148,6 +150,17 @@ const EventParticipants = ({ eventId, creatorId }) => {
 
       {isOpen && (
         <div className="participants-list">
+          {user && user.id === creatorId && (
+            <div className="participants-actions-bar">
+              <button
+                className="btn-invite-friends"
+                onClick={() => setShowInviteModal(true)}
+              >
+                ✉️ Пригласить друзей
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="participants-loading">Загрузка...</div>
           ) : participants.length === 0 ? (
@@ -201,6 +214,14 @@ const EventParticipants = ({ eventId, creatorId }) => {
           )}
         </div>
       )}
+
+      {/* Модальное окно приглашения друзей */}
+      <InviteFriendsModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        eventId={eventId}
+        eventTitle={eventTitle}
+      />
     </div>
   );
 };
