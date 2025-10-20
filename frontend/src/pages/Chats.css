@@ -4,38 +4,43 @@
   padding: 20px;
   box-sizing: border-box;
   width: 100%;
+  background: var(--background);
+  min-height: 100vh;
 }
 
 .chats-page h1 {
   margin-bottom: 30px;
-  color: #333;
+  color: var(--foreground);
+  font-weight: 700;
 }
 
 .chats-loading {
   text-align: center;
   padding: 50px;
   font-size: 18px;
-  color: #666;
+  color: var(--foreground-muted);
 }
 
 /* Нет чатов */
 .no-chats {
   text-align: center;
   padding: 60px 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
 }
 
 .no-chats p {
-  color: #666;
+  color: var(--foreground-muted);
   font-size: 18px;
   margin-bottom: 20px;
 }
 
 .no-chats p:last-of-type {
   font-size: 14px;
-  color: #999;
+  color: var(--foreground-muted);
+  opacity: 0.7;
 }
 
 /* Контейнер чатов */
@@ -51,9 +56,10 @@
 
 /* Список чатов */
 .chats-list {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
   overflow-y: auto;
   padding: 10px;
 }
@@ -62,19 +68,22 @@
   display: flex;
   gap: 15px;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
 .chat-room-item:hover {
-  background-color: #f8f9fa;
+  background: var(--background-secondary);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .chat-room-item.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border-left: 4px solid #667eea;
+  background: var(--gradient-secondary);
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 4px 12px var(--card-shadow);
 }
 
 .chat-room-image {
@@ -94,11 +103,12 @@
 .placeholder-image {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 30px;
+  color: var(--mint-cream);
 }
 
 .chat-room-info {
@@ -109,16 +119,17 @@
 .chat-room-info h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
-  color: #333;
+  color: var(--foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 600;
 }
 
 .last-message {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #666;
+  color: var(--foreground-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -126,12 +137,13 @@
 
 .last-message.no-messages {
   font-style: italic;
-  color: #999;
+  color: var(--foreground-muted);
+  opacity: 0.7;
 }
 
 .message-author {
   font-weight: 600;
-  color: #667eea;
+  color: var(--primary);
 }
 
 .chat-room-meta {
@@ -142,11 +154,12 @@
 
 .event-date {
   font-size: 12px;
-  color: #999;
+  color: var(--foreground-muted);
+  opacity: 0.8;
 }
 
 .unread-badge {
-  background: #e74c3c;
+  background: var(--destructive);
   color: white;
   font-size: 11px;
   font-weight: bold;
@@ -154,13 +167,15 @@
   border-radius: 12px;
   min-width: 20px;
   text-align: center;
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
 }
 
 /* Контент чата */
 .chat-content {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  border: 2px solid var(--card-border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -171,7 +186,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--foreground-muted);
   font-size: 18px;
 }
 
@@ -183,19 +198,20 @@
 
 .chat-header-info {
   padding: 20px;
-  border-bottom: 2px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  border-bottom: 2px solid var(--border);
+  background: var(--gradient-primary);
+  color: var(--mint-cream);
 }
 
 .chat-header-info .event-link {
   text-decoration: none;
-  color: white;
+  color: var(--mint-cream);
 }
 
 .chat-header-info h2 {
   margin: 0 0 10px 0;
   font-size: 22px;
+  font-weight: 700;
 }
 
 .event-status-badge {
@@ -274,7 +290,7 @@
 
   .chat-room-item.active {
     border-left: none;
-    border-top: 4px solid #667eea;
+    border-top: 4px solid var(--primary);
   }
 
   /* Заголовок чата на весь экран */

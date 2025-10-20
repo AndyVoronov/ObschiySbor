@@ -4,13 +4,15 @@
   align-items: center;
   min-height: 70vh;
   padding: 2rem;
+  background: var(--background);
 }
 
 .auth-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px var(--card-shadow);
+  border: 2px solid var(--card-border);
   width: 100%;
   max-width: 450px;
 }
@@ -18,7 +20,12 @@
 .auth-card h2 {
   text-align: center;
   margin-bottom: 2rem;
-  color: #2c3e50;
+  color: var(--foreground);
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-group {
@@ -28,22 +35,25 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #2c3e50;
-  font-weight: 500;
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 .form-group input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.1);
 }
 
 .btn-block {
@@ -51,12 +61,15 @@
 }
 
 .error-message {
-  background-color: #e74c3c;
-  color: white;
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--destructive);
   padding: 0.75rem;
-  border-radius: 5px;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
   text-align: center;
+  border: 2px solid rgba(231, 76, 60, 0.3);
+  border-left: 4px solid var(--destructive);
+  font-weight: 600;
 }
 
 .divider {
@@ -72,14 +85,14 @@
   left: 0;
   right: 0;
   height: 1px;
-  background-color: #ddd;
+  background-color: var(--border);
 }
 
 .divider span {
-  background: white;
+  background: var(--card-bg);
   padding: 0 1rem;
   position: relative;
-  color: #7f8c8d;
+  color: var(--foreground-muted);
 }
 
 .social-login {
@@ -92,10 +105,11 @@
   width: 100%;
   padding: 0.75rem;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .btn-telegram {
@@ -105,6 +119,8 @@
 
 .btn-telegram:hover {
   background-color: #006699;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
 }
 
 #vk-auth-container,
@@ -121,14 +137,17 @@
 .auth-link {
   text-align: center;
   margin-top: 1.5rem;
-  color: #7f8c8d;
+  color: var(--foreground-muted);
 }
 
 .auth-link a {
-  color: #3498db;
+  color: var(--primary);
   text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .auth-link a:hover {
+  color: var(--primary-hover);
   text-decoration: underline;
 }
