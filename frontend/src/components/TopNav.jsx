@@ -218,7 +218,7 @@ const TopNav = () => {
     <header className="top-nav-header">
       <div className="top-nav-content">
         <a href="/" className="top-nav-logo">
-          ObschiySbor
+          Общий сбор!
         </a>
 
         <div className="top-nav-right">

@@ -57,9 +57,9 @@ function OrganizerDashboard({ userId }) {
 
       // Общая статистика
       const totalEvents = events.length;
-      const completedEvents = events.filter(e => e.status === 'completed').length;
-      const activeEvents = events.filter(e => e.status === 'active').length;
-      const cancelledEvents = events.filter(e => e.status === 'cancelled').length;
+      const completedEvents = events.filter(e => e.lifecycle_status === 'completed').length;
+      const activeEvents = events.filter(e => e.lifecycle_status === 'upcoming' || e.lifecycle_status === 'ongoing').length;
+      const cancelledEvents = events.filter(e => e.lifecycle_status === 'cancelled').length;
 
       let totalParticipants = 0;
       let totalRevenue = 0;
@@ -311,9 +311,10 @@ function OrganizerDashboard({ userId }) {
                   <td>{new Date(event.event_date).toLocaleDateString('ru-RU')}</td>
                   <td>{event.participantsCount} / {event.max_participants}</td>
                   <td>
-                    <span className={`status-badge status-${event.status}`}>
-                      {event.status === 'active' ? 'Активно' :
-                       event.status === 'completed' ? 'Завершено' : 'Отменено'}
+                    <span className={`status-badge status-${event.lifecycle_status}`}>
+                      {event.lifecycle_status === 'upcoming' ? 'Предстоит' :
+                       event.lifecycle_status === 'ongoing' ? 'Идёт' :
+                       event.lifecycle_status === 'completed' ? 'Завершено' : 'Отменено'}
                     </span>
                   </td>
                 </tr>

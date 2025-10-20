@@ -68,7 +68,7 @@ export const useNotifications = (userId) => {
 
           // Показываем браузерное уведомление
           if ('Notification' in window && Notification.permission === 'granted') {
-            const notification = new Notification('ObschiySbor', {
+            const notification = new Notification('Общий сбор!', {
               body: newNotification.message,
               icon: '/favicon.ico',
               badge: '/favicon.ico',

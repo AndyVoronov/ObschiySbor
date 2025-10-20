@@ -69,7 +69,7 @@ export const generateICS = (event) => {
   // Формируем ICS содержимое
   const ics = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//ObschiySbor//Event Calendar//RU
+PRODID:-//Общий сбор!//Event Calendar//RU
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
