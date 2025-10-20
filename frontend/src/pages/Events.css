@@ -1,23 +1,42 @@
-/* Подложка для карточек событий */
-.event-card {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(10px);
+/* Страница событий */
+.events-page {
+  background: var(--background);
+  min-height: 100vh;
+  padding: 2rem 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  .event-card {
-    background: rgba(34, 34, 34, 0.95) !important;
-  }
+/* Карточки событий */
+.event-card {
+  background: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 12px var(--card-shadow) !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease !important;
+}
+
+.event-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 12px 24px var(--card-shadow) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Текст в карточках */
+.event-card .text-muted-foreground {
+  color: var(--foreground-muted) !important;
+}
+
+.event-card h3, .event-card .font-semibold {
+  color: var(--foreground) !important;
 }
 
 /* Улучшение видимости текста в фильтрах и сообщениях */
 .text-xs.text-muted-foreground {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground-muted) !important;
   font-weight: 500;
-  opacity: 0.9;
 }
 
 .text-center .text-muted-foreground {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground-muted) !important;
   font-weight: 500;
 }

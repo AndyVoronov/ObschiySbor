@@ -1,11 +1,14 @@
 .carousel-container {
   position: relative;
   overflow: hidden;
-  border: 1px solid #555;
+  border: 2px solid var(--card-border);
+  background: var(--card-bg);
   border-radius: 24px;
   padding: 16px;
+  box-shadow: 0 8px 24px var(--card-shadow);
   --outer-r: 24px;
   --p-distance: 12px;
+  transition: all 0.3s ease;
 }
 
 .carousel-track {
@@ -19,11 +22,19 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--card-border);
+  background: var(--gradient-secondary);
   border-radius: calc(var(--outer-r) - var(--p-distance));
   overflow: hidden;
   cursor: grab;
-  color: white;
+  color: var(--mint-cream);
+  transition: all 0.3s ease;
+}
+
+.carousel-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px var(--card-shadow);
+  border-color: var(--primary);
 }
 
 .carousel-item:active {
@@ -31,13 +42,13 @@
 }
 
 .carousel-container.round {
-  border: 1px solid #555;
+  border: 2px solid var(--card-border);
 }
 
 .carousel-item.round {
   position: relative;
   bottom: 0.1em;
-  border: 1px solid #555;
+  border: 2px solid var(--card-border);
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -78,8 +89,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--mint-cream);
+  color: var(--yale-blue);
   font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-item-content {
@@ -91,12 +104,14 @@
   margin-bottom: 8px;
   font-weight: 700;
   font-size: 20px;
-  color: #fff;
+  color: var(--mint-cream);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-item-description {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--mint-cream);
+  opacity: 0.95;
   line-height: 1.5;
 }
 
@@ -123,11 +138,13 @@
 }
 
 .carousel-indicator.active {
-  background-color: #fff;
+  background-color: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
 }
 
 .carousel-indicator.inactive {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--muted);
+  opacity: 0.5;
 }
 
 @media (max-width: 768px) {
