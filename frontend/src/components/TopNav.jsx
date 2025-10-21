@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
@@ -7,6 +8,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import './TopNav.css';
 
 const TopNav = () => {
+  const { t } = useTranslation('common');
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const containerRef = useRef(null);
@@ -54,17 +56,17 @@ const TopNav = () => {
   // Формируем список навигации в зависимости от роли пользователя
   const navItems = user
     ? [
-        { label: 'Главная', href: '/' },
-        { label: 'События', href: '/events' },
-        { label: 'Профиль', href: '/profile' },
-        { label: 'Чаты', href: '/chats' },
-        ...(isModerator ? [{ label: 'Админ', href: '/admin' }] : [])
+        { label: t('nav.home'), href: '/' },
+        { label: t('nav.events'), href: '/events' },
+        { label: t('nav.profile'), href: '/profile' },
+        { label: t('nav.chats'), href: '/chats' },
+        ...(isModerator ? [{ label: t('nav.admin'), href: '/admin' }] : [])
       ]
     : [
-        { label: 'Главная', href: '/' },
-        { label: 'События', href: '/events' },
-        { label: 'Вход', href: '/login' },
-        { label: 'Регистрация', href: '/register' }
+        { label: t('nav.home'), href: '/' },
+        { label: t('nav.events'), href: '/events' },
+        { label: t('nav.login'), href: '/login' },
+        { label: t('nav.register'), href: '/register' }
       ];
 
   const noise = (n = 1) => n / 2 - Math.random() * n;
@@ -219,7 +221,7 @@ const TopNav = () => {
     <header className="top-nav-header">
       <div className="top-nav-content">
         <a href="/" className="top-nav-logo">
-          Общий сбор!
+          {t('app.name')}
         </a>
 
         <div className="top-nav-right">

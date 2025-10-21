@@ -1,13 +1,16 @@
 import { Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import TopNav from './TopNav';
 import GooeyNav from './GooeyNav';
 import './Layout.css';
 
 const Layout = () => {
+  const { t } = useTranslation('common');
+
   const footerItems = [
-    { label: 'О нас', href: '/about' },
-    { label: 'Контакты', href: '/contacts' },
-    { label: 'Правила', href: '/rules' }
+    { label: t('footer.about'), href: '/about' },
+    { label: t('footer.contacts'), href: '/contacts' },
+    { label: t('footer.rules'), href: '/rules' }
   ];
 
   return (
