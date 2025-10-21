@@ -274,8 +274,30 @@ const Login = () => {
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
 
       if (existingProfile) {
-        // Пользователь уже существует - выполняем вход
-        console.log('Пользователь с VK ID уже существует, выполняем вход');
+        // Пользователь уже существует - обновляем данные и выполняем вход
+        console.log('Пользователь с VK ID уже существует, обновляем данные и выполняем вход');
+
+        // Обновляем имя и фото из VK API при каждом входе
+        if (vkUserData) {
+          const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
+          const updateData = {
+            full_name: fullName,
+          };
+          if (vkUserData.photo_200) {
+            updateData.avatar_url = vkUserData.photo_200;
+          }
+
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', existingProfile.id);
+
+          if (updateError) {
+            console.error('Update Profile Error:', updateError);
+          } else {
+            console.log('Профиль обновлён:', updateData);
+          }
+        }
 
         const email = `vk${vkUserId}@obschiysbor.local`;
 
