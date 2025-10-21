@@ -258,13 +258,37 @@ const Register = () => {
 
       console.log('VK User ID:', vkUserId);
 
-      // Получаем данные пользователя через VK API
+      // Получаем данные пользователя через VK API (используем JSONP для обхода CORS)
       let vkUserData = null;
       try {
-        const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131`;
-        const response = await fetch(vkApiUrl);
-        const data = await response.json();
+        // Создаём promise для JSONP запроса
+        const fetchVKUser = () => {
+          return new Promise((resolve, reject) => {
+            const callbackName = `vkCallback_${Date.now()}`;
+            const script = document.createElement('script');
 
+            // Устанавливаем глобальный callback
+            window[callbackName] = (data) => {
+              delete window[callbackName];
+              document.body.removeChild(script);
+              resolve(data);
+            };
+
+            // Обработка ошибок
+            script.onerror = () => {
+              delete window[callbackName];
+              document.body.removeChild(script);
+              reject(new Error('JSONP request failed'));
+            };
+
+            // Создаём URL с callback параметром
+            const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131&callback=${callbackName}`;
+            script.src = vkApiUrl;
+            document.body.appendChild(script);
+          });
+        };
+
+        const data = await fetchVKUser();
         console.log('VK API Response:', data);
 
         if (data.response && data.response[0]) {
