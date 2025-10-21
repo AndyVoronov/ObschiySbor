@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './RecurringEventSettings.css';
 
 /**
@@ -12,6 +12,7 @@ const RecurringEventSettings = ({ value, onChange }) => {
   const [daysOfWeek, setDaysOfWeek] = useState([]);
   const [endDate, setEndDate] = useState('');
   const [endType, setEndType] = useState('count'); // 'count' или 'date'
+  const isFirstRender = useRef(true);
 
   // Дни недели для выбора
   const weekDays = [
@@ -24,10 +25,10 @@ const RecurringEventSettings = ({ value, onChange }) => {
     { value: 7, label: 'Вс', fullLabel: 'Воскресенье' },
   ];
 
-  // Инициализация из переданного значения
+  // Инициализация из переданного значения (только при первом монтировании)
   useEffect(() => {
-    if (value) {
-      setIsRecurring(value.isRecurring || false);
+    if (value && value.isRecurring !== undefined) {
+      setIsRecurring(value.isRecurring);
       setFrequency(value.frequency || 'weekly');
       setInterval(value.interval || 1);
       setOccurrenceCount(value.occurrenceCount || 10);
@@ -35,10 +36,17 @@ const RecurringEventSettings = ({ value, onChange }) => {
       setEndDate(value.endDate || '');
       setEndType(value.endType || 'count');
     }
-  }, [value]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Запускаем только при монтировании
 
   // Обновление родительского компонента при изменении настроек
   useEffect(() => {
+    // Пропускаем первый рендер, чтобы избежать бесконечного цикла
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     if (onChange) {
       onChange({
         isRecurring,
@@ -50,7 +58,7 @@ const RecurringEventSettings = ({ value, onChange }) => {
         endType,
       });
     }
-  }, [isRecurring, frequency, interval, occurrenceCount, daysOfWeek, endDate, endType]);
+  }, [isRecurring, frequency, interval, occurrenceCount, daysOfWeek, endDate, endType, onChange]);
 
   const handleDayToggle = (dayValue) => {
     setDaysOfWeek(prev => {

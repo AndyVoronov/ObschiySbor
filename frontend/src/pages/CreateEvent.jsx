@@ -58,6 +58,11 @@ const CreateEvent = () => {
     endType: 'count',
   });
 
+  // Мемоизируем callback для избежания бесконечного цикла
+  const handleRecurrenceChange = useCallback((config) => {
+    setRecurrenceConfig(config);
+  }, []);
+
   // Проверка блокировки при загрузке
   useEffect(() => {
     const checkBlockStatus = async () => {
@@ -1423,7 +1428,7 @@ const CreateEvent = () => {
         {/* Настройки повторяющихся событий */}
         <RecurringEventSettings
           value={recurrenceConfig}
-          onChange={setRecurrenceConfig}
+          onChange={handleRecurrenceChange}
         />
 
         {/* reCAPTCHA */}
