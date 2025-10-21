@@ -247,7 +247,7 @@ VITE_RECAPTCHA_SITE_KEY=[recaptcha-key]      # Для будущей интег�
 - Rate limiting для создания событий
 - Мониторинг ошибок (Sentry)
 
-См. [NEXT_STEPS.md](NEXT_STEPS.md) для детальной информации.
+См. [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) для детальной информации.
 
 ✅ **Завершённые оптимизации:**
 - ✅ React Query кэширование (staleTime: 5 мин, gcTime: 10 мин)
@@ -256,7 +256,7 @@ VITE_RECAPTCHA_SITE_KEY=[recaptcha-key]      # Для будущей интег�
 - ✅ Lazy loading изображений - Intersection Observer API
 - ✅ SQL индексы для БД (35+ индексов)
 
-См. [PERFORMANCE_OPTIMIZATION.md](PERFORMANCE_OPTIMIZATION.md) для детальной информации.
+См. [docs/setup/PERFORMANCE_OPTIMIZATION.md](docs/setup/PERFORMANCE_OPTIMIZATION.md) для детальной информации.
 
 ## Recent Updates
 
@@ -283,15 +283,21 @@ VITE_RECAPTCHA_SITE_KEY=[recaptcha-key]      # Для будущей интег�
 - ✅ **Система отзывов и рейтингов** - оценки событий
 
 **Документация:**
-- [PERFORMANCE_OPTIMIZATION.md](PERFORMANCE_OPTIMIZATION.md) - ⭐ **НОВОЕ** Полная документация оптимизаций
-- [MODERATION_SYSTEM.md](MODERATION_SYSTEM.md) - Система модерации контента
-- [DATABASE_EVENT_LIFECYCLE_STATUS.md](DATABASE_EVENT_LIFECYCLE_STATUS.md) - Система статусов событий
-- [TELEGRAM_MINI_APP.md](TELEGRAM_MINI_APP.md) - Автоматическая авторизация через Telegram Mini App
-- [TELEGRAM_LOGIN_SETUP.md](TELEGRAM_LOGIN_SETUP.md) - Настройка Telegram Login Widget
-- [VK_ID_SETUP.md](VK_ID_SETUP.md) - Настройка VK ID авторизации
-- [DATABASE_UPDATE_CHATS_DASHBOARD.md](DATABASE_UPDATE_CHATS_DASHBOARD.md) - SQL для чатов и дашборда
-- [DATABASE_SETUP.md](DATABASE_SETUP.md) - предыдущие обновления БД
-- [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - чеклист для деплоя
+- [docs/setup/PERFORMANCE_OPTIMIZATION.md](docs/setup/PERFORMANCE_OPTIMIZATION.md) - ⭐ Полная документация оптимизаций
+- [docs/features/MODERATION_SYSTEM.md](docs/features/MODERATION_SYSTEM.md) - Система модерации контента
+- [docs/features/USER_BLOCKING_SYSTEM.md](docs/features/USER_BLOCKING_SYSTEM.md) - Система блокировки пользователей
+- [docs/features/FRIENDS_SYSTEM_SETUP.md](docs/features/FRIENDS_SYSTEM_SETUP.md) - Система друзей и приглашений
+- [docs/features/RECURRING_EVENTS_GUIDE.md](docs/features/RECURRING_EVENTS_GUIDE.md) - Повторяющиеся события
+- [docs/features/ONLINE_EVENTS.md](docs/features/ONLINE_EVENTS.md) - Онлайн события
+- [docs/features/DATABASE_EVENT_LIFECYCLE_STATUS.md](docs/features/DATABASE_EVENT_LIFECYCLE_STATUS.md) - Система статусов событий
+- [docs/features/TELEGRAM_MINI_APP.md](docs/features/TELEGRAM_MINI_APP.md) - Telegram Mini App
+- [docs/features/TELEGRAM_LOGIN_SETUP.md](docs/features/TELEGRAM_LOGIN_SETUP.md) - Настройка Telegram Login Widget
+- [docs/features/VK_ID_SETUP.md](docs/features/VK_ID_SETUP.md) - Настройка VK ID авторизации
+- [docs/features/DATABASE_UPDATE_CHATS_DASHBOARD.md](docs/features/DATABASE_UPDATE_CHATS_DASHBOARD.md) - SQL для чатов и дашборда
+- [docs/features/DATABASE_SETUP.md](docs/features/DATABASE_SETUP.md) - Базовая настройка БД
+- [docs/setup/DEPLOYMENT_CHECKLIST.md](docs/setup/DEPLOYMENT_CHECKLIST.md) - Чеклист для деплоя
+- [docs/setup/RECAPTCHA_SETUP.md](docs/setup/RECAPTCHA_SETUP.md) - Настройка reCAPTCHA
+- [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) - Дорожная карта развития проекта
 
 ## Development Guidelines
 
@@ -484,6 +490,34 @@ const nearbyEvents = filterEventsByDistance(eventsWithDistance, 10);
 const distanceText = formatDistance(5.234); // "5.2 км"
 ```
 
+## Project Structure
+
+```
+ObschiySbor/
+├── frontend/                # Frontend приложение (React + Vite)
+│   ├── src/                # Исходный код
+│   ├── dist/               # Production сборка (игнорируется git)
+│   └── public/             # Статические файлы
+├── database/               # SQL миграции и схемы
+│   ├── migrations/         # Основные миграции
+│   ├── archive/            # Устаревшие миграции
+│   └── schema.sql          # Главная схема БД
+├── docs/                   # Документация проекта
+│   ├── features/           # Документация функций
+│   ├── setup/              # Инструкции по настройке
+│   ├── archive/            # Устаревшая документация
+│   └── NEXT_STEPS.md       # Дорожная карта
+├── CLAUDE.md               # Инструкции для Claude AI
+├── README.md               # Основная документация
+└── vercel.json             # Конфигурация деплоя
+```
+
+**Важные каталоги:**
+- `docs/features/` - документация по реализованным функциям (VK ID, Telegram, модерация, блокировка пользователей и т.д.)
+- `docs/setup/` - инструкции по настройке (деплой, оптимизация, reCAPTCHA)
+- `database/migrations/` - актуальные SQL миграции для применения
+- `database/archive/` - устаревшие миграции (не применять!)
+
 ## AI Assistant Guidelines
 
 - Разработка ведется на **ОС Windows**
@@ -492,3 +526,5 @@ const distanceText = formatDistance(5.234); // "5.2 км"
 - Для работы с внешними библиотеками используй их официальную документацию
 - После изменений на фронтенде проверяй что приложение работает
 - При работе с Supabase помни про RLS политики - они могут блокировать запросы
+- **Документация:** При добавлении новых функций создавай MD файлы в `docs/features/`
+- **Миграции:** Новые SQL миграции размещай в `database/migrations/`, устаревшие перемещай в `archive/`
