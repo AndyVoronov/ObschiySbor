@@ -359,7 +359,8 @@ const Register = () => {
         }
 
         console.log('Успешный вход через VK:', signInData);
-        navigate('/');
+        // Принудительная перезагрузка для обновления данных профиля
+        window.location.href = '/';
         return;
       }
 
@@ -416,7 +417,8 @@ const Register = () => {
       }
 
       console.log('VK ID and user data updated in profile');
-      navigate('/');
+      // Принудительная перезагрузка для обновления данных профиля
+      window.location.href = '/';
     } catch (err) {
       console.error('Ошибка VK регистрации:', err);
       setError(`Не удалось создать аккаунт через ВКонтакте: ${err.message}`);
