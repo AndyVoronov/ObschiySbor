@@ -42,7 +42,7 @@ const Login = () => {
       // Проверяем, существует ли пользователь с этим Telegram ID
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, user_id, telegram_password')
+        .select('id, telegram_password')
         .eq('telegram_id', telegramId)
         .maybeSingle();
 
@@ -240,7 +240,7 @@ const Login = () => {
       // Проверяем, существует ли пользователь в Supabase
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, user_id, vk_password')
+        .select('id, vk_password')
         .eq('vk_id', vkUserId)
         .maybeSingle(); // Используем maybeSingle() вместо single() чтобы не было ошибки если записи нет
 
