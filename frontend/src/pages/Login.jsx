@@ -356,8 +356,23 @@ const Login = () => {
         }
 
         console.log('Успешный вход через VK:', signInData);
-        // Принудительная перезагрузка для обновления данных профиля
-        window.location.href = '/';
+
+        // Проверяем что данные действительно обновились в БД
+        const { data: updatedProfile, error: checkError } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url, vk_id')
+          .eq('id', existingProfile.id)
+          .single();
+
+        console.log('=== ПРОВЕРКА ДАННЫХ В БД ===');
+        console.log('Обновлённый профиль из БД:', updatedProfile);
+        console.log('Ошибка при проверке:', checkError);
+        console.log('============================');
+
+        // Даём время посмотреть логи перед переходом
+        setTimeout(() => {
+          navigate('/');
+        }, 3000);
         return;
       }
 
