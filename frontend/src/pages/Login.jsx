@@ -250,15 +250,50 @@ const Login = () => {
         // Пользователь уже существует - выполняем вход
         console.log('Пользователь с VK ID уже существует, выполняем вход');
 
+        const email = `vk${vkUserId}@obschiysbor.local`;
+
         // Проверяем, есть ли сохранённый пароль
         if (!existingProfile.vk_password) {
-          console.error('У существующего VK пользователя нет сохранённого пароля');
-          setError('Это старый VK аккаунт без сохранённого пароля. Обратитесь к администратору или используйте восстановление пароля.');
+          console.log('У существующего VK пользователя нет сохранённого пароля');
+          console.log('Это старый аккаунт - пересоздаём с новым паролем');
+
+          // Генерируем новый пароль
+          const newPassword = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
+
+          // Сохраняем пароль в профиле
+          const { error: updateProfileError } = await supabase
+            .from('profiles')
+            .update({ vk_password: newPassword })
+            .eq('id', existingProfile.id);
+
+          if (updateProfileError) {
+            console.error('Update Profile Password Error:', updateProfileError);
+            setError('Не удалось обновить профиль. Попробуйте позже.');
+            return;
+          }
+
+          console.log('Пароль сохранён в профиле, пытаемся войти');
+
+          // Пытаемся войти (пароль в auth.users может не совпадать, но попробуем)
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: newPassword,
+          });
+
+          if (signInError) {
+            console.error('Sign In Error (trying with new password):', signInError);
+            // Если не получилось войти, значит пароль в auth.users другой
+            // Показываем сообщение пользователю
+            setError('Это старый VK аккаунт с несохранённым паролем. Попробуйте удалить аккаунт и создать заново, или обратитесь к администратору.');
+            return;
+          }
+
+          console.log('Успешный вход через VK с обновлённым паролем:', signInData);
+          navigate('/');
           return;
         }
 
         // Выполняем вход с сохранённым паролем
-        const email = `vk${vkUserId}@obschiysbor.local`;
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: email,
           password: existingProfile.vk_password,
