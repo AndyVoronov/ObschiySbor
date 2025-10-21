@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
 import './TopNav.css';
 
 const TopNav = () => {
@@ -222,6 +223,9 @@ const TopNav = () => {
         </a>
 
         <div className="top-nav-right">
+          {/* Переключатель языка */}
+          <LanguageSwitcher />
+
           {/* Переключатель темы */}
           <ThemeToggle />
 

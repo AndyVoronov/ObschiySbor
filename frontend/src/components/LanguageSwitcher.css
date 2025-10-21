@@ -1,0 +1,73 @@
+.language-switcher {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground, #333);
+}
+
+.lang-btn:hover {
+  background: var(--hover-bg, #f5f5f5);
+  transform: translateY(-1px);
+}
+
+.lang-btn.active {
+  background: var(--primary, #007bff);
+  color: white;
+  border-color: var(--primary, #007bff);
+}
+
+.lang-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.lang-code {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+  .lang-btn {
+    padding: 5px 8px;
+  }
+
+  .lang-flag {
+    font-size: 14px;
+  }
+
+  .lang-code {
+    display: none; /* Скрываем текст на мобильных, оставляем только флаги */
+  }
+}
+
+/* Темная тема */
+[data-theme="dark"] .lang-btn {
+  background: var(--card-bg);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+[data-theme="dark"] .lang-btn:hover {
+  background: var(--hover-bg);
+}
+
+[data-theme="dark"] .lang-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
