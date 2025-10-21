@@ -4,14 +4,14 @@ import './RecurringEventSettings.css';
 /**
  * Компонент для настройки повторяющихся событий
  */
-const RecurringEventSettings = ({ value, onChange }) => {
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [frequency, setFrequency] = useState('weekly');
-  const [interval, setInterval] = useState(1);
-  const [occurrenceCount, setOccurrenceCount] = useState(10);
-  const [daysOfWeek, setDaysOfWeek] = useState([]);
-  const [endDate, setEndDate] = useState('');
-  const [endType, setEndType] = useState('count'); // 'count' или 'date'
+const RecurringEventSettings = ({ value = {}, onChange }) => {
+  const [isRecurring, setIsRecurring] = useState(value.isRecurring || false);
+  const [frequency, setFrequency] = useState(value.frequency || 'weekly');
+  const [interval, setInterval] = useState(value.interval || 1);
+  const [occurrenceCount, setOccurrenceCount] = useState(value.occurrenceCount || 10);
+  const [daysOfWeek, setDaysOfWeek] = useState(value.daysOfWeek || []);
+  const [endDate, setEndDate] = useState(value.endDate || '');
+  const [endType, setEndType] = useState(value.endType || 'count'); // 'count' или 'date'
   const isFirstRender = useRef(true);
 
   // Дни недели для выбора
@@ -24,20 +24,6 @@ const RecurringEventSettings = ({ value, onChange }) => {
     { value: 6, label: 'Сб', fullLabel: 'Суббота' },
     { value: 7, label: 'Вс', fullLabel: 'Воскресенье' },
   ];
-
-  // Инициализация из переданного значения (только при первом монтировании)
-  useEffect(() => {
-    if (value && value.isRecurring !== undefined) {
-      setIsRecurring(value.isRecurring);
-      setFrequency(value.frequency || 'weekly');
-      setInterval(value.interval || 1);
-      setOccurrenceCount(value.occurrenceCount || 10);
-      setDaysOfWeek(value.daysOfWeek || []);
-      setEndDate(value.endDate || '');
-      setEndType(value.endType || 'count');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Запускаем только при монтировании
 
   // Обновление родительского компонента при изменении настроек
   useEffect(() => {
