@@ -211,6 +211,7 @@ const Login = () => {
       // VK ID возвращает user_id и access_token напрямую
       const vkUserId = vkAuthData.user_id;
       const accessToken = vkAuthData.access_token;
+      const idToken = vkAuthData.id_token;
 
       if (!vkUserId || !accessToken) {
         throw new Error('Не удалось получить VK ID или access token');
@@ -218,23 +219,45 @@ const Login = () => {
 
       console.log('VK User ID:', vkUserId);
 
-      // Получаем реальные данные пользователя из VK через Edge Function
+      // Декодируем id_token чтобы получить данные пользователя
       let vkUserData = null;
-      try {
-        const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('vk-get-user', {
-          body: { user_id: vkUserId, access_token: accessToken }
-        });
+      if (idToken) {
+        try {
+          // Декодируем JWT токен (формат: header.payload.signature)
+          const payload = idToken.split('.')[1];
+          const decodedPayload = JSON.parse(atob(payload));
+          console.log('Decoded ID Token:', decodedPayload);
 
-        if (edgeFunctionError) {
-          console.error('Edge Function Error:', edgeFunctionError);
-          throw edgeFunctionError;
+          // Извлекаем данные пользователя из токена
+          vkUserData = {
+            first_name: decodedPayload.first_name || decodedPayload.given_name || '',
+            last_name: decodedPayload.last_name || decodedPayload.family_name || '',
+            photo_200: decodedPayload.avatar || decodedPayload.picture || null,
+          };
+          console.log('VK User Data from ID Token:', vkUserData);
+        } catch (decodeError) {
+          console.error('Ошибка декодирования ID token:', decodeError);
         }
+      }
 
-        vkUserData = edgeFunctionData;
-        console.log('VK User Data from API:', vkUserData);
-      } catch (apiError) {
-        console.error('Не удалось получить данные из VK API:', apiError);
-        // Продолжаем с базовыми данными если Edge Function не доступна
+      // Если не удалось получить данные из токена, пробуем Edge Function
+      if (!vkUserData) {
+        try {
+          const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('vk-get-user', {
+            body: { user_id: vkUserId, access_token: accessToken }
+          });
+
+          if (edgeFunctionError) {
+            console.error('Edge Function Error:', edgeFunctionError);
+            throw edgeFunctionError;
+          }
+
+          vkUserData = edgeFunctionData;
+          console.log('VK User Data from API:', vkUserData);
+        } catch (apiError) {
+          console.error('Не удалось получить данные из VK API:', apiError);
+          // Продолжаем с базовыми данными если Edge Function не доступна
+        }
       }
 
       // Проверяем, существует ли пользователь в Supabase
