@@ -31,61 +31,92 @@
 }
 
 .rules-intro {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 2rem;
+  background: var(--card-bg);
+  padding: 1.5rem;
   border-radius: 15px;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   text-align: center;
+  border: 2px solid var(--border);
   animation: fadeInUp 0.6s ease-out;
 }
 
 .rules-intro p {
-  color: #2c3e50;
-  font-size: 1.1rem;
-  line-height: 1.8;
+  color: var(--foreground);
+  font-size: 1.05rem;
+  line-height: 1.7;
   margin: 0;
 }
 
 .rules-section {
-  background: white;
-  padding: 2.5rem;
+  background: var(--card-bg);
+  padding: 1.5rem;
   border-radius: 15px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px var(--card-shadow);
+  border: 2px solid var(--border);
   animation: fadeInUp 0.6s ease-out;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+}
+
+.rules-section.collapsible {
+  padding: 1rem;
 }
 
 .rules-section:hover {
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.15);
-  transform: translateY(-3px);
+  border-color: var(--primary);
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.rule-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.toggle-arrow {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
 }
 
 .rule-icon {
-  font-size: 3rem;
-  text-align: center;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  flex-shrink: 0;
 }
 
 .rules-section h2 {
-  color: #2c3e50;
-  font-size: 1.6rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid #667eea;
+  color: var(--foreground);
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
 }
 
 .rules-list {
   list-style: none;
-  padding: 0;
+  padding: 1rem 0 0 0;
   margin: 0;
 }
 
 .rules-list > li {
-  color: #555;
-  font-size: 1.05rem;
-  line-height: 1.8;
-  padding: 0.75rem 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.7;
+  padding: 0.5rem 0;
   padding-left: 2rem;
   position: relative;
 }
@@ -94,22 +125,22 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #667eea;
+  color: var(--primary);
   font-weight: bold;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
 .sub-list {
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   margin-left: 1.5rem;
   list-style: none;
   padding: 0;
 }
 
 .sub-list li {
-  color: #666;
-  font-size: 1rem;
-  padding: 0.5rem 0;
+  color: var(--foreground-muted);
+  font-size: 0.95rem;
+  padding: 0.4rem 0;
   padding-left: 1.5rem;
   position: relative;
 }
@@ -118,52 +149,53 @@
   content: '◆';
   position: absolute;
   left: 0;
-  color: #764ba2;
-  font-size: 0.8rem;
+  color: var(--primary);
+  font-size: 0.7rem;
 }
 
 .rules-footer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin-top: 3rem;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .footer-box {
-  background: white;
-  padding: 2rem;
+  background: var(--card-bg);
+  padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #667eea;
+  box-shadow: 0 3px 10px var(--card-shadow);
+  border: 2px solid var(--border);
+  border-left: 4px solid var(--primary);
 }
 
 .footer-box.accent {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
-  border-left-color: #764ba2;
+  background: var(--card-bg);
+  border-left-color: var(--primary);
 }
 
 .footer-box h3 {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.3rem;
+  color: var(--foreground);
+  margin: 0 0 0.75rem 0;
+  font-size: 1.2rem;
 }
 
 .footer-box p {
-  color: #555;
-  line-height: 1.7;
+  color: var(--foreground);
+  line-height: 1.6;
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .footer-box a {
-  color: #667eea;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .footer-box a:hover {
-  color: #764ba2;
+  color: var(--primary-hover);
   text-decoration: underline;
 }
 
@@ -201,28 +233,81 @@
 }
 
 @media (max-width: 768px) {
+  .rules-hero {
+    padding: 2.5rem 1.5rem;
+  }
+
   .rules-hero-content h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .rules-subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+
+  .rules-content {
+    padding: 0 1rem 2rem;
+  }
+
+  .rules-intro {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .rules-intro p {
+    font-size: 0.95rem;
   }
 
   .rules-section {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .rules-section.collapsible {
+    padding: 0.75rem;
+  }
+
+  .rule-header {
+    padding: 0.25rem;
+  }
+
+  .rule-title-wrapper {
+    gap: 0.75rem;
+  }
+
+  .rule-icon {
+    font-size: 1.5rem;
   }
 
   .rules-section h2 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+  }
+
+  .rules-list {
+    padding-top: 0.75rem;
   }
 
   .rules-list > li {
-    font-size: 1rem;
+    font-size: 0.95rem;
     padding-left: 1.5rem;
   }
 
+  .sub-list li {
+    font-size: 0.9rem;
+  }
+
   .footer-box {
+    padding: 1rem;
+  }
+
+  .footer-box h3 {
+    font-size: 1.1rem;
+  }
+
+  .footer-box p {
+    font-size: 0.95rem;
+  }
+
+  .accept-section {
     padding: 1.5rem;
   }
 }
