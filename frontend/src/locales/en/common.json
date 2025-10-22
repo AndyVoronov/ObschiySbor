@@ -506,8 +506,34 @@
       "sportLevel": "Level",
       "sportLevelAmateur": "Amateur",
       "sportLevelProfessional": "Professional",
-      "tourType": "Tour type"
-    }
+      "tourType": "Tour type",
+      "equipmentNeeded": "Equipment"
+    },
+    "calendar": {
+      "title": "Add to calendar",
+      "downloadICS": "Download .ics",
+      "downloadICSTitle": "Download .ics file for any calendar",
+      "googleCalendar": "Google Calendar",
+      "googleCalendarTitle": "Open in Google Calendar"
+    },
+    "buttons": {
+      "cancelEvent": "Cancel event",
+      "leaveEvent": "Leave event",
+      "leaving": "Leaving...",
+      "joinEvent": "Join",
+      "joining": "Joining...",
+      "eventFull": "Event is full"
+    },
+    "cancelDialog": {
+      "title": "Cancel event",
+      "confirmMessage": "Are you sure you want to cancel this event? All participants will be notified.",
+      "reasonLabel": "Cancellation reason",
+      "reasonPlaceholder": "Please specify the reason for cancellation...",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm cancellation",
+      "confirming": "Cancelling event..."
+    },
+    "appealSubmitted": "Your appeal has been submitted for review"
   },
   "categories": {
     "board_games": "Board Games",

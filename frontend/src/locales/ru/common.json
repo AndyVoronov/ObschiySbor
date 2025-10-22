@@ -506,8 +506,34 @@
       "sportLevel": "Уровень",
       "sportLevelAmateur": "Любительский",
       "sportLevelProfessional": "Профессиональный",
-      "tourType": "Тип тура"
-    }
+      "tourType": "Тип тура",
+      "equipmentNeeded": "Оборудование"
+    },
+    "calendar": {
+      "title": "Добавить в календарь",
+      "downloadICS": "Скачать .ics",
+      "downloadICSTitle": "Скачать файл .ics для любого календаря",
+      "googleCalendar": "Google Calendar",
+      "googleCalendarTitle": "Открыть в Google Calendar"
+    },
+    "buttons": {
+      "cancelEvent": "Отменить событие",
+      "leaveEvent": "Покинуть событие",
+      "leaving": "Выход...",
+      "joinEvent": "Присоединиться",
+      "joining": "Присоединение...",
+      "eventFull": "Мест нет"
+    },
+    "cancelDialog": {
+      "title": "Отменить событие",
+      "confirmMessage": "Вы уверены, что хотите отменить это событие? Всем участникам будет отправлено уведомление.",
+      "reasonLabel": "Причина отмены",
+      "reasonPlaceholder": "Укажите причину отмены события...",
+      "cancelButton": "Отмена",
+      "confirmButton": "Подтвердить отмену",
+      "confirming": "Отмена события..."
+    },
+    "appealSubmitted": "Ваше обжалование отправлено на рассмотрение администрации"
   },
   "categories": {
     "board_games": "Настольные игры",

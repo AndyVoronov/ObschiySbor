@@ -546,236 +546,236 @@ const EventDetails = () => {
             {event.category === 'yoga' && (
               <>
                 {categoryRelatedData?.practice_type && (
-                  <p><strong>Тип практики:</strong> {categoryRelatedData.practice_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.practiceType')}:</strong> {categoryRelatedData.practice_type}</p>
                 )}
                 {event.category_data.difficulty && (
-                  <p><strong>Уровень:</strong> {event.category_data.difficulty === 'beginner' ? 'Начинающий' : event.category_data.difficulty === 'intermediate' ? 'Средний' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.level')}:</strong> {t(`eventDetails.categoryData.level${event.category_data.difficulty.charAt(0).toUpperCase() + event.category_data.difficulty.slice(1)}`)}</p>
                 )}
                 {event.category_data.equipment_needed?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {event.category_data.equipment_needed.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipmentNeeded')}:</strong> {event.category_data.equipment_needed.join(', ')}</p>
                 )}
               </>
             )}
             {event.category === 'cooking' && (
               <>
                 {categoryRelatedData?.cuisine_type && (
-                  <p><strong>Кухня:</strong> {categoryRelatedData.cuisine_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.cuisine')}:</strong> {categoryRelatedData.cuisine_type}</p>
                 )}
                 {event.category_data.skill_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.skill_level === 'beginner' ? 'Начинающий' : 'Опытный'}</p>
+                  <p><strong>{t('eventDetails.categoryData.skillLevel')}:</strong> {t(`eventDetails.categoryData.skillLevel${event.category_data.skill_level.charAt(0).toUpperCase() + event.category_data.skill_level.slice(1)}`)}</p>
                 )}
               </>
             )}
             {event.category === 'music_jam' && (
               <>
                 {categoryRelatedData?.genre && (
-                  <p><strong>Жанр:</strong> {categoryRelatedData.genre}</p>
+                  <p><strong>{t('eventDetails.categoryData.genre')}:</strong> {categoryRelatedData.genre}</p>
                 )}
                 {categoryRelatedData?.instruments?.length > 0 && (
-                  <p><strong>Инструменты:</strong> {categoryRelatedData.instruments.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.instruments')}:</strong> {categoryRelatedData.instruments.join(', ')}</p>
                 )}
                 {event.category_data.performer_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.performer_level === 'amateur' ? 'Любитель' : 'Профессионал'}</p>
+                  <p><strong>{t('eventDetails.categoryData.performerLevel')}:</strong> {t(`eventDetails.categoryData.performer${event.category_data.performer_level.charAt(0).toUpperCase() + event.category_data.performer_level.slice(1)}`)}</p>
                 )}
               </>
             )}
             {event.category === 'seminar' && (
               <>
                 {categoryRelatedData?.topic && (
-                  <p><strong>Тема:</strong> {categoryRelatedData.topic}</p>
+                  <p><strong>{t('eventDetails.categoryData.topic')}:</strong> {categoryRelatedData.topic}</p>
                 )}
                 {event.category_data.format && (
-                  <p><strong>Формат:</strong> {event.category_data.format === 'lecture' ? 'Лекция' : event.category_data.format === 'workshop' ? 'Воркшоп' : 'Дискуссия'}</p>
+                  <p><strong>{t('eventDetails.categoryData.format')}:</strong> {t(`eventDetails.categoryData.format${event.category_data.format.charAt(0).toUpperCase() + event.category_data.format.slice(1)}`)}</p>
                 )}
                 {event.category_data.knowledge_level && (
-                  <p><strong>Уровень знаний:</strong> {event.category_data.knowledge_level === 'basic' ? 'Базовый' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.knowledgeLevel')}:</strong> {t(`eventDetails.categoryData.knowledge${event.category_data.knowledge_level.charAt(0).toUpperCase() + event.category_data.knowledge_level.slice(1)}`)}</p>
                 )}
                 {event.category_data.materials_needed?.length > 0 && (
-                  <p><strong>Материалы:</strong> {event.category_data.materials_needed.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.materials')}:</strong> {event.category_data.materials_needed.join(', ')}</p>
                 )}
               </>
             )}
             {event.category === 'picnic' && (
               <>
                 {categoryRelatedData?.picnic_type && (
-                  <p><strong>Тип пикника:</strong> {categoryRelatedData.picnic_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.picnicType')}:</strong> {categoryRelatedData.picnic_type}</p>
                 )}
                 {event.category_data.weather_dependent && (
-                  <p><strong>Место:</strong> {event.category_data.weather_dependent === 'covered' ? 'Крытое' : 'На открытом воздухе'}</p>
+                  <p><strong>{t('eventDetails.categoryData.weatherPlace')}:</strong> {t(`eventDetails.categoryData.weather${event.category_data.weather_dependent.charAt(0).toUpperCase() + event.category_data.weather_dependent.slice(1)}`)}</p>
                 )}
               </>
             )}
             {event.category === 'photo_walk' && (
               <>
                 {categoryRelatedData?.theme && (
-                  <p><strong>Тематика:</strong> {categoryRelatedData.theme}</p>
+                  <p><strong>{t('eventDetails.categoryData.theme')}:</strong> {categoryRelatedData.theme}</p>
                 )}
                 {event.category_data.skill_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.skill_level === 'beginner' ? 'Начинающий' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.level')}:</strong> {t(`eventDetails.categoryData.level${event.category_data.skill_level.charAt(0).toUpperCase() + event.category_data.skill_level.slice(1)}`)}</p>
                 )}
                 {categoryRelatedData?.equipment?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {categoryRelatedData.equipment.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipmentNeeded')}:</strong> {categoryRelatedData.equipment.join(', ')}</p>
                 )}
                 {event.category_data.route && (
-                  <p><strong>Маршрут:</strong> {event.category_data.route}</p>
+                  <p><strong>{t('eventDetails.categoryData.photoRoute')}:</strong> {event.category_data.route}</p>
                 )}
               </>
             )}
             {event.category === 'quest' && (
               <>
                 {categoryRelatedData?.theme && (
-                  <p><strong>Тематика:</strong> {categoryRelatedData.theme}</p>
+                  <p><strong>{t('eventDetails.categoryData.theme')}:</strong> {categoryRelatedData.theme}</p>
                 )}
                 {event.category_data.difficulty && (
-                  <p><strong>Сложность:</strong> {event.category_data.difficulty === 'easy' ? 'Лёгкая' : event.category_data.difficulty === 'medium' ? 'Средняя' : 'Хардкор'}</p>
+                  <p><strong>{t('eventDetails.categoryData.questDifficulty')}:</strong> {t(`eventDetails.categoryData.quest${event.category_data.difficulty.charAt(0).toUpperCase() + event.category_data.difficulty.slice(1)}`)}</p>
                 )}
                 {event.category_data.age_restriction && (
-                  <p><strong>Возраст:</strong> {event.category_data.age_restriction}+</p>
+                  <p><strong>{t('eventDetails.categoryData.age')}:</strong> {event.category_data.age_restriction}{t('eventDetails.categoryData.agePlus')}</p>
                 )}
               </>
             )}
             {event.category === 'dance' && (
               <>
                 {categoryRelatedData?.style && (
-                  <p><strong>Стиль:</strong> {categoryRelatedData.style}</p>
+                  <p><strong>{t('eventDetails.categoryData.style')}:</strong> {categoryRelatedData.style}</p>
                 )}
                 {event.category_data.skill_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.skill_level === 'beginner' ? 'Начинающий' : event.category_data.skill_level === 'intermediate' ? 'Средний' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.level')}:</strong> {t(`eventDetails.categoryData.level${event.category_data.skill_level.charAt(0).toUpperCase() + event.category_data.skill_level.slice(1)}`)}</p>
                 )}
                 {event.category_data.partner_type && (
-                  <p><strong>Тип:</strong> {event.category_data.partner_type === 'partner' ? 'С партнёром' : 'Соло'}</p>
+                  <p><strong>{t('eventDetails.categoryData.partnerType')}:</strong> {t(`eventDetails.categoryData.partnerType${event.category_data.partner_type.charAt(0).toUpperCase() + event.category_data.partner_type.slice(1)}`)}</p>
                 )}
                 {event.category_data.dress_code && (
-                  <p><strong>Дресс-код:</strong> {event.category_data.dress_code}</p>
+                  <p><strong>{t('eventDetails.categoryData.dressCode')}:</strong> {event.category_data.dress_code}</p>
                 )}
               </>
             )}
             {event.category === 'tour' && (
               <>
                 {event.category_data.theme && (
-                  <p><strong>Тематика:</strong> {event.category_data.theme === 'historical' ? 'Историческая' : event.category_data.theme === 'gastronomic' ? 'Гастрономическая' : 'Уличное искусство'}</p>
+                  <p><strong>{t('eventDetails.categoryData.tourTheme')}:</strong> {t(`eventDetails.categoryData.tour${event.category_data.theme.charAt(0).toUpperCase() + event.category_data.theme.slice(1)}`)}</p>
                 )}
                 {event.category_data.duration_hours && (
-                  <p><strong>Длительность:</strong> {event.category_data.duration_hours} ч</p>
+                  <p><strong>{t('eventDetails.categoryData.durationHours')}:</strong> {event.category_data.duration_hours} {t('eventDetails.categoryData.hours')}</p>
                 )}
                 {event.category_data.pace && (
-                  <p><strong>Темп:</strong> {event.category_data.pace === 'slow' ? 'Медленный' : 'Активный'}</p>
+                  <p><strong>{t('eventDetails.categoryData.pace')}:</strong> {t(`eventDetails.categoryData.pace${event.category_data.pace.charAt(0).toUpperCase() + event.category_data.pace.slice(1)}`)}</p>
                 )}
                 {event.category_data.accessibility?.length > 0 && (
-                  <p><strong>Доступность:</strong> {event.category_data.accessibility.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.accessibility')}:</strong> {event.category_data.accessibility.join(', ')}</p>
                 )}
               </>
             )}
             {event.category === 'volunteer' && (
               <>
                 {categoryRelatedData?.activity_type && (
-                  <p><strong>Тип деятельности:</strong> {categoryRelatedData.activity_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.activityType')}:</strong> {categoryRelatedData.activity_type}</p>
                 )}
                 {categoryRelatedData?.skills?.length > 0 && (
-                  <p><strong>Навыки:</strong> {categoryRelatedData.skills.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.skills')}:</strong> {categoryRelatedData.skills.join(', ')}</p>
                 )}
                 {event.category_data.age_min && (
-                  <p><strong>Минимальный возраст:</strong> {event.category_data.age_min}+</p>
+                  <p><strong>{t('eventDetails.categoryData.minAge')}:</strong> {event.category_data.age_min}{t('eventDetails.categoryData.agePlus')}</p>
                 )}
                 {event.category_data.equipment_needed?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {event.category_data.equipment_needed.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipmentNeeded')}:</strong> {event.category_data.equipment_needed.join(', ')}</p>
                 )}
               </>
             )}
             {event.category === 'fitness' && (
               <>
                 {categoryRelatedData?.workout_type && (
-                  <p><strong>Тип тренировки:</strong> {categoryRelatedData.workout_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.workoutType')}:</strong> {categoryRelatedData.workout_type}</p>
                 )}
                 {event.category_data.fitness_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.fitness_level === 'beginner' ? 'Начинающий' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.fitnessLevel')}:</strong> {t(`eventDetails.categoryData.fitnessLevel${event.category_data.fitness_level.charAt(0).toUpperCase() + event.category_data.fitness_level.slice(1)}`)}</p>
                 )}
                 {event.category_data.duration_minutes && (
-                  <p><strong>Длительность:</strong> {event.category_data.duration_minutes} мин</p>
+                  <p><strong>{t('eventDetails.categoryData.durationMinutes')}:</strong> {event.category_data.duration_minutes} {t('eventDetails.categoryData.minutes')}</p>
                 )}
                 {event.category_data.equipment_needed?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {event.category_data.equipment_needed.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipmentNeeded')}:</strong> {event.category_data.equipment_needed.join(', ')}</p>
                 )}
               </>
             )}
             {event.category === 'theater' && (
               <>
                 {categoryRelatedData?.genre && (
-                  <p><strong>Жанр:</strong> {categoryRelatedData.genre}</p>
+                  <p><strong>{t('eventDetails.categoryData.theaterGenre')}:</strong> {categoryRelatedData.genre}</p>
                 )}
                 {event.category_data.age_rating && (
-                  <p><strong>Возрастной рейтинг:</strong> {event.category_data.age_rating}</p>
+                  <p><strong>{t('eventDetails.categoryData.ageRating')}:</strong> {event.category_data.age_rating}</p>
                 )}
                 {event.category_data.duration_minutes && (
-                  <p><strong>Длительность:</strong> {event.category_data.duration_minutes} мин</p>
+                  <p><strong>{t('eventDetails.categoryData.durationMinutes')}:</strong> {event.category_data.duration_minutes} {t('eventDetails.categoryData.minutes')}</p>
                 )}
                 {event.category_data.has_intermission && (
-                  <p><strong>Антракт:</strong> Да</p>
+                  <p><strong>{t('eventDetails.categoryData.hasIntermission')}:</strong> {t('eventDetails.categoryData.hasIntermissionYes')}</p>
                 )}
               </>
             )}
             {event.category === 'auto_tour' && (
               <>
                 {event.category_data.route_type && (
-                  <p><strong>Тип маршрута:</strong> {event.category_data.route_type === 'city' ? 'Городской' : 'Оффроад'}</p>
+                  <p><strong>{t('eventDetails.categoryData.routeType')}:</strong> {t(`eventDetails.categoryData.routeType${event.category_data.route_type.charAt(0).toUpperCase() + event.category_data.route_type.slice(1)}`)}</p>
                 )}
                 {event.category_data.driving_difficulty && (
-                  <p><strong>Сложность:</strong> {event.category_data.driving_difficulty === 'easy' ? 'Лёгкая' : 'Сложная'}</p>
+                  <p><strong>{t('eventDetails.categoryData.drivingDifficulty')}:</strong> {t(`eventDetails.categoryData.driving${event.category_data.driving_difficulty.charAt(0).toUpperCase() + event.category_data.driving_difficulty.slice(1)}`)}</p>
                 )}
                 {event.category_data.required_equipment?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {event.category_data.required_equipment.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.requiredEquipment')}:</strong> {event.category_data.required_equipment.join(', ')}</p>
                 )}
                 {event.category_data.car_capacity && (
-                  <p><strong>Вместимость:</strong> {event.category_data.car_capacity} чел</p>
+                  <p><strong>{t('eventDetails.categoryData.carCapacity')}:</strong> {event.category_data.car_capacity} {t('eventDetails.categoryData.carCapacityPeople')}</p>
                 )}
               </>
             )}
             {event.category === 'craft' && (
               <>
                 {categoryRelatedData?.craft_type && (
-                  <p><strong>Тип ремесла:</strong> {categoryRelatedData.craft_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.craftType')}:</strong> {categoryRelatedData.craft_type}</p>
                 )}
                 {categoryRelatedData?.materials?.length > 0 && (
-                  <p><strong>Материалы:</strong> {categoryRelatedData.materials.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.materials')}:</strong> {categoryRelatedData.materials.join(', ')}</p>
                 )}
                 {event.category_data.skill_level && (
-                  <p><strong>Уровень:</strong> {event.category_data.skill_level === 'beginner' ? 'Начинающий' : event.category_data.skill_level === 'intermediate' ? 'Средний' : 'Продвинутый'}</p>
+                  <p><strong>{t('eventDetails.categoryData.level')}:</strong> {t(`eventDetails.categoryData.level${event.category_data.skill_level.charAt(0).toUpperCase() + event.category_data.skill_level.slice(1)}`)}</p>
                 )}
                 {event.category_data.final_product && (
-                  <p><strong>Итоговый продукт:</strong> {event.category_data.final_product}</p>
+                  <p><strong>{t('eventDetails.categoryData.finalProduct')}:</strong> {event.category_data.final_product}</p>
                 )}
               </>
             )}
             {event.category === 'concert' && (
               <>
                 {categoryRelatedData?.genre && (
-                  <p><strong>Жанр:</strong> {categoryRelatedData.genre}</p>
+                  <p><strong>{t('eventDetails.categoryData.genre')}:</strong> {categoryRelatedData.genre}</p>
                 )}
                 {event.category_data.performer && (
-                  <p><strong>Исполнитель:</strong> {event.category_data.performer}</p>
+                  <p><strong>{t('eventDetails.categoryData.performer')}:</strong> {event.category_data.performer}</p>
                 )}
                 {event.category_data.age_restriction && (
-                  <p><strong>Возрастное ограничение:</strong> {event.category_data.age_restriction}</p>
+                  <p><strong>{t('eventDetails.categoryData.ageRestriction')}:</strong> {event.category_data.age_restriction}</p>
                 )}
               </>
             )}
             {event.category === 'sports' && (
               <>
                 {categoryRelatedData?.sport_type && (
-                  <p><strong>Вид спорта:</strong> {categoryRelatedData.sport_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.sportType')}:</strong> {categoryRelatedData.sport_type}</p>
                 )}
                 {event.category_data.level && (
-                  <p><strong>Уровень:</strong> {event.category_data.level === 'amateur' ? 'Любительский' : 'Профессиональный'}</p>
+                  <p><strong>{t('eventDetails.categoryData.sportLevel')}:</strong> {t(`eventDetails.categoryData.sportLevel${event.category_data.level.charAt(0).toUpperCase() + event.category_data.level.slice(1)}`)}</p>
                 )}
               </>
             )}
             {event.category === 'eco_tour' && (
               <>
                 {categoryRelatedData?.tour_type && (
-                  <p><strong>Тип тура:</strong> {categoryRelatedData.tour_type}</p>
+                  <p><strong>{t('eventDetails.categoryData.tourType')}:</strong> {categoryRelatedData.tour_type}</p>
                 )}
                 {event.category_data.equipment_needed?.length > 0 && (
-                  <p><strong>Оборудование:</strong> {event.category_data.equipment_needed.join(', ')}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipmentNeeded')}:</strong> {event.category_data.equipment_needed.join(', ')}</p>
                 )}
               </>
             )}
@@ -783,21 +783,21 @@ const EventDetails = () => {
         )}
 
         <div className="calendar-actions">
-          <h3>Добавить в календарь</h3>
+          <h3>{t('eventDetails.calendar.title')}</h3>
           <div className="calendar-buttons">
             <button
               onClick={handleExportToCalendar}
               className="btn btn-secondary"
-              title="Скачать файл .ics для любого календаря"
+              title={t('eventDetails.calendar.downloadICSTitle')}
             >
-              📅 Скачать .ics
+              📅 {t('eventDetails.calendar.downloadICS')}
             </button>
             <button
               onClick={handleAddToGoogleCalendar}
               className="btn btn-secondary"
-              title="Открыть в Google Calendar"
+              title={t('eventDetails.calendar.googleCalendarTitle')}
             >
-              📆 Google Calendar
+              📆 {t('eventDetails.calendar.googleCalendar')}
             </button>
           </div>
         </div>
@@ -809,7 +809,7 @@ const EventDetails = () => {
               onClick={() => setShowCancelDialog(true)}
               className="btn btn-danger"
             >
-              ❌ Отменить событие
+              ❌ {t('eventDetails.buttons.cancelEvent')}
             </button>
           </div>
         )}
@@ -818,7 +818,7 @@ const EventDetails = () => {
         {user && blockInfo?.is_blocked && (
           <BlockedUserNotice
             blockInfo={blockInfo}
-            onAppealSubmitted={() => alert('Ваше обжалование отправлено на рассмотрение администрации')}
+            onAppealSubmitted={() => alert(t('eventDetails.appealSubmitted'))}
           />
         )}
 
@@ -831,7 +831,7 @@ const EventDetails = () => {
                 className="btn btn-danger"
                 disabled={joining}
               >
-                {joining ? 'Выход...' : 'Покинуть событие'}
+                {joining ? t('eventDetails.buttons.leaving') : t('eventDetails.buttons.leaveEvent')}
               </button>
             ) : (
               <button
@@ -839,7 +839,7 @@ const EventDetails = () => {
                 className="btn btn-primary"
                 disabled={joining || isFull}
               >
-                {joining ? 'Присоединение...' : isFull ? 'Мест нет' : 'Присоединиться'}
+                {joining ? t('eventDetails.buttons.joining') : isFull ? t('eventDetails.buttons.eventFull') : t('eventDetails.buttons.joinEvent')}
               </button>
             )}
           </div>
@@ -856,17 +856,17 @@ const EventDetails = () => {
         {showCancelDialog && (
           <div className="cancel-dialog-overlay" onClick={() => !cancelling && setShowCancelDialog(false)}>
             <div className="cancel-dialog" onClick={(e) => e.stopPropagation()}>
-              <h2>Отменить событие</h2>
-              <p>Вы уверены, что хотите отменить это событие? Всем участникам будет отправлено уведомление.</p>
+              <h2>{t('eventDetails.cancelDialog.title')}</h2>
+              <p>{t('eventDetails.cancelDialog.confirmMessage')}</p>
               <div className="form-group">
                 <label htmlFor="cancellation-reason">
-                  Причина отмены <span className="required">*</span>
+                  {t('eventDetails.cancelDialog.reasonLabel')} <span className="required">*</span>
                 </label>
                 <textarea
                   id="cancellation-reason"
                   value={cancellationReason}
                   onChange={(e) => setCancellationReason(e.target.value)}
-                  placeholder="Укажите причину отмены события..."
+                  placeholder={t('eventDetails.cancelDialog.reasonPlaceholder')}
                   rows={4}
                   disabled={cancelling}
                   required
@@ -878,14 +878,14 @@ const EventDetails = () => {
                   className="btn btn-secondary"
                   disabled={cancelling}
                 >
-                  Отмена
+                  {t('eventDetails.cancelDialog.cancelButton')}
                 </button>
                 <button
                   onClick={handleCancelEvent}
                   className="btn btn-danger"
                   disabled={cancelling || !cancellationReason.trim()}
                 >
-                  {cancelling ? 'Отмена события...' : 'Подтвердить отмену'}
+                  {cancelling ? t('eventDetails.cancelDialog.confirming') : t('eventDetails.cancelDialog.confirmButton')}
                 </button>
               </div>
             </div>
