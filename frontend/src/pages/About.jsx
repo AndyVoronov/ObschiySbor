@@ -1,22 +1,18 @@
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import './About.css';
 
 const About = () => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
-  const [expandedSection, setExpandedSection] = useState('features');
-
-  const toggleSection = (section) => {
-    setExpandedSection(expandedSection === section ? null : section);
-  };
 
   return (
     <div className="about-page">
       <div className="about-hero">
         <div className="about-hero-content">
-          <h1>🎉 О проекте "Общий сбор!"</h1>
+          <h1>{t('about.title')}</h1>
           <p className="about-subtitle">
-            Платформа для организации и поиска интересных событий
+            {t('about.subtitle')}
           </p>
         </div>
       </div>
@@ -24,134 +20,71 @@ const About = () => {
       <div className="about-content">
         <section className="about-section">
           <div className="about-section-icon">🎯</div>
-          <h2>Наша миссия</h2>
+          <h2>{t('about.ourMission')}</h2>
           <p>
-            Мы создали "Общий сбор!", чтобы объединять людей вокруг общих интересов.
-            Наша цель — сделать организацию и поиск событий максимально простыми и удобными.
-            От настольных игр до походов, от кулинарных мастер-классов до велопрогулок —
-            здесь каждый найдёт что-то для себя.
+            {t('about.ourMissionText')}
           </p>
         </section>
 
-        <section className="about-section collapsible">
-          <div
-            className="section-header"
-            onClick={() => toggleSection('features')}
-          >
-            <div className="about-section-icon">✨</div>
-            <h2>Что мы предлагаем</h2>
-            <span className={`toggle-arrow ${expandedSection === 'features' ? 'open' : ''}`}>▼</span>
-          </div>
-          {expandedSection === 'features' && (
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">🎲</div>
-              <h3>20+ категорий</h3>
-              <p>Настольные игры, походы, велопрогулки, йога, кулинария и многое другое</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🗺️</div>
-              <h3>Интерактивные карты</h3>
-              <p>Выбирайте место встречи прямо на карте и находите события рядом</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">💬</div>
-              <h3>Real-time чаты</h3>
-              <p>Общайтесь с участниками в режиме реального времени</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">⭐</div>
-              <h3>Рейтинги и отзывы</h3>
-              <p>Делитесь впечатлениями и выбирайте лучшие события</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <h3>Дашборд организатора</h3>
-              <p>Управляйте своими событиями и следите за статистикой</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🔔</div>
-              <h3>Уведомления</h3>
-              <p>Будьте в курсе всех обновлений по вашим событиям</p>
-            </div>
-          </div>
-          )}
+        <section className="about-section">
+          <div className="about-section-icon">❓</div>
+          <h2>{t('about.whatIs')}</h2>
+          <p>
+            {t('about.whatIsText')}
+          </p>
         </section>
 
-        <section className="about-section collapsible">
-          <div
-            className="section-header"
-            onClick={() => toggleSection('why')}
-          >
-            <div className="about-section-icon">🚀</div>
-            <h2>Почему "Общий сбор!"?</h2>
-            <span className={`toggle-arrow ${expandedSection === 'why' ? 'open' : ''}`}>▼</span>
-          </div>
-          {expandedSection === 'why' && (
-          <div className="why-us-list">
-            <div className="why-us-item">
-              <span className="why-us-number">1</span>
-              <div>
-                <h4>Простота использования</h4>
-                <p>Интуитивный интерфейс, понятный даже новичкам</p>
-              </div>
+        <section className="about-section">
+          <h2>{t('about.howItWorks')}</h2>
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">1️⃣</div>
+              <h3>{t('about.step1Title')}</h3>
+              <p>{t('about.step1Text')}</p>
             </div>
-            <div className="why-us-item">
-              <span className="why-us-number">2</span>
-              <div>
-                <h4>Безопасность</h4>
-                <p>Проверенные пользователи и модерация контента</p>
-              </div>
+            <div className="feature-card">
+              <div className="feature-icon">2️⃣</div>
+              <h3>{t('about.step2Title')}</h3>
+              <p>{t('about.step2Text')}</p>
             </div>
-            <div className="why-us-item">
-              <span className="why-us-number">3</span>
-              <div>
-                <h4>Сообщество</h4>
-                <p>Тысячи активных пользователей, готовых к новым знакомствам</p>
-              </div>
-            </div>
-            <div className="why-us-item">
-              <span className="why-us-number">4</span>
-              <div>
-                <h4>Бесплатно</h4>
-                <p>Основные функции доступны всем пользователям без ограничений</p>
-              </div>
+            <div className="feature-card">
+              <div className="feature-icon">3️⃣</div>
+              <h3>{t('about.step3Title')}</h3>
+              <p>{t('about.step3Text')}</p>
             </div>
           </div>
-          )}
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <h3>{t('about.createOwn')}</h3>
+            <p>{t('about.createOwnText')}</p>
+          </div>
         </section>
 
         <section className="about-section about-cta">
           {user ? (
             <>
-              <h2>Спасибо, что с нами! 💙</h2>
               <p>
-                Мы рады, что вы используете "Общий сбор!" для организации своего досуга.
-                Продолжайте создавать события, находить единомышленников и открывать
-                для себя новые возможности каждый день!
+                {t('about.ourMissionText')}
               </p>
               <div className="cta-buttons">
                 <a href="/create-event" className="btn-primary">
-                  Создать событие
+                  {t('events.createEvent')}
                 </a>
                 <a href="/events" className="btn-secondary">
-                  Найти события
+                  {t('events.title')}
                 </a>
               </div>
             </>
           ) : (
             <>
-              <h2>Присоединяйтесь к нам!</h2>
               <p>
-                Создавайте события, находите единомышленников и открывайте для себя
-                новые возможности каждый день.
+                {t('about.ourMissionText')}
               </p>
               <div className="cta-buttons">
                 <a href="/register" className="btn-primary">
-                  Зарегистрироваться
+                  {t('auth.registerButton')}
                 </a>
                 <a href="/events" className="btn-secondary">
-                  Посмотреть события
+                  {t('events.title')}
                 </a>
               </div>
             </>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import EventRating from '../components/EventRating';
 import EventStatusBadge from '../components/EventStatusBadge';
 import { EventsMapView, MapLoadingFallback } from '../components/LazyComponents';
@@ -14,6 +15,7 @@ import './Events.css';
 
 const Events = () => {
   const { user } = useAuth();
+  const { t } = useTranslation('common');
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState('list');
   const [showFilters, setShowFilters] = useState(false);
@@ -168,7 +170,7 @@ const Events = () => {
         <div className="flex items-center gap-4">
           {filters.category && (
             <p className="text-sm text-foreground">
-              Категория: {getCategoryName(filters.category)} • Найдено: {processedEvents.length}
+              {t('events.categoryLabel')}: {getCategoryName(filters.category, t)} • {t('events.found')}: {processedEvents.length}
             </p>
           )}
         </div>
@@ -178,7 +180,7 @@ const Events = () => {
               to="/create-event"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              ➕ Создать
+              ➕ {t('events.create')}
             </Link>
           )}
           <div className="inline-flex rounded-lg border p-1 bg-muted">
@@ -190,7 +192,7 @@ const Events = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              📋 Список
+              📋 {t('events.viewList')}
             </button>
             <button
               onClick={() => setViewMode('map')}
@@ -200,7 +202,7 @@ const Events = () => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🗺️ Карта
+              🗺️ {t('events.viewMap')}
             </button>
           </div>
         </div>
@@ -212,7 +214,7 @@ const Events = () => {
         <div className="p-6 pb-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Категория
+              {t('events.categoryLabel')}
             </label>
             <select
               name="category"
@@ -220,27 +222,27 @@ const Events = () => {
               onChange={handleFilterChange}
               className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <option value="">Все категории</option>
-              <option value={CATEGORIES.BOARD_GAMES}>{getCategoryName(CATEGORIES.BOARD_GAMES)}</option>
-              <option value={CATEGORIES.CYCLING}>{getCategoryName(CATEGORIES.CYCLING)}</option>
-              <option value={CATEGORIES.HIKING}>{getCategoryName(CATEGORIES.HIKING)}</option>
-              <option value={CATEGORIES.YOGA}>{getCategoryName(CATEGORIES.YOGA)}</option>
-              <option value={CATEGORIES.COOKING}>{getCategoryName(CATEGORIES.COOKING)}</option>
-              <option value={CATEGORIES.MUSIC_JAM}>{getCategoryName(CATEGORIES.MUSIC_JAM)}</option>
-              <option value={CATEGORIES.SEMINAR}>{getCategoryName(CATEGORIES.SEMINAR)}</option>
-              <option value={CATEGORIES.PICNIC}>{getCategoryName(CATEGORIES.PICNIC)}</option>
-              <option value={CATEGORIES.PHOTO_WALK}>{getCategoryName(CATEGORIES.PHOTO_WALK)}</option>
-              <option value={CATEGORIES.QUEST}>{getCategoryName(CATEGORIES.QUEST)}</option>
-              <option value={CATEGORIES.DANCE}>{getCategoryName(CATEGORIES.DANCE)}</option>
-              <option value={CATEGORIES.TOUR}>{getCategoryName(CATEGORIES.TOUR)}</option>
-              <option value={CATEGORIES.VOLUNTEER}>{getCategoryName(CATEGORIES.VOLUNTEER)}</option>
-              <option value={CATEGORIES.FITNESS}>{getCategoryName(CATEGORIES.FITNESS)}</option>
-              <option value={CATEGORIES.THEATER}>{getCategoryName(CATEGORIES.THEATER)}</option>
-              <option value={CATEGORIES.AUTO_TOUR}>{getCategoryName(CATEGORIES.AUTO_TOUR)}</option>
-              <option value={CATEGORIES.CRAFT}>{getCategoryName(CATEGORIES.CRAFT)}</option>
-              <option value={CATEGORIES.CONCERT}>{getCategoryName(CATEGORIES.CONCERT)}</option>
-              <option value={CATEGORIES.SPORTS}>{getCategoryName(CATEGORIES.SPORTS)}</option>
-              <option value={CATEGORIES.ECO_TOUR}>{getCategoryName(CATEGORIES.ECO_TOUR)}</option>
+              <option value="">{t('events.allCategories')}</option>
+              <option value={CATEGORIES.BOARD_GAMES}>{getCategoryName(CATEGORIES.BOARD_GAMES, t)}</option>
+              <option value={CATEGORIES.CYCLING}>{getCategoryName(CATEGORIES.CYCLING, t)}</option>
+              <option value={CATEGORIES.HIKING}>{getCategoryName(CATEGORIES.HIKING, t)}</option>
+              <option value={CATEGORIES.YOGA}>{getCategoryName(CATEGORIES.YOGA, t)}</option>
+              <option value={CATEGORIES.COOKING}>{getCategoryName(CATEGORIES.COOKING, t)}</option>
+              <option value={CATEGORIES.MUSIC_JAM}>{getCategoryName(CATEGORIES.MUSIC_JAM, t)}</option>
+              <option value={CATEGORIES.SEMINAR}>{getCategoryName(CATEGORIES.SEMINAR, t)}</option>
+              <option value={CATEGORIES.PICNIC}>{getCategoryName(CATEGORIES.PICNIC, t)}</option>
+              <option value={CATEGORIES.PHOTO_WALK}>{getCategoryName(CATEGORIES.PHOTO_WALK, t)}</option>
+              <option value={CATEGORIES.QUEST}>{getCategoryName(CATEGORIES.QUEST, t)}</option>
+              <option value={CATEGORIES.DANCE}>{getCategoryName(CATEGORIES.DANCE, t)}</option>
+              <option value={CATEGORIES.TOUR}>{getCategoryName(CATEGORIES.TOUR, t)}</option>
+              <option value={CATEGORIES.VOLUNTEER}>{getCategoryName(CATEGORIES.VOLUNTEER, t)}</option>
+              <option value={CATEGORIES.FITNESS}>{getCategoryName(CATEGORIES.FITNESS, t)}</option>
+              <option value={CATEGORIES.THEATER}>{getCategoryName(CATEGORIES.THEATER, t)}</option>
+              <option value={CATEGORIES.AUTO_TOUR}>{getCategoryName(CATEGORIES.AUTO_TOUR, t)}</option>
+              <option value={CATEGORIES.CRAFT}>{getCategoryName(CATEGORIES.CRAFT, t)}</option>
+              <option value={CATEGORIES.CONCERT}>{getCategoryName(CATEGORIES.CONCERT, t)}</option>
+              <option value={CATEGORIES.SPORTS}>{getCategoryName(CATEGORIES.SPORTS, t)}</option>
+              <option value={CATEGORIES.ECO_TOUR}>{getCategoryName(CATEGORIES.ECO_TOUR, t)}</option>
             </select>
           </div>
         </div>
@@ -251,7 +253,7 @@ const Events = () => {
             onClick={() => setShowFilters(!showFilters)}
             className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
-            {showFilters ? '▲ Скрыть дополнительные фильтры' : '▼ Показать дополнительные фильтры'}
+            {showFilters ? `▲ ${t('events.hideMoreFilters')}` : `▼ ${t('events.showMoreFilters')}`}
             {countActiveFilters() > 0 && (
               <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">
                 {countActiveFilters()}
@@ -262,9 +264,9 @@ const Events = () => {
             <button
               onClick={handleClearFilters}
               className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-l"
-              title="Очистить все фильтры"
+              title={t('events.clearFilters')}
             >
-              ✕ Очистить
+              ✕ {t('events.clearAll')}
             </button>
           )}
         </div>
@@ -275,18 +277,18 @@ const Events = () => {
         {/* Умный поиск */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            🔍 Поиск
+            🔍 {t('events.searchLabel')}
           </label>
           <input
             type="text"
             name="search"
-            placeholder="Название, описание или адрес..."
+            placeholder={t('events.searchPlaceholder')}
             value={filters.search}
             onChange={handleFilterChange}
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Поиск по названию, описанию и локации события
+            {t('events.searchHint')}
           </p>
         </div>
 
@@ -294,11 +296,11 @@ const Events = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Начало события
+              {t('events.startDate')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">От</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.from')}</label>
                 <input
                   type="date"
                   name="startDateFrom"
@@ -308,7 +310,7 @@ const Events = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">До</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.to')}</label>
                 <input
                   type="date"
                   name="startDateTo"
@@ -322,11 +324,11 @@ const Events = () => {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Окончание события
+              {t('events.endDate')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">От</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.from')}</label>
                 <input
                   type="date"
                   name="endDateFrom"
@@ -336,7 +338,7 @@ const Events = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">До</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.to')}</label>
                 <input
                   type="date"
                   name="endDateTo"
@@ -352,7 +354,7 @@ const Events = () => {
         {/* Фильтр по цене */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            💰 Цена
+            💰 {t('events.priceLabel')}
           </label>
           <select
             name="priceType"
@@ -360,16 +362,16 @@ const Events = () => {
             onChange={handleFilterChange}
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-2"
           >
-            <option value="">Любая</option>
-            <option value="free">Бесплатные</option>
-            <option value="paid">Платные</option>
-            <option value="range">Диапазон цен</option>
+            <option value="">{t('events.priceAny')}</option>
+            <option value="free">{t('events.priceFree')}</option>
+            <option value="paid">{t('events.pricePaid')}</option>
+            <option value="range">{t('events.priceRange')}</option>
           </select>
 
           {filters.priceType === 'range' && (
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">От (₽)</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.minPrice')}</label>
                 <input
                   type="number"
                   name="minPrice"
@@ -381,7 +383,7 @@ const Events = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">До (₽)</label>
+                <label className="block text-xs text-muted-foreground mb-1">{t('events.maxPrice')}</label>
                 <input
                   type="number"
                   name="maxPrice"
@@ -399,7 +401,7 @@ const Events = () => {
         {/* Фильтр по статусу */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            📊 Статус события
+            📊 {t('events.statusLabel')}
           </label>
           <select
             name="status"
@@ -407,18 +409,18 @@ const Events = () => {
             onChange={handleFilterChange}
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="">Все статусы</option>
-            <option value="upcoming">📅 Запланировано</option>
-            <option value="ongoing">🔴 Идёт сейчас</option>
-            <option value="completed">✅ Завершено</option>
-            <option value="cancelled">❌ Отменено</option>
+            <option value="">{t('events.allStatuses')}</option>
+            <option value="upcoming">📅 {t('events.upcomingStatus')}</option>
+            <option value="ongoing">🔴 {t('events.ongoingNow')}</option>
+            <option value="completed">✅ {t('events.completedStatus')}</option>
+            <option value="cancelled">❌ {t('events.cancelledStatus')}</option>
           </select>
         </div>
 
         {/* Фильтр по типу мероприятия */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            🌐 Тип мероприятия
+            🌐 {t('events.eventTypeLabel')}
           </label>
           <select
             name="eventType"
@@ -426,22 +428,22 @@ const Events = () => {
             onChange={handleFilterChange}
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="">Все типы</option>
-            <option value="offline">📍 Офлайн (встреча на месте)</option>
-            <option value="online">💻 Онлайн (через интернет)</option>
+            <option value="">{t('events.allTypes')}</option>
+            <option value="offline">📍 {t('events.offlineInPerson')}</option>
+            <option value="online">💻 {t('events.onlineInternet')}</option>
           </select>
         </div>
 
         {/* Фильтр по расстоянию */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            📍 Расстояние от меня
+            📍 {t('events.distanceLabel')}
           </label>
 
           {!hasLocation ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Разрешите доступ к геолокации для поиска событий рядом
+                {t('events.distanceHint')}
               </p>
               <button
                 type="button"
@@ -449,7 +451,7 @@ const Events = () => {
                 disabled={locationLoading}
                 className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {locationLoading ? '🔄 Определение местоположения...' : '📍 Определить моё местоположение'}
+                {locationLoading ? `🔄 ${t('events.detectingLocation')}` : `📍 ${t('events.requestLocation')}`}
               </button>
               {locationError && (
                 <p className="text-sm text-red-600 dark:text-red-400">
@@ -461,14 +463,14 @@ const Events = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-md">
                 <span className="text-sm text-green-800 dark:text-green-200">
-                  ✓ Местоположение определено
+                  ✓ {t('events.locationDetermined')}
                 </span>
                 <button
                   type="button"
                   onClick={clearLocation}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  ✕ Отключить
+                  ✕ {t('events.disableLocation')}
                 </button>
               </div>
 
@@ -478,12 +480,12 @@ const Events = () => {
                 onChange={handleFilterChange}
                 className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">Любое расстояние</option>
-                <option value="5">До 5 км</option>
-                <option value="10">До 10 км</option>
-                <option value="25">До 25 км</option>
-                <option value="50">До 50 км</option>
-                <option value="100">До 100 км</option>
+                <option value="">{t('events.anyDistance')}</option>
+                <option value="5">{t('events.upTo5km')}</option>
+                <option value="10">{t('events.upTo10km')}</option>
+                <option value="25">{t('events.upTo25km')}</option>
+                <option value="50">{t('events.upTo50km')}</option>
+                <option value="100">{t('events.upTo100km')}</option>
               </select>
 
               <div className="flex gap-2">
@@ -496,14 +498,14 @@ const Events = () => {
                       : 'bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Сортировать по расстоянию
+                  {t('events.sortByDistance')}
                 </button>
                 {sortBy === 'distance' && (
                   <button
                     type="button"
                     onClick={() => setSortBy('date')}
                     className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    title="Сбросить сортировку"
+                    title={t('events.resetSort')}
                   >
                     ✕
                   </button>
@@ -526,23 +528,23 @@ const Events = () => {
       {/* Error */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-md mb-6">
-          Ошибка загрузки событий: {error}
+          {t('events.errorLoading')}: {error}
         </div>
       )}
 
       {/* Loading */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <div className="text-muted-foreground">Загрузка событий...</div>
+          <div className="text-muted-foreground">{t('events.loadingEvents')}</div>
         </div>
       ) : processedEvents.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">События не найдены</p>
+          <p className="text-muted-foreground mb-4">{t('events.noEventsFound')}</p>
           <Link
             to="/create-event"
             className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Создать первое событие
+            {t('events.createFirstEvent')}
           </Link>
         </div>
       ) : viewMode === 'list' ? (
@@ -561,7 +563,7 @@ const Events = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     placeholder={
                       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                        Загрузка...
+                        {t('events.loadingImage')}
                       </div>
                     }
                   />
@@ -575,7 +577,7 @@ const Events = () => {
                   <EventStatusBadge event={event} showEmoji={true} className="small" />
                 </div>
                 <p className="text-sm text-primary font-medium mb-2">
-                  {getCategoryName(event.category)}
+                  {getCategoryName(event.category, t)}
                 </p>
                 <EventRating eventId={event.id} compact={true} />
                 <p className="text-sm text-muted-foreground mt-2">
@@ -583,7 +585,7 @@ const Events = () => {
                 </p>
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   {event.event_type === 'online' ? (
-                    <>💻 Онлайн • {event.online_platform === 'zoom' ? 'Zoom' :
+                    <>💻 {t('events.online')} • {event.online_platform === 'zoom' ? 'Zoom' :
                       event.online_platform === 'google_meet' ? 'Google Meet' :
                       event.online_platform === 'telegram' ? 'Telegram' :
                       event.online_platform === 'discord' ? 'Discord' :
@@ -604,7 +606,7 @@ const Events = () => {
                     👥 {event.current_participants}/{event.max_participants}
                   </span>
                   <span className="text-sm font-medium text-primary group-hover:text-primary/80">
-                    Подробнее →
+                    {t('events.moreDetails')} →
                   </span>
                 </div>
               </div>

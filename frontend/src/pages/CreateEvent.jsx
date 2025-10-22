@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import ImageUpload from '../components/ImageUpload';
@@ -10,11 +11,13 @@ import RecurringEventSettings from '../components/RecurringEventSettings';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import BlockedUserNotice from '../components/BlockedUserNotice';
 import { createRecurringEvents } from '../utils/recurringEvents';
+import { getCategoryName } from '../constants/categories';
 import './CreateEvent.css';
 
 const CreateEvent = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState(null);
@@ -133,7 +136,7 @@ const CreateEvent = () => {
     // Проверка reCAPTCHA (только если ключ настроен)
     const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey && !recaptchaToken) {
-      setError('Пожалуйста, подтвердите, что вы не робот');
+      setError(t('createEvent.errorRecaptcha'));
       return;
     }
 
@@ -379,7 +382,7 @@ const CreateEvent = () => {
       // Принудительный редирект через window.location для надёжности
       window.location.href = `/events/${data.id}`;
     } catch (error) {
-      setError('Ошибка создания события: ' + error.message);
+      setError(t('createEvent.errorCreating') + error.message);
       console.error('Ошибка:', error);
       // Сбрасываем reCAPTCHA при ошибке
       if (recaptchaRef.current) {
@@ -393,18 +396,18 @@ const CreateEvent = () => {
 
   // Обработчик после успешной подачи обжалования
   const handleAppealSubmitted = () => {
-    alert('Ваше обжалование отправлено на рассмотрение администрации');
+    alert(t('createEvent.appealSubmitted'));
   };
 
   if (checkingBlock) {
-    return <div className="loading">Проверка доступа...</div>;
+    return <div className="loading">{t('createEvent.checkingAccess')}</div>;
   }
 
   // Если пользователь заблокирован - показываем уведомление
   if (blockInfo?.is_blocked) {
     return (
       <div className="create-event-page">
-        <h1>Создать событие</h1>
+        <h1>{t('createEvent.title')}</h1>
         <BlockedUserNotice blockInfo={blockInfo} onAppealSubmitted={handleAppealSubmitted} />
       </div>
     );
@@ -412,12 +415,12 @@ const CreateEvent = () => {
 
   return (
     <div className="create-event-page">
-      <h1>Создать событие</h1>
+      <h1>{t('createEvent.title')}</h1>
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="create-event-form">
         <div className="form-group">
-          <label htmlFor="title">Название события *</label>
+          <label htmlFor="title">{t('createEvent.eventNameRequired')}</label>
           <input
             type="text"
             id="title"
@@ -429,7 +432,7 @@ const CreateEvent = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Описание *</label>
+          <label htmlFor="description">{t('createEvent.descriptionRequired')}</label>
           <textarea
             id="description"
             name="description"
@@ -447,7 +450,7 @@ const CreateEvent = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="category">Категория *</label>
+            <label htmlFor="category">{t('createEvent.categoryRequired')}</label>
             <select
               id="category"
               name="category"
@@ -455,31 +458,31 @@ const CreateEvent = () => {
               onChange={handleChange}
               required
             >
-              <option value="board_games">🎲 Настольные игры</option>
-              <option value="cycling">🚴 Велопрогулки</option>
-              <option value="hiking">🏔️ Походы</option>
-              <option value="yoga">🧘 Йога-сессии</option>
-              <option value="cooking">👨‍🍳 Кулинарные мастер-классы</option>
-              <option value="music_jam">🎸 Музыкальные джемы</option>
-              <option value="seminar">📚 Образовательные семинары</option>
-              <option value="picnic">🧺 Пикники в парке</option>
-              <option value="photo_walk">📷 Фотопрогулки</option>
-              <option value="quest">🗝️ Квесты</option>
-              <option value="dance">💃 Танцевальные уроки</option>
-              <option value="tour">🚶 Городские экскурсии</option>
-              <option value="volunteer">🤝 Волонтёрские акции</option>
-              <option value="fitness">💪 Фитнес-тренировки</option>
-              <option value="theater">🎭 Театральные постановки</option>
-              <option value="auto_tour">🚗 Авто-туры</option>
-              <option value="craft">✂️ Ремесленные мастер-классы</option>
-              <option value="concert">🎤 Концерты</option>
-              <option value="sports">⚽ Спортивные матчи</option>
-              <option value="eco_tour">🌿 Экологические туры</option>
+              <option value="board_games">{getCategoryName('board_games', t)}</option>
+              <option value="cycling">{getCategoryName('cycling', t)}</option>
+              <option value="hiking">{getCategoryName('hiking', t)}</option>
+              <option value="yoga">{getCategoryName('yoga', t)}</option>
+              <option value="cooking">{getCategoryName('cooking', t)}</option>
+              <option value="music_jam">{getCategoryName('music_jam', t)}</option>
+              <option value="seminar">{getCategoryName('seminar', t)}</option>
+              <option value="picnic">{getCategoryName('picnic', t)}</option>
+              <option value="photo_walk">{getCategoryName('photo_walk', t)}</option>
+              <option value="quest">{getCategoryName('quest', t)}</option>
+              <option value="dance">{getCategoryName('dance', t)}</option>
+              <option value="tour">{getCategoryName('tour', t)}</option>
+              <option value="volunteer">{getCategoryName('volunteer', t)}</option>
+              <option value="fitness">{getCategoryName('fitness', t)}</option>
+              <option value="theater">{getCategoryName('theater', t)}</option>
+              <option value="auto_tour">{getCategoryName('auto_tour', t)}</option>
+              <option value="craft">{getCategoryName('craft', t)}</option>
+              <option value="concert">{getCategoryName('concert', t)}</option>
+              <option value="sports">{getCategoryName('sports', t)}</option>
+              <option value="eco_tour">{getCategoryName('eco_tour', t)}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="event_date">Дата и время начала *</label>
+            <label htmlFor="event_date">{t('createEvent.startDateTimeRequired')}</label>
             <input
               type="datetime-local"
               id="event_date"
@@ -500,13 +503,13 @@ const CreateEvent = () => {
                 checked={formData.has_end_date}
                 onChange={(e) => setFormData({ ...formData, has_end_date: e.target.checked })}
               />
-              Указать дату и время окончания
+              {t('createEvent.hasEndDate')}
             </label>
           </div>
 
           {formData.has_end_date && (
             <div className="form-group">
-              <label htmlFor="end_date">Дата и время окончания</label>
+              <label htmlFor="end_date">{t('createEvent.endDateTime')}</label>
               <input
                 type="datetime-local"
                 id="end_date"
@@ -520,7 +523,7 @@ const CreateEvent = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="max_participants">Макс. участников *</label>
+          <label htmlFor="max_participants">{t('createEvent.maxParticipantsRequired')}</label>
           <input
             type="number"
             id="max_participants"
@@ -535,7 +538,7 @@ const CreateEvent = () => {
 
         {/* Переключатель типа мероприятия */}
         <div className="form-group">
-          <label>Тип мероприятия *</label>
+          <label>{t('createEvent.eventTypeRequired')}</label>
           <div className="radio-group">
             <label className="radio-label">
               <input
@@ -545,7 +548,7 @@ const CreateEvent = () => {
                 checked={formData.event_type === 'offline'}
                 onChange={handleChange}
               />
-              <span>📍 Офлайн (встреча на месте)</span>
+              <span>📍 {t('createEvent.offlineInPerson')}</span>
             </label>
             <label className="radio-label">
               <input
@@ -555,7 +558,7 @@ const CreateEvent = () => {
                 checked={formData.event_type === 'online'}
                 onChange={handleChange}
               />
-              <span>💻 Онлайн (через интернет)</span>
+              <span>💻 {t('createEvent.onlineInternet')}</span>
             </label>
           </div>
         </div>
@@ -563,7 +566,7 @@ const CreateEvent = () => {
         {/* Поля для офлайн-мероприятий */}
         {formData.event_type === 'offline' && (
           <div className="form-group">
-            <label>Место проведения *</label>
+            <label>{t('createEvent.locationRequired')}</label>
             <Suspense fallback={<MapLoadingFallback />}>
               <MapPicker
                 onLocationSelect={handleLocationSelect}
@@ -571,7 +574,7 @@ const CreateEvent = () => {
               />
             </Suspense>
             {!formData.location && (
-              <p className="field-hint">Выберите место на карте или найдите по адресу</p>
+              <p className="field-hint">{t('createEvent.selectLocationHint')}</p>
             )}
           </div>
         )}
@@ -580,7 +583,7 @@ const CreateEvent = () => {
         {formData.event_type === 'online' && (
           <>
             <div className="form-group">
-              <label htmlFor="online_platform">Платформа для проведения *</label>
+              <label htmlFor="online_platform">{t('createEvent.onlinePlatformRequired')}</label>
               <select
                 id="online_platform"
                 name="online_platform"
@@ -588,46 +591,46 @@ const CreateEvent = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="zoom">Zoom</option>
-                <option value="google_meet">Google Meet</option>
-                <option value="telegram">Telegram</option>
-                <option value="discord">Discord</option>
-                <option value="skype">Skype</option>
-                <option value="other">Другое</option>
+                <option value="zoom">{t('createEvent.platforms.zoom')}</option>
+                <option value="google_meet">{t('createEvent.platforms.google_meet')}</option>
+                <option value="telegram">{t('createEvent.platforms.telegram')}</option>
+                <option value="discord">{t('createEvent.platforms.discord')}</option>
+                <option value="skype">{t('createEvent.platforms.skype')}</option>
+                <option value="other">{t('createEvent.platforms.other')}</option>
               </select>
-              <p className="field-hint">Выберите платформу, где будет проходить мероприятие</p>
+              <p className="field-hint">{t('createEvent.onlinePlatformHint')}</p>
             </div>
 
             <div className="form-group">
-              <label htmlFor="online_link">Ссылка на мероприятие *</label>
+              <label htmlFor="online_link">{t('createEvent.onlineLinkRequired')}</label>
               <input
                 type="url"
                 id="online_link"
                 name="online_link"
                 value={formData.online_link}
                 onChange={handleChange}
-                placeholder="https://zoom.us/j/..."
+                placeholder={t('createEvent.onlineLinkPlaceholder')}
                 required
               />
-              <p className="field-hint">Ссылка для подключения к мероприятию. Будет видна только участникам.</p>
+              <p className="field-hint">{t('createEvent.onlineLinkHint')}</p>
             </div>
           </>
         )}
 
         {/* Фильтр по полу участников */}
         <div className="form-group">
-          <label htmlFor="gender_filter">Кто может участвовать</label>
+          <label htmlFor="gender_filter">{t('createEvent.genderFilter')}</label>
           <select
             id="gender_filter"
             name="gender_filter"
             value={formData.gender_filter}
             onChange={handleChange}
           >
-            <option value="all">Все</option>
-            <option value="male">Только мужчины</option>
-            <option value="female">Только женщины</option>
+            <option value="all">{t('createEvent.genderAll')}</option>
+            <option value="male">{t('createEvent.genderMale')}</option>
+            <option value="female">{t('createEvent.genderFemale')}</option>
           </select>
-          <p className="field-hint">По умолчанию событие доступно для всех</p>
+          <p className="field-hint">{t('createEvent.genderFilterHint')}</p>
         </div>
 
         {/* Специфичные поля для настольных игр */}
@@ -642,39 +645,39 @@ const CreateEvent = () => {
         {formData.category === 'cycling' && (
           <>
             <div className="form-group">
-              <label htmlFor="difficulty">Сложность</label>
+              <label htmlFor="difficulty">{t('createEvent.difficulty')}</label>
               <select
                 id="difficulty"
                 name="difficulty"
                 value={formData.difficulty}
                 onChange={handleChange}
               >
-                <option value="">Выберите сложность</option>
-                <option value="low">Низкая</option>
-                <option value="medium">Средняя</option>
-                <option value="high">Высокая</option>
+                <option value="">{t('createEvent.difficultySelect')}</option>
+                <option value="low">{t('createEvent.difficultyLow')}</option>
+                <option value="medium">{t('createEvent.difficultyMedium')}</option>
+                <option value="high">{t('createEvent.difficultyHigh')}</option>
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="route">Маршрут</label>
+              <label htmlFor="route">{t('createEvent.route')}</label>
               <textarea
                 id="route"
                 name="route"
                 value={formData.route}
                 onChange={handleChange}
                 rows="3"
-                placeholder="Описание маршрута"
+                placeholder={t('createEvent.routePlaceholder')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="equipment">Требования к снаряжению</label>
+              <label htmlFor="equipment">{t('createEvent.equipment')}</label>
               <input
                 type="text"
                 id="equipment"
                 name="equipment"
                 value={formData.equipment}
                 onChange={handleChange}
-                placeholder="Горный велосипед, шлем, вода"
+                placeholder={t('createEvent.equipmentPlaceholder')}
               />
             </div>
           </>
@@ -684,39 +687,39 @@ const CreateEvent = () => {
         {formData.category === 'hiking' && (
           <>
             <div className="form-group">
-              <label htmlFor="distance">Дистанция (км)</label>
+              <label htmlFor="distance">{t('createEvent.distance')}</label>
               <input
                 type="number"
                 id="distance"
                 name="distance"
                 value={formData.distance}
                 onChange={handleChange}
-                placeholder="10"
+                placeholder={t('createEvent.distancePlaceholder')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="terrain">Тип местности</label>
+              <label htmlFor="terrain">{t('createEvent.terrain')}</label>
               <select
                 id="terrain"
                 name="terrain"
                 value={formData.terrain}
                 onChange={handleChange}
               >
-                <option value="">Выберите тип</option>
-                <option value="forest">Лес</option>
-                <option value="mountains">Горы</option>
-                <option value="mixed">Смешанная</option>
+                <option value="">{t('createEvent.terrainSelect')}</option>
+                <option value="forest">{t('createEvent.terrainForest')}</option>
+                <option value="mountains">{t('createEvent.terrainMountains')}</option>
+                <option value="mixed">{t('createEvent.terrainMixed')}</option>
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="equipment">Необходимое снаряжение</label>
+              <label htmlFor="equipment">{t('createEvent.equipmentNeeded')}</label>
               <input
                 type="text"
                 id="equipment"
                 name="equipment"
                 value={formData.equipment}
                 onChange={handleChange}
-                placeholder="Рюкзак, вода, трекинговые палки"
+                placeholder={t('createEvent.equipmentHikingPlaceholder')}
               />
             </div>
           </>
@@ -729,33 +732,33 @@ const CreateEvent = () => {
               tableName="yoga_practice_types"
               selectedItems={formData.yoga_practice_type}
               onChange={(item) => setFormData({ ...formData, yoga_practice_type: item })}
-              label="Тип практики"
+              label={t('createEvent.practiceType')}
               multiple={false}
-              placeholder="Выберите тип практики"
+              placeholder={t('createEvent.practiceTypeSelect')}
             />
             <div className="form-group">
-              <label htmlFor="difficulty">Уровень сложности</label>
+              <label htmlFor="difficulty">{t('createEvent.difficulty')}</label>
               <select
                 id="difficulty"
                 name="difficulty"
                 value={formData.difficulty}
                 onChange={handleChange}
               >
-                <option value="">Выберите уровень</option>
-                <option value="beginner">Начинающий</option>
-                <option value="intermediate">Средний</option>
-                <option value="advanced">Продвинутый</option>
+                <option value="">{t('createEvent.skillLevelSelect')}</option>
+                <option value="beginner">{t('createEvent.skillLevelBeginner')}</option>
+                <option value="intermediate">{t('createEvent.skillLevelIntermediate')}</option>
+                <option value="advanced">{t('createEvent.skillLevelAdvanced')}</option>
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="equipment">Необходимое оборудование</label>
+              <label htmlFor="equipment">{t('createEvent.equipmentNeeded')}</label>
               <input
                 type="text"
                 id="equipment"
                 name="equipment"
                 value={formData.equipment}
                 onChange={handleChange}
-                placeholder="Коврик, блоки, ремни"
+                placeholder={t('createEvent.equipmentYogaPlaceholder')}
               />
             </div>
           </>
@@ -1441,7 +1444,7 @@ const CreateEvent = () => {
         </div>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-          {loading ? 'Создание...' : 'Создать событие'}
+          {loading ? t('createEvent.creating') : t('createEvent.createButton')}
         </button>
       </form>
     </div>

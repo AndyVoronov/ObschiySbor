@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import TelegramLoginButton from '../components/TelegramLoginButton';
 import './Auth.css';
 
 const Login = () => {
+  const { t } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ const Login = () => {
       await signIn(email, password);
       navigate('/');
     } catch (error) {
-      setError('Неверный email или пароль');
+      setError(t('auth.errorInvalidCredentials'));
       console.error('Ошибка входа:', error.message);
     } finally {
       setLoading(false);
@@ -441,11 +443,11 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Вход в систему</h2>
+        <h2>{t('auth.loginTitleShort')}</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.email')}</label>
             <input
               type="email"
               id="email"
@@ -455,7 +457,7 @@ const Login = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Пароль</label>
+            <label htmlFor="password">{t('auth.password')}</label>
             <input
               type="password"
               id="password"
@@ -465,12 +467,12 @@ const Login = () => {
             />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Вход...' : 'Войти'}
+            {loading ? t('auth.loggingIn') : t('auth.loginButton')}
           </button>
         </form>
 
         <div className="divider">
-          <span>или</span>
+          <span>{t('auth.or')}</span>
         </div>
 
         <div className="social-login">
@@ -484,7 +486,7 @@ const Login = () => {
         </div>
 
         <p className="auth-link">
-          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+          {t('auth.noAccount')} <Link to="/register">{t('auth.signupLink')}</Link>
         </p>
       </div>
     </div>

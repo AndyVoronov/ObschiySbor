@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useEvent, useBoardGames, useParticipation, useJoinEvent, useLeaveEvent } from '../hooks/useEvent';
@@ -13,12 +14,14 @@ import BlockedUserNotice from '../components/BlockedUserNotice';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
+import { getCategoryName } from '../constants/categories';
 import './EventDetails.css';
 
 const EventDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
 
   // React Query hooks
   const { data: event, isLoading: loading, error: eventError } = useEvent(id);
@@ -279,17 +282,17 @@ const EventDetails = () => {
       await notifyNewParticipant(id, event.creator_id, participantName);
     } catch (error) {
       if (error.message === 'GENDER_NOT_SET') {
-        alert('Пожалуйста, укажите ваш пол в профиле для участия в этом событии');
+        alert(t('eventDetails.genderNotSet'));
         navigate('/profile');
       } else if (error.message === 'GENDER_MISMATCH') {
         const genderLabels = {
-          male: 'только для мужчин',
-          female: 'только для женщин'
+          male: t('eventDetails.genderMismatchMale'),
+          female: t('eventDetails.genderMismatchFemale')
         };
-        alert(`Это событие ${genderLabels[event.gender_filter]}`);
+        alert(`${t('eventDetails.genderMismatch')} ${genderLabels[event.gender_filter]}`);
       } else {
         console.error('Ошибка присоединения к событию:', error);
-        alert('Не удалось присоединиться к событию');
+        alert(t('eventDetails.joinError'));
       }
     }
   };
@@ -303,7 +306,7 @@ const EventDetails = () => {
       });
     } catch (error) {
       console.error('Ошибка выхода из события:', error);
-      alert('Не удалось покинуть событие');
+      alert(t('eventDetails.leaveError'));
     }
   };
 
@@ -311,38 +314,12 @@ const EventDetails = () => {
   const joining = joinMutation.isPending || leaveMutation.isPending;
 
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return <div className="loading">{t('eventDetails.loading')}</div>;
   }
 
   if (!event) {
-    return <div className="error">Событие не найдено</div>;
+    return <div className="error">{t('eventDetails.notFound')}</div>;
   }
-
-  const getCategoryName = (category) => {
-    const categories = {
-      board_games: '🎲 Настольные игры',
-      cycling: '🚴 Велопрогулки',
-      hiking: '🏔️ Походы',
-      yoga: '🧘 Йога-сессии',
-      cooking: '👨‍🍳 Кулинарные мастер-классы',
-      music_jam: '🎸 Музыкальные джемы',
-      seminar: '📚 Образовательные семинары',
-      picnic: '🧺 Пикники в парке',
-      photo_walk: '📷 Фотопрогулки',
-      quest: '🗝️ Квесты',
-      dance: '💃 Танцевальные уроки',
-      tour: '🚶 Городские экскурсии',
-      volunteer: '🤝 Волонтёрские акции',
-      fitness: '💪 Фитнес-тренировки',
-      theater: '🎭 Театральные постановки',
-      auto_tour: '🚗 Авто-туры',
-      craft: '✂️ Ремесленные мастер-классы',
-      concert: '🎤 Концерты',
-      sports: '⚽ Спортивные матчи',
-      eco_tour: '🌿 Экологические туры',
-    };
-    return categories[category] || category;
-  };
 
   const isFull = event.current_participants >= event.max_participants;
   const isCreator = user?.id === event.creator_id;
@@ -366,7 +343,7 @@ const EventDetails = () => {
   // Функция отмены события
   const handleCancelEvent = async () => {
     if (!cancellationReason.trim()) {
-      alert('Пожалуйста, укажите причину отмены');
+      alert(t('eventDetails.cancelReasonEmpty'));
       return;
     }
 
@@ -398,8 +375,8 @@ const EventDetails = () => {
           .insert({
             user_id: participant.user_id,
             type: 'event_cancelled',
-            title: 'Событие отменено',
-            message: `Событие "${event.title}" было отменено. Причина: ${cancellationReason}`,
+            title: t('eventDetails.eventCancelled'),
+            message: `${t('events.title')} "${event.title}" ${t('eventDetails.eventCancelled').toLowerCase()}. ${t('eventDetails.cancelledReason')}: ${cancellationReason}`,
             link: `/events/${id}`,
             read: false
           });
@@ -408,10 +385,10 @@ const EventDetails = () => {
       // Обновляем локальное состояние
       setEvent({ ...event, lifecycle_status: EVENT_STATUS.CANCELLED, cancellation_reason: cancellationReason });
       setShowCancelDialog(false);
-      alert('Событие отменено. Всем участникам отправлены уведомления.');
+      alert(t('eventDetails.eventCancelledNotice'));
     } catch (error) {
       console.error('Ошибка отмены события:', error.message);
-      alert('Не удалось отменить событие. Попробуйте позже.');
+      alert(t('eventDetails.cancelError'));
     } finally {
       setCancelling(false);
     }
@@ -432,7 +409,7 @@ const EventDetails = () => {
         <div className="event-header">
           <h1>{event.title}</h1>
           <div className="event-badges">
-            <span className="event-category-badge">{getCategoryName(event.category)}</span>
+            <span className="event-category-badge">{getCategoryName(event.category, t)}</span>
             <EventStatusBadge event={event} showEmoji={true} />
           </div>
         </div>
@@ -440,38 +417,33 @@ const EventDetails = () => {
         {/* Причина отмены */}
         {eventStatus === EVENT_STATUS.CANCELLED && event.cancellation_reason && (
           <div className="cancellation-notice">
-            <strong>❌ Событие отменено</strong>
-            <p>Причина: {event.cancellation_reason}</p>
+            <strong>❌ {t('eventDetails.cancelledBadge')}</strong>
+            <p>{t('eventDetails.cancelledReason')}: {event.cancellation_reason}</p>
           </div>
         )}
 
         <div className="event-info">
           <div className="info-item">
-            <strong>Начало:</strong>
+            <strong>{t('eventDetails.startLabel')}:</strong>
             <span>{new Date(event.event_date).toLocaleString('ru-RU')}</span>
           </div>
           {event.has_end_date && event.end_date && (
             <div className="info-item">
-              <strong>Окончание:</strong>
+              <strong>{t('eventDetails.endLabel')}:</strong>
               <span>{new Date(event.end_date).toLocaleString('ru-RU')}</span>
             </div>
           )}
           {!event.has_end_date && (
             <div className="info-item">
-              <strong>Окончание:</strong>
-              <span className="text-muted">Без точной даты окончания</span>
+              <strong>{t('eventDetails.endLabel')}:</strong>
+              <span className="text-muted">{t('eventDetails.noEndDate')}</span>
             </div>
           )}
           <div className="info-item">
-            <strong>Место:</strong>
+            <strong>{t('eventDetails.locationLabel')}:</strong>
             <span>
               {event.event_type === 'online' ? (
-                <>💻 Онлайн • {event.online_platform === 'zoom' ? 'Zoom' :
-                  event.online_platform === 'google_meet' ? 'Google Meet' :
-                  event.online_platform === 'telegram' ? 'Telegram' :
-                  event.online_platform === 'discord' ? 'Discord' :
-                  event.online_platform === 'skype' ? 'Skype' :
-                  'Другое'}</>
+                <>💻 {t('eventDetails.onlinePrefix')} • {t(`createEvent.platforms.${event.online_platform}`)}</>
               ) : (
                 event.location
               )}
@@ -481,7 +453,7 @@ const EventDetails = () => {
           {/* Ссылка на онлайн-мероприятие (видна только участникам и организатору) */}
           {event.event_type === 'online' && event.online_link && (user && (isParticipant || isCreator)) && (
             <div className="info-item online-link-item">
-              <strong>Ссылка для подключения:</strong>
+              <strong>{t('eventDetails.onlineLink')}:</strong>
               <a href={event.online_link} target="_blank" rel="noopener noreferrer" className="online-link">
                 {event.online_link}
               </a>
@@ -489,10 +461,10 @@ const EventDetails = () => {
           )}
           {event.gender_filter && event.gender_filter !== 'all' && (
             <div className="info-item">
-              <strong>Кто может участвовать:</strong>
+              <strong>{t('eventDetails.whoCanParticipate')}:</strong>
               <span className="gender-filter-badge">
-                {event.gender_filter === 'male' && '👨 Только мужчины'}
-                {event.gender_filter === 'female' && '👩 Только женщины'}
+                {event.gender_filter === 'male' && `👨 ${t('eventDetails.onlyMen')}`}
+                {event.gender_filter === 'female' && `👩 ${t('eventDetails.onlyWomen')}`}
               </span>
             </div>
           )}
@@ -502,14 +474,14 @@ const EventDetails = () => {
         <EventParticipants eventId={id} creatorId={event.creator_id} eventTitle={event.title} />
 
         <div className="event-description">
-          <h2>Описание</h2>
+          <h2>{t('eventDetails.description')}</h2>
           <p>{event.description}</p>
         </div>
 
         {/* Отображение настольных игр */}
         {event.category === 'board_games' && boardGames.length > 0 && (
           <div className="board-games-section">
-            <h2>Настольные игры</h2>
+            <h2>{t('eventDetails.boardGames')}</h2>
             <div className="board-games-list">
               {boardGames.map(game => (
                 <Link key={game.id} to={`/board-games/${game.id}`} className="board-game-card">
@@ -520,8 +492,8 @@ const EventDetails = () => {
                     <h3>{game.name}</h3>
                     {game.description && <p className="game-description">{game.description}</p>}
                     <div className="game-meta">
-                      <span>👥 {game.min_players}-{game.max_players} игроков</span>
-                      <span>⏱️ ~{game.avg_playtime_minutes} мин</span>
+                      <span>👥 {game.min_players}-{game.max_players} {t('eventDetails.players')}</span>
+                      <span>⏱️ ~{game.avg_playtime_minutes} {t('eventDetails.minutes')}</span>
                     </div>
                   </div>
                 </Link>
@@ -544,30 +516,30 @@ const EventDetails = () => {
 
         {event.category_data && event.category !== 'board_games' && (
           <div className="category-details">
-            <h2>Детали</h2>
+            <h2>{t('eventDetails.details')}</h2>
             {event.category === 'cycling' && (
               <>
                 {event.category_data.difficulty && (
-                  <p><strong>Сложность:</strong> {event.category_data.difficulty}</p>
+                  <p><strong>{t('eventDetails.categoryData.difficulty')}:</strong> {event.category_data.difficulty}</p>
                 )}
                 {event.category_data.route && (
-                  <p><strong>Маршрут:</strong> {event.category_data.route}</p>
+                  <p><strong>{t('eventDetails.categoryData.route')}:</strong> {event.category_data.route}</p>
                 )}
                 {event.category_data.equipment && (
-                  <p><strong>Снаряжение:</strong> {event.category_data.equipment}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipment')}:</strong> {event.category_data.equipment}</p>
                 )}
               </>
             )}
             {event.category === 'hiking' && (
               <>
                 {event.category_data.distance && (
-                  <p><strong>Дистанция:</strong> {event.category_data.distance} км</p>
+                  <p><strong>{t('eventDetails.categoryData.distance')}:</strong> {event.category_data.distance} {t('eventDetails.categoryData.distanceKm')}</p>
                 )}
                 {event.category_data.terrain && (
-                  <p><strong>Местность:</strong> {event.category_data.terrain}</p>
+                  <p><strong>{t('eventDetails.categoryData.terrain')}:</strong> {event.category_data.terrain}</p>
                 )}
                 {event.category_data.equipment && (
-                  <p><strong>Снаряжение:</strong> {event.category_data.equipment}</p>
+                  <p><strong>{t('eventDetails.categoryData.equipment')}:</strong> {event.category_data.equipment}</p>
                 )}
               </>
             )}

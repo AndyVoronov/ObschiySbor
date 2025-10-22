@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import TelegramLoginButton from '../components/TelegramLoginButton';
@@ -7,6 +8,7 @@ import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import './Auth.css';
 
 const Register = () => {
+  const { t } = useTranslation('common');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -33,19 +35,19 @@ const Register = () => {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(t('auth.errorPasswordMismatch'));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
+      setError(t('auth.errorPasswordTooShort'));
       return;
     }
 
     // Проверка reCAPTCHA (только если ключ настроен)
     const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey && !recaptchaToken) {
-      setError('Пожалуйста, подтвердите, что вы не робот');
+      setError(t('auth.errorRecaptcha'));
       return;
     }
 
@@ -58,7 +60,7 @@ const Register = () => {
       });
       navigate('/');
     } catch (error) {
-      setError('Ошибка регистрации: ' + error.message);
+      setError(t('auth.errorRegistration') + error.message);
       console.error('Ошибка регистрации:', error.message);
       // Сбрасываем reCAPTCHA при ошибке
       if (recaptchaRef.current) {
@@ -428,11 +430,11 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Регистрация</h2>
+        <h2>{t('auth.registerTitle')}</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="fullName">Полное имя</label>
+            <label htmlFor="fullName">{t('auth.fullName')}</label>
             <input
               type="text"
               id="fullName"
@@ -443,7 +445,7 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.email')}</label>
             <input
               type="email"
               id="email"
@@ -454,7 +456,7 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="city">Город</label>
+            <label htmlFor="city">{t('auth.city')}</label>
             <input
               type="text"
               id="city"
@@ -465,7 +467,7 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Пароль</label>
+            <label htmlFor="password">{t('auth.password')}</label>
             <input
               type="password"
               id="password"
@@ -476,7 +478,7 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Подтвердите пароль</label>
+            <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -497,12 +499,12 @@ const Register = () => {
           </div>
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+            {loading ? t('auth.registering') : t('auth.registerButton')}
           </button>
         </form>
 
         <div className="divider">
-          <span>или</span>
+          <span>{t('auth.or')}</span>
         </div>
 
         <div className="social-login">
@@ -516,7 +518,7 @@ const Register = () => {
         </div>
 
         <p className="auth-link">
-          Уже есть аккаунт? <Link to="/login">Войти</Link>
+          {t('auth.haveAccount')} <Link to="/login">{t('auth.loginLink')}</Link>
         </p>
       </div>
     </div>

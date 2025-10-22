@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AvatarUpload from '../components/AvatarUpload';
 import { OrganizerDashboard, ChartLoadingFallback } from '../components/LazyComponents';
 import ConnectedAccounts from '../components/ConnectedAccounts';
@@ -12,6 +13,7 @@ import './Profile.css';
 const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
   const [profile, setProfile] = useState(null);
   const [myEvents, setMyEvents] = useState([]);
   const [participatingEvents, setParticipatingEvents] = useState([]);
@@ -44,7 +46,7 @@ const Profile = () => {
         .single();
 
       if (error) {
-        console.error('Ошибка загрузки профиля:', error);
+        console.error(t('profile.errorLoadingProfile'), error);
         // Если профиль не найден, создаём пустой объект
         setProfile({
           id: user.id,
@@ -63,7 +65,7 @@ const Profile = () => {
         });
       }
     } catch (error) {
-      console.error('Ошибка загрузки профиля:', error);
+      console.error(t('profile.errorLoadingProfile'), error);
       // В случае любой ошибки создаём пустой профиль
       setProfile({
         id: user.id,
@@ -88,7 +90,7 @@ const Profile = () => {
       if (error) throw error;
       setMyEvents(data || []);
     } catch (error) {
-      console.error('Ошибка загрузки событий:', error.message);
+      console.error(t('profile.errorLoadingEvents'), error.message);
     }
   };
 
@@ -105,7 +107,7 @@ const Profile = () => {
       if (error) throw error;
       setParticipatingEvents(data?.map(p => p.events) || []);
     } catch (error) {
-      console.error('Ошибка загрузки участий:', error.message);
+      console.error(t('profile.errorLoadingParticipations'), error.message);
     }
   };
 
@@ -144,12 +146,12 @@ const Profile = () => {
       setProfile({ ...profile, ...formData });
       setEditing(false);
     } catch (error) {
-      console.error('Ошибка обновления профиля:', error.message);
+      console.error(t('profile.errorUpdatingProfile'), error.message);
     }
   };
 
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return <div className="loading">{t('common.loading')}</div>;
   }
 
   const handleAvatarUpdate = (newAvatarUrl) => {
@@ -158,9 +160,9 @@ const Profile = () => {
 
   const getGenderLabel = (gender) => {
     const labels = {
-      male: '👨 Мужской',
-      female: '👩 Женский',
-      other: '⚧️ Другое'
+      male: `👨 ${t('profile.male')}`,
+      female: `👩 ${t('profile.female')}`,
+      other: `⚧️ ${t('profile.other')}`
     };
     return labels[gender] || '';
   };
@@ -170,7 +172,7 @@ const Profile = () => {
       await signOut();
       navigate('/');
     } catch (error) {
-      console.error('Ошибка выхода:', error.message);
+      console.error(t('profile.errorLogout'), error.message);
     }
   };
 
@@ -186,7 +188,7 @@ const Profile = () => {
             )}
           </div>
           <div>
-            <h1>{profile?.full_name || 'Имя не указано'}</h1>
+            <h1>{profile?.full_name || t('profile.noNameProvided')}</h1>
             <p className="profile-email">{user?.email}</p>
             {profile?.city && <p className="profile-city">📍 {profile.city}</p>}
             {profile?.gender && <p className="profile-gender">{getGenderLabel(profile.gender)}</p>}
@@ -197,13 +199,13 @@ const Profile = () => {
             onClick={() => setEditing(!editing)}
             className="btn btn-secondary"
           >
-            {editing ? 'Отмена' : 'Редактировать'}
+            {editing ? t('common.cancel') : t('common.edit')}
           </button>
           <button
             onClick={handleSignOut}
             className="btn btn-danger"
           >
-            Выход
+            {t('profile.logout')}
           </button>
         </div>
       </div>
@@ -214,13 +216,13 @@ const Profile = () => {
           className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
-          Профиль
+          {t('profile.title')}
         </button>
         <button
           className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
           onClick={() => setActiveTab('invitations')}
         >
-          Приглашения
+          {t('profile.invitations')}
           {invitationsCount > 0 && (
             <span className="tab-badge">{invitationsCount}</span>
           )}
@@ -229,19 +231,19 @@ const Profile = () => {
           className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
           onClick={() => setActiveTab('friends')}
         >
-          Друзья
+          {t('profile.friends')}
         </button>
         <button
           className={`tab-button ${activeTab === 'accounts' ? 'active' : ''}`}
           onClick={() => setActiveTab('accounts')}
         >
-          Подключенные аккаунты
+          {t('profile.connectedAccounts')}
         </button>
         <button
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
-          Дашборд организатора
+          {t('profile.dashboard')}
         </button>
       </div>
 
@@ -257,7 +259,7 @@ const Profile = () => {
               />
 
               <div className="form-group">
-                <label htmlFor="full_name">Имя</label>
+                <label htmlFor="full_name">{t('profile.name')}</label>
                 <input
                   type="text"
                   id="full_name"
@@ -268,22 +270,22 @@ const Profile = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="gender">Пол</label>
+                <label htmlFor="gender">{t('profile.gender')}</label>
                 <select
                   id="gender"
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
                 >
-                  <option value="">Не указан</option>
-                  <option value="male">Мужской</option>
-                  <option value="female">Женский</option>
-                  <option value="other">Другое</option>
+                  <option value="">{t('profile.notSpecified')}</option>
+                  <option value="male">{t('profile.male')}</option>
+                  <option value="female">{t('profile.female')}</option>
+                  <option value="other">{t('profile.other')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="city">Город</label>
+                <label htmlFor="city">{t('profile.city')}</label>
                 <input
                   type="text"
                   id="city"
@@ -293,7 +295,7 @@ const Profile = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="interests">Интересы</label>
+                <label htmlFor="interests">{t('profile.interests')}</label>
                 <textarea
                   id="interests"
                   name="interests"
@@ -303,16 +305,16 @@ const Profile = () => {
                 />
               </div>
               <button type="submit" className="btn btn-primary">
-                Сохранить
+                {t('common.save')}
               </button>
             </form>
           )}
 
           <div className="profile-events">
             <section className="events-section">
-              <h2>Мои события ({myEvents.length})</h2>
+              <h2>{t('profile.myEvents')} ({myEvents.length})</h2>
               {myEvents.length === 0 ? (
-                <p className="no-events">Вы еще не создали ни одного события</p>
+                <p className="no-events">{t('profile.noEventsCreated')}</p>
               ) : (
                 <div className="events-list">
                   {myEvents.map(event => (
@@ -327,9 +329,9 @@ const Profile = () => {
             </section>
 
             <section className="events-section">
-              <h2>Участвую ({participatingEvents.length})</h2>
+              <h2>{t('profile.joinedEvents')} ({participatingEvents.length})</h2>
               {participatingEvents.length === 0 ? (
-                <p className="no-events">Вы еще не участвуете ни в одном событии</p>
+                <p className="no-events">{t('profile.noEventsJoined')}</p>
               ) : (
                 <div className="events-list">
                   {participatingEvents.map(event => (
