@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import './ReviewForm.css';
 
 const ReviewForm = ({ eventId, onReviewAdded }) => {
   const { user } = useAuth();
+  const { t } = useTranslation('common');
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -16,7 +18,7 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
     e.preventDefault();
 
     if (rating === 0) {
-      setError('Пожалуйста, выберите оценку');
+      setError(t('reviews.errorRatingRequired'));
       return;
     }
 
@@ -34,7 +36,7 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
         .single();
 
       if (participationError || !participationData) {
-        setError('Вы можете оставить отзыв только если участвовали в событии');
+        setError(t('reviews.errorParticipationRequired'));
         setLoading(false);
         return;
       }
@@ -85,7 +87,7 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error('Ошибка при сохранении отзыва:', err);
-      setError('Произошла ошибка при сохранении отзыва. Попробуйте снова.');
+      setError(t('reviews.errorSaving'));
     } finally {
       setLoading(false);
     }
@@ -110,18 +112,18 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
   if (!user) {
     return (
       <div className="review-form-message">
-        <p>Войдите, чтобы оставить отзыв</p>
+        <p>{t('reviews.loginToReview')}</p>
       </div>
     );
   }
 
   return (
     <div className="review-form-container">
-      <h3>Оставьте отзыв</h3>
+      <h3>{t('reviews.leaveReview')}</h3>
 
       {success && (
         <div className="success-message">
-          ✓ Отзыв успешно сохранён!
+          ✓ {t('reviews.successMessage')}
         </div>
       )}
 
@@ -133,28 +135,28 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
 
       <form onSubmit={handleSubmit} className="review-form">
         <div className="rating-input">
-          <label>Ваша оценка:</label>
+          <label>{t('reviews.yourRating')}</label>
           <div className="stars-input">
             {[...Array(5)].map((_, index) => renderStarInput(index))}
           </div>
           {rating > 0 && (
             <span className="rating-text">
-              {rating === 1 && 'Плохо'}
-              {rating === 2 && 'Удовлетворительно'}
-              {rating === 3 && 'Хорошо'}
-              {rating === 4 && 'Очень хорошо'}
-              {rating === 5 && 'Отлично'}
+              {rating === 1 && t('reviews.rating1')}
+              {rating === 2 && t('reviews.rating2')}
+              {rating === 3 && t('reviews.rating3')}
+              {rating === 4 && t('reviews.rating4')}
+              {rating === 5 && t('reviews.rating5')}
             </span>
           )}
         </div>
 
         <div className="comment-input">
-          <label htmlFor="comment">Комментарий (необязательно):</label>
+          <label htmlFor="comment">{t('reviews.commentLabel')}</label>
           <textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Расскажите о вашем опыте участия в событии..."
+            placeholder={t('reviews.commentPlaceholder')}
             rows="4"
             maxLength="1000"
           />
@@ -168,7 +170,7 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
           className="submit-button"
           disabled={loading || rating === 0}
         >
-          {loading ? 'Сохранение...' : 'Отправить отзыв'}
+          {loading ? t('reviews.submitting') : t('reviews.submitButton')}
         </button>
       </form>
     </div>

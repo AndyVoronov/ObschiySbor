@@ -3,9 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BlockUserModal from '../components/BlockUserModal';
+import { useTranslation } from 'react-i18next';
 import './Admin.css';
 
 const Admin = () => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('reports');
@@ -65,7 +67,7 @@ const Admin = () => {
       setReports(data || []);
     } catch (err) {
       console.error('Ошибка загрузки жалоб:', err);
-      setError('Не удалось загрузить жалобы');
+      setError(t('admin.errorUpdatingReport'));
     } finally {
       setLoading(false);
     }
@@ -94,14 +96,14 @@ const Admin = () => {
       ));
     } catch (err) {
       console.error('Ошибка обновления жалобы:', err);
-      setError('Не удалось обновить жалобу');
+      setError(t('admin.errorUpdatingReport'));
     } finally {
       setProcessing(null);
     }
   };
 
   const handleBlockEvent = async (eventId) => {
-    if (!confirm('Вы уверены, что хотите заблокировать это событие?')) {
+    if (!confirm(t('admin.confirmBlockEvent'))) {
       return;
     }
 
@@ -116,11 +118,11 @@ const Admin = () => {
 
       if (updateError) throw updateError;
 
-      alert('Событие успешно заблокировано');
+      alert(t('admin.eventBlocked'));
       loadReports(); // Перезагружаем список
     } catch (err) {
       console.error('Ошибка блокировки события:', err);
-      setError('Не удалось заблокировать событие');
+      setError(t('admin.errorBlockingEvent'));
     } finally {
       setProcessing(null);
     }
@@ -128,10 +130,10 @@ const Admin = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { label: 'Ожидает', color: '#ffc107' },
-      reviewed: { label: 'Просмотрено', color: '#17a2b8' },
-      resolved: { label: 'Решено', color: '#28a745' },
-      rejected: { label: 'Отклонено', color: '#6c757d' },
+      pending: { label: t('admin.statusPending'), color: '#ffc107' },
+      reviewed: { label: t('admin.statusReviewed'), color: '#17a2b8' },
+      resolved: { label: t('admin.statusResolved'), color: '#28a745' },
+      rejected: { label: t('admin.statusRejected'), color: '#6c757d' },
     };
 
     const badge = badges[status] || badges.pending;
@@ -159,7 +161,7 @@ const Admin = () => {
   if (loading) {
     return (
       <div className="admin-container">
-        <div className="loading">Загрузка жалоб...</div>
+        <div className="loading">{t('admin.loadingReports')}</div>
       </div>
     );
   }
@@ -167,8 +169,8 @@ const Admin = () => {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Панель модератора</h1>
-        <p>Управление жалобами, пользователями и обжалованиями</p>
+        <h1>{t('admin.title')}</h1>
+        <p>{t('admin.subtitle')}</p>
       </div>
 
       {/* Вкладки */}
@@ -177,19 +179,19 @@ const Admin = () => {
           className={`tab-button ${activeTab === 'reports' ? 'active' : ''}`}
           onClick={() => setActiveTab('reports')}
         >
-          📋 Жалобы
+          📋 {t('admin.tabReports')}
         </button>
         <button
           className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
           onClick={() => setActiveTab('users')}
         >
-          👥 Пользователи
+          👥 {t('admin.tabUsers')}
         </button>
         <button
           className={`tab-button ${activeTab === 'appeals' ? 'active' : ''}`}
           onClick={() => setActiveTab('appeals')}
         >
-          ⚖️ Обжалования
+          ⚖️ {t('admin.tabAppeals')}
         </button>
       </div>
 
@@ -203,39 +205,39 @@ const Admin = () => {
       {activeTab === 'reports' && (
         <>
           <div className="admin-filters">
-            <label htmlFor="status-filter">Фильтр по статусу:</label>
+            <label htmlFor="status-filter">{t('admin.filterByStatus')}</label>
             <select
               id="status-filter"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="all">Все</option>
-              <option value="pending">Ожидает</option>
-              <option value="reviewed">Просмотрено</option>
-              <option value="resolved">Решено</option>
-              <option value="rejected">Отклонено</option>
+              <option value="all">{t('admin.allStatuses')}</option>
+              <option value="pending">{t('admin.statusPending')}</option>
+              <option value="reviewed">{t('admin.statusReviewed')}</option>
+              <option value="resolved">{t('admin.statusResolved')}</option>
+              <option value="rejected">{t('admin.statusRejected')}</option>
             </select>
             <span className="reports-count">
-              Найдено жалоб: {reports.length}
+              {t('admin.reportsFound')} {reports.length}
             </span>
           </div>
 
           {reports.length === 0 ? (
         <div className="empty-state">
-          <p>Нет жалоб с выбранным статусом</p>
+          <p>{t('admin.noReportsFound')}</p>
         </div>
       ) : (
         <div className="reports-list">
           {reports.map((report) => (
             <div key={report.id} className="report-card">
               <div className="report-header">
-                <div className="report-id">ID: {report.id.slice(0, 8)}</div>
+                <div className="report-id">{t('admin.reportId')} {report.id.slice(0, 8)}</div>
                 {getStatusBadge(report.status)}
               </div>
 
               <div className="report-content">
                 <div className="report-section">
-                  <strong>Событие:</strong>
+                  <strong>{t('admin.reportEvent')}</strong>
                   {report.event ? (
                     <>
                       <a
@@ -247,34 +249,34 @@ const Admin = () => {
                         {report.event.title}
                       </a>
                       {report.event.status === 'cancelled' && (
-                        <span className="blocked-badge">Заблокировано</span>
+                        <span className="blocked-badge">{t('admin.reportBlocked')}</span>
                       )}
                     </>
                   ) : (
-                    <span className="text-muted">Событие удалено</span>
+                    <span className="text-muted">{t('admin.reportDeleted')}</span>
                   )}
                 </div>
 
                 <div className="report-section">
-                  <strong>Причина жалобы:</strong>
+                  <strong>{t('admin.reportReason')}</strong>
                   <p className="report-reason">{report.reason}</p>
                 </div>
 
                 <div className="report-section">
-                  <strong>Отправитель:</strong>
+                  <strong>{t('admin.reportSender')}</strong>
                   {report.reporter ? (
                     <span>
                       {report.reporter.username || report.reporter.email}
                     </span>
                   ) : (
-                    <span className="text-muted">Пользователь удалён</span>
+                    <span className="text-muted">{t('admin.reportUserDeleted')}</span>
                   )}
                 </div>
 
                 <div className="report-meta">
-                  <span>Создано: {formatDate(report.created_at)}</span>
+                  <span>{t('admin.reportCreated')} {formatDate(report.created_at)}</span>
                   {report.updated_at !== report.created_at && (
-                    <span>Обновлено: {formatDate(report.updated_at)}</span>
+                    <span>{t('admin.reportUpdated')} {formatDate(report.updated_at)}</span>
                   )}
                 </div>
               </div>
@@ -287,21 +289,21 @@ const Admin = () => {
                       onClick={() => handleUpdateReport(report.id, 'reviewed')}
                       disabled={processing === report.id}
                     >
-                      Просмотрено
+                      {t('admin.actionReviewed')}
                     </button>
                     <button
                       className="btn btn-success"
                       onClick={() => handleUpdateReport(report.id, 'resolved')}
                       disabled={processing === report.id}
                     >
-                      Решено
+                      {t('admin.actionResolved')}
                     </button>
                     <button
                       className="btn btn-secondary"
                       onClick={() => handleUpdateReport(report.id, 'rejected')}
                       disabled={processing === report.id}
                     >
-                      Отклонить
+                      {t('admin.actionReject')}
                     </button>
                   </>
                 )}
@@ -313,14 +315,14 @@ const Admin = () => {
                       onClick={() => handleUpdateReport(report.id, 'resolved')}
                       disabled={processing === report.id}
                     >
-                      Решено
+                      {t('admin.actionResolved')}
                     </button>
                     <button
                       className="btn btn-secondary"
                       onClick={() => handleUpdateReport(report.id, 'rejected')}
                       disabled={processing === report.id}
                     >
-                      Отклонить
+                      {t('admin.actionReject')}
                     </button>
                   </>
                 )}
@@ -331,7 +333,7 @@ const Admin = () => {
                     onClick={() => handleBlockEvent(report.event_id)}
                     disabled={processing === report.event_id}
                   >
-                    Заблокировать событие
+                    {t('admin.actionBlockEvent')}
                   </button>
                 )}
               </div>
@@ -355,6 +357,7 @@ const Admin = () => {
 // Компонент UsersTab - Управление пользователями
 // ===========================================
 const UsersTab = () => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -392,7 +395,7 @@ const UsersTab = () => {
   };
 
   const handleUnblock = async (userId, userName) => {
-    if (!confirm(`Разблокировать пользователя "${userName}"?`)) return;
+    if (!confirm(`${t('admin.confirmUnblock')} "${userName}"?`)) return;
 
     try {
       const { error } = await supabase.rpc('unblock_user', {
@@ -402,10 +405,10 @@ const UsersTab = () => {
       });
 
       if (error) throw error;
-      alert('Пользователь разблокирован');
+      alert(t('admin.userUnblocked'));
       loadUsers();
     } catch (err) {
-      alert('Ошибка разблокировки: ' + err.message);
+      alert(t('admin.errorUnblocking') + ' ' + err.message);
     }
   };
 
@@ -418,7 +421,7 @@ const UsersTab = () => {
   });
 
   if (loading) {
-    return <div className="loading">Загрузка пользователей...</div>;
+    return <div className="loading">{t('admin.loadingUsers')}</div>;
   }
 
   return (
@@ -426,7 +429,7 @@ const UsersTab = () => {
       <div className="admin-filters">
         <input
           type="text"
-          placeholder="Поиск по имени или email..."
+          placeholder={t('admin.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -436,12 +439,12 @@ const UsersTab = () => {
           onChange={(e) => setFilterBlocked(e.target.value)}
           className="filter-select"
         >
-          <option value="all">Все пользователи</option>
-          <option value="active">Активные</option>
-          <option value="blocked">Заблокированные</option>
+          <option value="all">{t('admin.filterAll')}</option>
+          <option value="active">{t('admin.filterActive')}</option>
+          <option value="blocked">{t('admin.filterBlocked')}</option>
         </select>
         <span className="reports-count">
-          Найдено: {filteredUsers.length}
+          {t('admin.usersFound')} {filteredUsers.length}
         </span>
       </div>
 
@@ -449,11 +452,11 @@ const UsersTab = () => {
         <table className="users-table">
           <thead>
             <tr>
-              <th>Имя</th>
-              <th>Email</th>
-              <th>Статус</th>
-              <th>Дата регистрации</th>
-              <th>Действия</th>
+              <th>{t('admin.userName')}</th>
+              <th>{t('admin.userEmail')}</th>
+              <th>{t('admin.userStatus')}</th>
+              <th>{t('admin.userRegistration')}</th>
+              <th>{t('admin.userActions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -464,11 +467,11 @@ const UsersTab = () => {
                 <td>
                   {u.is_blocked ? (
                     <span className="status-badge" style={{ backgroundColor: '#e74c3c' }}>
-                      Заблокирован
+                      {t('admin.statusBlocked')}
                     </span>
                   ) : (
                     <span className="status-badge" style={{ backgroundColor: '#28a745' }}>
-                      Активен
+                      {t('admin.statusActive')}
                     </span>
                   )}
                 </td>
@@ -479,7 +482,7 @@ const UsersTab = () => {
                       className="btn btn-success btn-sm"
                       onClick={() => handleUnblock(u.id, u.full_name || u.email)}
                     >
-                      Разблокировать
+                      {t('admin.actionUnblock')}
                     </button>
                   ) : (
                     <button
@@ -489,7 +492,7 @@ const UsersTab = () => {
                         setShowBlockModal(true);
                       }}
                     >
-                      Заблокировать
+                      {t('admin.actionBlock')}
                     </button>
                   )}
                 </td>
@@ -521,6 +524,7 @@ const UsersTab = () => {
 // Компонент AppealsTab - Обжалования блокировок
 // ===========================================
 const AppealsTab = () => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const [appeals, setAppeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -553,7 +557,7 @@ const AppealsTab = () => {
   };
 
   const handleApprove = async (appealId) => {
-    if (!confirm('Одобрить обжалование и разблокировать пользователя?')) return;
+    if (!confirm(t('admin.confirmApproveAppeal'))) return;
 
     setProcessing(appealId);
     try {
@@ -564,17 +568,17 @@ const AppealsTab = () => {
       });
 
       if (error) throw error;
-      alert('Обжалование одобрено, пользователь разблокирован');
+      alert(t('admin.appealApproved'));
       loadAppeals();
     } catch (err) {
-      alert('Ошибка: ' + err.message);
+      alert(t('admin.appealError') + ' ' + err.message);
     } finally {
       setProcessing(null);
     }
   };
 
   const handleReject = async (appealId) => {
-    const adminComment = prompt('Укажите причину отклонения обжалования:');
+    const adminComment = prompt(t('admin.appealRejectReason'));
     if (!adminComment) return;
 
     setProcessing(appealId);
@@ -586,29 +590,29 @@ const AppealsTab = () => {
       });
 
       if (error) throw error;
-      alert('Обжалование отклонено');
+      alert(t('admin.appealRejected'));
       loadAppeals();
     } catch (err) {
-      alert('Ошибка: ' + err.message);
+      alert(t('admin.appealError') + ' ' + err.message);
     } finally {
       setProcessing(null);
     }
   };
 
   if (loading) {
-    return <div className="loading">Загрузка обжалований...</div>;
+    return <div className="loading">{t('admin.loadingAppeals')}</div>;
   }
 
   return (
     <>
       <div className="appeals-header">
-        <h2>Обжалования блокировок</h2>
-        <span className="reports-count">Ожидают рассмотрения: {appeals.length}</span>
+        <h2>{t('admin.appealsTitle')}</h2>
+        <span className="reports-count">{t('admin.appealsWaiting')} {appeals.length}</span>
       </div>
 
       {appeals.length === 0 ? (
         <div className="empty-state">
-          <p>Нет обжалований, ожидающих рассмотрения</p>
+          <p>{t('admin.noAppeals')}</p>
         </div>
       ) : (
         <div className="appeals-list">
@@ -620,7 +624,7 @@ const AppealsTab = () => {
                     <img src={appeal.user.avatar_url} alt="Avatar" className="appeal-avatar" />
                   )}
                   <div>
-                    <h3>{appeal.user.full_name || 'Имя не указано'}</h3>
+                    <h3>{appeal.user.full_name || t('profile.noNameProvided')}</h3>
                     <p>{appeal.user.email}</p>
                   </div>
                 </div>
@@ -630,16 +634,16 @@ const AppealsTab = () => {
               </div>
 
               <div className="appeal-block-info">
-                <h4>📋 Информация о блокировке:</h4>
-                <p><strong>Причина блокировки:</strong> {appeal.block.reason}</p>
-                <p><strong>Дата блокировки:</strong> {new Date(appeal.block.blocked_at).toLocaleString('ru-RU')}</p>
+                <h4>📋 {t('admin.appealBlockInfo')}</h4>
+                <p><strong>{t('admin.appealBlockReason')}</strong> {appeal.block.reason}</p>
+                <p><strong>{t('admin.appealBlockDate')}</strong> {new Date(appeal.block.blocked_at).toLocaleString('ru-RU')}</p>
                 {appeal.block.blocked_until && (
-                  <p><strong>Блокировка до:</strong> {new Date(appeal.block.blocked_until).toLocaleString('ru-RU')}</p>
+                  <p><strong>{t('admin.appealBlockUntil')}</strong> {new Date(appeal.block.blocked_until).toLocaleString('ru-RU')}</p>
                 )}
               </div>
 
               <div className="appeal-reason-box">
-                <h4>💬 Обжалование пользователя:</h4>
+                <h4>💬 {t('admin.appealUserReason')}</h4>
                 <p className="appeal-reason-text">{appeal.reason}</p>
               </div>
 
@@ -649,14 +653,14 @@ const AppealsTab = () => {
                   onClick={() => handleApprove(appeal.id)}
                   disabled={processing === appeal.id}
                 >
-                  ✓ Одобрить
+                  ✓ {t('admin.appealApprove')}
                 </button>
                 <button
                   className="btn btn-danger"
                   onClick={() => handleReject(appeal.id)}
                   disabled={processing === appeal.id}
                 >
-                  ✗ Отклонить
+                  ✗ {t('admin.appealReject')}
                 </button>
               </div>
             </div>

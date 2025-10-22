@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import {
   BarChart,
@@ -19,6 +20,7 @@ import { getCategoryName } from '../constants/categories';
 import './OrganizerDashboard.css';
 
 function OrganizerDashboard({ userId }) {
+  const { t } = useTranslation('common');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalEvents: 0,
@@ -103,7 +105,7 @@ function OrganizerDashboard({ userId }) {
       });
 
       const categoryData = Object.entries(categoryCounts).map(([category, count]) => ({
-        name: getCategoryName(category),
+        name: getCategoryName(category, t),
         value: count
       }));
       setEventsByCategory(categoryData);
@@ -120,7 +122,7 @@ function OrganizerDashboard({ userId }) {
       });
 
       const popularityData = Object.entries(categoryPopularityData).map(([category, data]) => ({
-        category: getCategoryName(category),
+        category: getCategoryName(category, t),
         avgParticipants: (data.participants / data.count).toFixed(1)
       }));
       setCategoryPopularity(popularityData);
@@ -179,7 +181,7 @@ function OrganizerDashboard({ userId }) {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
   if (loading) {
-    return <div className="dashboard-loading">Загрузка статистики...</div>;
+    return <div className="dashboard-loading">{t('dashboard.loading')}</div>;
   }
 
   return (
@@ -187,24 +189,24 @@ function OrganizerDashboard({ userId }) {
       {/* Общая статистика */}
       <div className="stats-cards">
         <div className="stat-card">
-          <h3>Всего событий</h3>
+          <h3>{t('dashboard.totalEvents')}</h3>
           <p className="stat-value">{stats.totalEvents}</p>
           <div className="stat-breakdown">
-            <span>Активные: {stats.activeEvents}</span>
-            <span>Завершённые: {stats.completedEvents}</span>
-            <span>Отменённые: {stats.cancelledEvents}</span>
+            <span>{t('dashboard.activeEvents')}: {stats.activeEvents}</span>
+            <span>{t('dashboard.completedEvents')}: {stats.completedEvents}</span>
+            <span>{t('dashboard.cancelledEvents')}: {stats.cancelledEvents}</span>
           </div>
         </div>
         <div className="stat-card">
-          <h3>Участники</h3>
+          <h3>{t('dashboard.totalParticipants')}</h3>
           <p className="stat-value">{stats.totalParticipants}</p>
         </div>
         <div className="stat-card">
-          <h3>Доходы</h3>
+          <h3>{t('dashboard.totalRevenue')}</h3>
           <p className="stat-value">{stats.totalRevenue} ₽</p>
         </div>
         <div className="stat-card">
-          <h3>Средний рейтинг</h3>
+          <h3>{t('dashboard.averageRating')}</h3>
           <p className="stat-value">{stats.avgRating} ⭐</p>
         </div>
       </div>
@@ -214,7 +216,7 @@ function OrganizerDashboard({ userId }) {
         {/* События по категориям */}
         {eventsByCategory.length > 0 && (
           <div className="chart-card">
-            <h3>События по категориям</h3>
+            <h3>{t('dashboard.eventsByCategory')}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -240,7 +242,7 @@ function OrganizerDashboard({ userId }) {
         {/* Тренд участников */}
         {participantsTrend.length > 0 && (
           <div className="chart-card">
-            <h3>Посещаемость по месяцам</h3>
+            <h3>{t('dashboard.attendanceTrend')}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={participantsTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -248,7 +250,7 @@ function OrganizerDashboard({ userId }) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="participants" stroke="#8884d8" name="Участники" />
+                <Line type="monotone" dataKey="participants" stroke="#8884d8" name={t('dashboard.participants')} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -257,7 +259,7 @@ function OrganizerDashboard({ userId }) {
         {/* Тренд доходов */}
         {revenueTrend.length > 0 && (
           <div className="chart-card">
-            <h3>Доходы по месяцам</h3>
+            <h3>{t('dashboard.revenueTrend')}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={revenueTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -265,7 +267,7 @@ function OrganizerDashboard({ userId }) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="revenue" fill="#82ca9d" name="Доход (₽)" />
+                <Bar dataKey="revenue" fill="#82ca9d" name={t('dashboard.revenue')} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -274,7 +276,7 @@ function OrganizerDashboard({ userId }) {
         {/* Популярность категорий */}
         {categoryPopularity.length > 0 && (
           <div className="chart-card">
-            <h3>Средняя посещаемость по категориям</h3>
+            <h3>{t('dashboard.categoryPopularity')}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={categoryPopularity}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -282,7 +284,7 @@ function OrganizerDashboard({ userId }) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="avgParticipants" fill="#0088FE" name="Среднее кол-во участников" />
+                <Bar dataKey="avgParticipants" fill="#0088FE" name={t('dashboard.averageParticipants')} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -292,29 +294,29 @@ function OrganizerDashboard({ userId }) {
       {/* Топ события */}
       {topEvents.length > 0 && (
         <div className="top-events">
-          <h3>Топ-5 событий по посещаемости</h3>
+          <h3>{t('dashboard.topEvents')}</h3>
           <table className="events-table">
             <thead>
               <tr>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Дата</th>
-                <th>Участники</th>
-                <th>Статус</th>
+                <th>{t('dashboard.eventName')}</th>
+                <th>{t('dashboard.category')}</th>
+                <th>{t('dashboard.date')}</th>
+                <th>{t('dashboard.participants')}</th>
+                <th>{t('dashboard.status')}</th>
               </tr>
             </thead>
             <tbody>
               {topEvents.map(event => (
                 <tr key={event.id}>
                   <td>{event.title}</td>
-                  <td>{getCategoryName(event.category)}</td>
+                  <td>{getCategoryName(event.category, t)}</td>
                   <td>{new Date(event.event_date).toLocaleDateString('ru-RU')}</td>
                   <td>{event.participantsCount} / {event.max_participants}</td>
                   <td>
                     <span className={`status-badge status-${event.lifecycle_status}`}>
-                      {event.lifecycle_status === 'upcoming' ? 'Предстоит' :
-                       event.lifecycle_status === 'ongoing' ? 'Идёт' :
-                       event.lifecycle_status === 'completed' ? 'Завершено' : 'Отменено'}
+                      {event.lifecycle_status === 'upcoming' ? t('dashboard.upcoming') :
+                       event.lifecycle_status === 'ongoing' ? t('dashboard.ongoing') :
+                       event.lifecycle_status === 'completed' ? t('dashboard.completed') : t('dashboard.cancelled')}
                     </span>
                   </td>
                 </tr>

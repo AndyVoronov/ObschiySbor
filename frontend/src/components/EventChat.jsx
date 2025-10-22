@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import './EventChat.css';
 
 function EventChat({ eventId }) {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -166,18 +168,18 @@ function EventChat({ eventId }) {
       setNewMessage('');
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
-      alert('Не удалось отправить сообщение');
+      alert(t('eventChat.errorSending'));
     }
   };
 
   if (loading) {
-    return <div className="chat-loading">Загрузка чата...</div>;
+    return <div className="chat-loading">{t('eventChat.loading')}</div>;
   }
 
   if (!isParticipant) {
     return (
       <div className="chat-not-participant">
-        <p>Чат доступен только участникам события</p>
+        <p>{t('eventChat.notParticipant')}</p>
       </div>
     );
   }
@@ -185,14 +187,14 @@ function EventChat({ eventId }) {
   return (
     <div className="event-chat">
       <div className="chat-header">
-        <h3>💬 Чат события</h3>
-        <span className="chat-participants-count">{messages.length} сообщений</span>
+        <h3>💬 {t('eventChat.title')}</h3>
+        <span className="chat-participants-count">{messages.length} {t('chats.messages')}</span>
       </div>
 
       <div className="chat-messages">
         {messages.length === 0 ? (
           <div className="chat-empty">
-            <p>Сообщений пока нет. Начните общение!</p>
+            <p>{t('eventChat.noMessages')}</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -212,7 +214,7 @@ function EventChat({ eventId }) {
               <div className="message-content">
                 <div className="message-header">
                   <span className="message-author">
-                    {msg.profiles?.full_name || 'Аноним'}
+                    {msg.profiles?.full_name || t('eventChat.anonymous')}
                   </span>
                   <span className="message-time">
                     {new Date(msg.created_at).toLocaleString('ru-RU', {
@@ -236,12 +238,12 @@ function EventChat({ eventId }) {
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Введите сообщение..."
+          placeholder={t('eventChat.inputPlaceholder')}
           className="chat-input"
           maxLength={500}
         />
         <button type="submit" className="chat-send-btn" disabled={!newMessage.trim()}>
-          Отправить
+          {t('eventChat.sendButton')}
         </button>
       </form>
     </div>

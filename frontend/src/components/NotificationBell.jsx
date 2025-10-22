@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './NotificationBell.css';
 
 export default function NotificationBell() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } =
     useNotifications(user?.id);
@@ -30,10 +32,10 @@ export default function NotificationBell() {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
 
-    if (diffInSeconds < 60) return 'только что';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин. назад`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ч. назад`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} дн. назад`;
+    if (diffInSeconds < 60) return t('notifications.justNow');
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} ${t('notifications.minutesAgo')}`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ${t('notifications.hoursAgo')}`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ${t('notifications.daysAgo')}`;
     return date.toLocaleDateString('ru-RU');
   };
 
@@ -57,7 +59,7 @@ export default function NotificationBell() {
       <button
         className="bell-button"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Уведомления"
+        aria-label={t('notifications.title')}
       >
         🔔
         {unreadCount > 0 && (
@@ -68,10 +70,10 @@ export default function NotificationBell() {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <h3>Уведомления</h3>
+            <h3>{t('notifications.title')}</h3>
             {unreadCount > 0 && (
               <button onClick={markAllAsRead} className="mark-all-read">
-                Прочитать все
+                {t('notifications.markAllRead')}
               </button>
             )}
           </div>
@@ -79,7 +81,7 @@ export default function NotificationBell() {
           <div className="notification-list">
             {notifications.length === 0 ? (
               <div className="no-notifications">
-                <p>Нет уведомлений</p>
+                <p>{t('notifications.noNotifications')}</p>
               </div>
             ) : (
               notifications.map((notification) => (

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import EventChat from '../components/EventChat';
 import './Chats.css';
 
 function Chats() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const [chatRooms, setChatRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -115,17 +117,17 @@ function Chats() {
   };
 
   if (loading) {
-    return <div className="chats-loading">Загрузка чатов...</div>;
+    return <div className="chats-loading">{t('chats.loading')}</div>;
   }
 
   return (
     <div className="chats-page">
       {chatRooms.length === 0 ? (
         <div className="no-chats">
-          <p>У вас пока нет чатов</p>
-          <p>Чаты создаются автоматически для событий, в которых вы участвуете</p>
+          <p>{t('chats.noChats')}</p>
+          <p>{t('chats.noChatsHint')}</p>
           <Link to="/events" className="btn btn-primary">
-            Найти события
+            {t('chats.findEvents')}
           </Link>
         </div>
       ) : (
@@ -157,7 +159,7 @@ function Chats() {
                         : room.lastMessage.message}
                     </p>
                   ) : (
-                    <p className="last-message no-messages">Нет сообщений</p>
+                    <p className="last-message no-messages">{t('chats.noMessages')}</p>
                   )}
                   <div className="chat-room-meta">
                     <span className="event-date">
@@ -178,21 +180,21 @@ function Chats() {
               <div className="selected-chat">
                 <div className="chat-header-info">
                   <button className="mobile-back-button" onClick={closeChat}>
-                    ← Назад к чатам
+                    ← {t('chats.backToChats')}
                   </button>
                   <Link to={`/events/${selectedRoom.events.id}`} className="event-link">
                     <h2>{selectedRoom.events.title}</h2>
                   </Link>
                   <span className="event-status-badge">
-                    {selectedRoom.events.status === 'active' ? '🟢 Активно' :
-                     selectedRoom.events.status === 'completed' ? '✅ Завершено' : '❌ Отменено'}
+                    {selectedRoom.events.status === 'active' ? `🟢 ${t('chats.statusActive')}` :
+                     selectedRoom.events.status === 'completed' ? `✅ ${t('chats.statusCompleted')}` : `❌ ${t('chats.statusCancelled')}`}
                   </span>
                 </div>
                 <EventChat eventId={selectedRoom.events.id} />
               </div>
             ) : (
               <div className="no-chat-selected">
-                <p>Выберите чат из списка слева</p>
+                <p>{t('chats.selectChat')}</p>
               </div>
             )}
           </div>

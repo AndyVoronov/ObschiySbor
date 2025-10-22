@@ -1,8 +1,10 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 import './Reviews.css';
 
 const Reviews = forwardRef(({ eventId }, ref) => {
+  const { t } = useTranslation('common');
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
@@ -70,28 +72,28 @@ const Reviews = forwardRef(({ eventId }, ref) => {
   };
 
   if (loading) {
-    return <div className="reviews-loading">Загрузка отзывов...</div>;
+    return <div className="reviews-loading">{t('reviews.loading')}</div>;
   }
 
   return (
     <div className="reviews-section">
       <div className="reviews-header">
-        <h2>Отзывы</h2>
+        <h2>{t('reviews.title')}</h2>
         {reviews.length > 0 && (
           <div className="average-rating">
             <div className="stars-display">
               {renderStars(Math.round(averageRating))}
             </div>
             <span className="rating-value">{averageRating}</span>
-            <span className="reviews-count">({reviews.length} {reviews.length === 1 ? 'отзыв' : 'отзыва'})</span>
+            <span className="reviews-count">({reviews.length} {reviews.length === 1 ? t('reviews.reviewsCount') : t('reviews.reviewsCountPlural')})</span>
           </div>
         )}
       </div>
 
       {reviews.length === 0 ? (
         <div className="no-reviews">
-          <p>Пока нет отзывов об этом событии.</p>
-          <p className="hint">Будьте первым, кто оставит отзыв после участия!</p>
+          <p>{t('reviews.noReviews')}</p>
+          <p className="hint">{t('reviews.noReviewsHint')}</p>
         </div>
       ) : (
         <div className="reviews-list">
@@ -111,7 +113,7 @@ const Reviews = forwardRef(({ eventId }, ref) => {
                     </div>
                   )}
                   <div>
-                    <div className="user-name">{review.profiles?.full_name || 'Пользователь'}</div>
+                    <div className="user-name">{review.profiles?.full_name || t('reviews.user')}</div>
                     <div className="review-date">{formatDate(review.created_at)}</div>
                   </div>
                 </div>
