@@ -1064,5 +1064,29 @@
     "status": "Status",
     "bonusPaid": "Bonus paid",
     "date": "Date"
+  },
+  "promoCode": {
+    "title": "Promo code",
+    "enterCode": "Enter promo code",
+    "apply": "Apply",
+    "remove": "Remove",
+    "havePromoCode": "Have a promo code?",
+    "discount": "Discount",
+    "originalPrice": "Original price",
+    "discountAmount": "Discount amount",
+    "finalPrice": "Total to pay",
+    "applied": "Promo code applied",
+    "notFound": "Promo code not found",
+    "inactive": "Promo code is inactive",
+    "notStarted": "Promo code not yet valid",
+    "expired": "Promo code has expired",
+    "limitReached": "Usage limit reached",
+    "alreadyUsed": "You've already used this promo code",
+    "wrongCategory": "Promo code not applicable to this category",
+    "minPriceNotMet": "Minimum event price for promo code:",
+    "error": "Error applying promo code",
+    "percentage": "{{value}}% discount",
+    "fixed": "{{value}}₽ discount",
+    "free": "Free"
   }
 }
