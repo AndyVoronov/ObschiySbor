@@ -42,7 +42,8 @@
       "Bash(choco install:*)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,6 +1,7 @@
 /**
  * Утилиты для работы со статусами событий
  */
+import i18n from '../i18n';
 
 // Типы статусов событий
 export const EVENT_STATUS = {
@@ -10,13 +11,21 @@ export const EVENT_STATUS = {
   CANCELLED: 'cancelled',  // Отменено организатором
 };
 
-// Локализованные названия статусов
-export const EVENT_STATUS_LABELS = {
-  [EVENT_STATUS.UPCOMING]: 'Запланировано',
-  [EVENT_STATUS.ONGOING]: 'Идёт сейчас',
-  [EVENT_STATUS.COMPLETED]: 'Завершено',
-  [EVENT_STATUS.CANCELLED]: 'Отменено',
-};
+// Функция для получения локализованных названий статусов
+export const getEventStatusLabels = () => ({
+  [EVENT_STATUS.UPCOMING]: i18n.t('events.upcomingStatus', { ns: 'common' }),
+  [EVENT_STATUS.ONGOING]: i18n.t('events.ongoingNow', { ns: 'common' }),
+  [EVENT_STATUS.COMPLETED]: i18n.t('events.completedStatus', { ns: 'common' }),
+  [EVENT_STATUS.CANCELLED]: i18n.t('events.cancelledStatus', { ns: 'common' }),
+});
+
+// Локализованные названия статусов (для обратной совместимости)
+// Используется dynamic getter для поддержки смены языка
+export const EVENT_STATUS_LABELS = new Proxy({}, {
+  get(target, prop) {
+    return getEventStatusLabels()[prop];
+  }
+});
 
 // Цвета для бейджей статусов
 export const EVENT_STATUS_COLORS = {

@@ -34,7 +34,7 @@ const Events = () => {
     priceType: '', // 'free', 'paid', 'range'
     minPrice: '',
     maxPrice: '',
-    status: '', // 'upcoming', 'ongoing', 'completed', 'cancelled'
+    status: 'active', // 'upcoming', 'ongoing', 'completed', 'cancelled', 'active' (по умолчанию активные)
     distanceFilter: '', // '5', '10', '25', '50' (км) - фильтр по расстоянию
     eventType: '', // 'online', 'offline', '' (все)
   });
@@ -163,6 +163,16 @@ const Events = () => {
     localStorage.removeItem('eventFilters');
   };
 
+  // Получаем отсортированный список категорий по алфавиту
+  const sortedCategories = useMemo(() => {
+    const categoryList = Object.values(CATEGORIES);
+    return categoryList.sort((a, b) => {
+      const nameA = getCategoryName(a, t).toLowerCase();
+      const nameB = getCategoryName(b, t).toLowerCase();
+      return nameA.localeCompare(nameB, t('app.name') === 'Obschiy Sbor!' ? 'en' : 'ru');
+    });
+  }, [t]);
+
   return (
     <div className="container-custom py-8">
       {/* Header */}
@@ -223,26 +233,11 @@ const Events = () => {
               className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">{t('events.allCategories')}</option>
-              <option value={CATEGORIES.BOARD_GAMES}>{getCategoryName(CATEGORIES.BOARD_GAMES, t)}</option>
-              <option value={CATEGORIES.CYCLING}>{getCategoryName(CATEGORIES.CYCLING, t)}</option>
-              <option value={CATEGORIES.HIKING}>{getCategoryName(CATEGORIES.HIKING, t)}</option>
-              <option value={CATEGORIES.YOGA}>{getCategoryName(CATEGORIES.YOGA, t)}</option>
-              <option value={CATEGORIES.COOKING}>{getCategoryName(CATEGORIES.COOKING, t)}</option>
-              <option value={CATEGORIES.MUSIC_JAM}>{getCategoryName(CATEGORIES.MUSIC_JAM, t)}</option>
-              <option value={CATEGORIES.SEMINAR}>{getCategoryName(CATEGORIES.SEMINAR, t)}</option>
-              <option value={CATEGORIES.PICNIC}>{getCategoryName(CATEGORIES.PICNIC, t)}</option>
-              <option value={CATEGORIES.PHOTO_WALK}>{getCategoryName(CATEGORIES.PHOTO_WALK, t)}</option>
-              <option value={CATEGORIES.QUEST}>{getCategoryName(CATEGORIES.QUEST, t)}</option>
-              <option value={CATEGORIES.DANCE}>{getCategoryName(CATEGORIES.DANCE, t)}</option>
-              <option value={CATEGORIES.TOUR}>{getCategoryName(CATEGORIES.TOUR, t)}</option>
-              <option value={CATEGORIES.VOLUNTEER}>{getCategoryName(CATEGORIES.VOLUNTEER, t)}</option>
-              <option value={CATEGORIES.FITNESS}>{getCategoryName(CATEGORIES.FITNESS, t)}</option>
-              <option value={CATEGORIES.THEATER}>{getCategoryName(CATEGORIES.THEATER, t)}</option>
-              <option value={CATEGORIES.AUTO_TOUR}>{getCategoryName(CATEGORIES.AUTO_TOUR, t)}</option>
-              <option value={CATEGORIES.CRAFT}>{getCategoryName(CATEGORIES.CRAFT, t)}</option>
-              <option value={CATEGORIES.CONCERT}>{getCategoryName(CATEGORIES.CONCERT, t)}</option>
-              <option value={CATEGORIES.SPORTS}>{getCategoryName(CATEGORIES.SPORTS, t)}</option>
-              <option value={CATEGORIES.ECO_TOUR}>{getCategoryName(CATEGORIES.ECO_TOUR, t)}</option>
+              {sortedCategories.map(category => (
+                <option key={category} value={category}>
+                  {getCategoryName(category, t)}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -410,6 +405,7 @@ const Events = () => {
             className="w-full px-3 py-2 border border-input bg-background rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">{t('events.allStatuses')}</option>
+            <option value="active">✨ {t('events.activeStatus')}</option>
             <option value="upcoming">📅 {t('events.upcomingStatus')}</option>
             <option value="ongoing">🔴 {t('events.ongoingNow')}</option>
             <option value="completed">✅ {t('events.completedStatus')}</option>

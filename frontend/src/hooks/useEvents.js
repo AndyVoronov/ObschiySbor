@@ -101,7 +101,12 @@ const fetchEvents = async (filters) => {
 
   // Фильтр по статусу события
   if (filters.status) {
-    query = query.eq('lifecycle_status', filters.status);
+    // 'active' - специальное значение для запланированных и текущих событий
+    if (filters.status === 'active') {
+      query = query.in('lifecycle_status', ['upcoming', 'ongoing']);
+    } else {
+      query = query.eq('lifecycle_status', filters.status);
+    }
   }
 
   const { data, error: queryError } = await query;

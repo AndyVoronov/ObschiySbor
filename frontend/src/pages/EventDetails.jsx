@@ -11,6 +11,7 @@ import ReviewForm from '../components/ReviewForm';
 import ReportButton from '../components/ReportButton';
 import EventParticipants from '../components/EventParticipants';
 import BlockedUserNotice from '../components/BlockedUserNotice';
+import ShareEvent from '../components/ShareEvent';
 import { generateICS, generateGoogleCalendarLink } from '../utils/calendarExport';
 import { notifyNewParticipant } from '../utils/notificationHelpers';
 import { getEventStatus, canCancelEvent, EVENT_STATUS } from '../utils/eventStatus';
@@ -407,10 +408,15 @@ const EventDetails = () => {
 
       <div className="event-detail-content">
         <div className="event-header">
-          <h1>{event.title}</h1>
-          <div className="event-badges">
-            <span className="event-category-badge">{getCategoryName(event.category, t)}</span>
-            <EventStatusBadge event={event} showEmoji={true} />
+          <div className="event-header-main">
+            <h1>{event.title}</h1>
+            <div className="event-badges">
+              <span className="event-category-badge">{getCategoryName(event.category, t)}</span>
+              <EventStatusBadge event={event} showEmoji={true} />
+            </div>
+          </div>
+          <div className="event-header-actions">
+            <ShareEvent event={event} showLabel={true} />
           </div>
         </div>
 

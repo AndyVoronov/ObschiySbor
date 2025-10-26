@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import './BoardGameDetails.css';
 
 const BoardGameDetails = () => {
   const { id } = useParams();
+  const { t } = useTranslation('common');
   const [game, setGame] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,11 +72,11 @@ const BoardGameDetails = () => {
   };
 
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return <div className="loading">{t('boardGame.loading')}</div>;
   }
 
   if (!game) {
-    return <div className="error">Игра не найдена</div>;
+    return <div className="error">{t('boardGame.notFound')}</div>;
   }
 
   return (
@@ -91,7 +93,7 @@ const BoardGameDetails = () => {
               <span className="stat-icon">👥</span>
               <div>
                 <div className="stat-value">{game.min_players}-{game.max_players}</div>
-                <div className="stat-label">игроков</div>
+                <div className="stat-label">{t('boardGame.players')}</div>
               </div>
             </div>
 
@@ -99,7 +101,7 @@ const BoardGameDetails = () => {
               <span className="stat-icon">⏱️</span>
               <div>
                 <div className="stat-value">~{game.avg_playtime_minutes}</div>
-                <div className="stat-label">минут</div>
+                <div className="stat-label">{t('boardGame.minutes')}</div>
               </div>
             </div>
           </div>
@@ -108,16 +110,16 @@ const BoardGameDetails = () => {
 
       {game.description && (
         <div className="game-description">
-          <h2>Описание</h2>
+          <h2>{t('boardGame.description')}</h2>
           <p>{game.description}</p>
         </div>
       )}
 
       <div className="game-events">
-        <h2>Активные события с этой игрой ({events.length})</h2>
+        <h2>{t('boardGame.activeEvents')} ({events.length})</h2>
 
         {events.length === 0 ? (
-          <p className="no-events">Пока нет активных событий с этой игрой</p>
+          <p className="no-events">{t('boardGame.noActiveEvents')}</p>
         ) : (
           <div className="events-list">
             {events.map(event => (
@@ -136,7 +138,7 @@ const BoardGameDetails = () => {
                       👥 {event.current_participants}/{event.max_participants}
                     </span>
                     <span className="organizer">
-                      Организатор: {event.profiles?.full_name || 'Неизвестно'}
+                      {t('boardGame.organizer')}: {event.profiles?.full_name || t('profile.noNameProvided')}
                     </span>
                   </div>
                 </div>
@@ -147,7 +149,7 @@ const BoardGameDetails = () => {
       </div>
 
       <div className="back-link">
-        <Link to="/events" className="btn btn-secondary">← Вернуться к событиям</Link>
+        <Link to="/events" className="btn btn-secondary">← {t('boardGame.backToEvents')}</Link>
       </div>
     </div>
   );

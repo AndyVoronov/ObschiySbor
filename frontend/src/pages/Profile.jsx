@@ -8,6 +8,7 @@ import { OrganizerDashboard, ChartLoadingFallback } from '../components/LazyComp
 import ConnectedAccounts from '../components/ConnectedAccounts';
 import FriendsList from '../components/FriendsList';
 import EventInvitations from '../components/EventInvitations';
+import GamificationPanel from '../components/GamificationPanel';
 import './Profile.css';
 
 const Profile = () => {
@@ -240,6 +241,12 @@ const Profile = () => {
           {t('profile.connectedAccounts')}
         </button>
         <button
+          className={`tab-button ${activeTab === 'progress' ? 'active' : ''}`}
+          onClick={() => setActiveTab('progress')}
+        >
+          {t('gamification.title')}
+        </button>
+        <button
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
@@ -357,6 +364,10 @@ const Profile = () => {
 
       {activeTab === 'accounts' && (
         <ConnectedAccounts />
+      )}
+
+      {activeTab === 'progress' && (
+        <GamificationPanel userId={user.id} />
       )}
 
       {activeTab === 'dashboard' && (

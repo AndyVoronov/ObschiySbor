@@ -38,6 +38,13 @@ const CreateEvent = () => {
     online_platform: 'zoom', // Платформа для онлайн-мероприятий
     online_link: '', // Ссылка на онлайн-мероприятие
     max_participants: 10,
+    min_participants: null,
+    auto_cancel_enabled: false,
+    auto_cancel_deadline: '',
+    auto_cancel_min_participants: null,
+    min_age: 18,
+    max_age: null,
+    kids_allowed: false,
     image_url: null,
     gender_filter: 'all', // Фильтр по полу: male, female, all
     // Специфичные поля для категорий
@@ -157,6 +164,13 @@ const CreateEvent = () => {
         online_platform: formData.event_type === 'online' ? formData.online_platform : null,
         online_link: formData.event_type === 'online' ? formData.online_link : null,
         max_participants: parseInt(formData.max_participants),
+        min_participants: formData.min_participants ? parseInt(formData.min_participants) : null,
+        auto_cancel_enabled: formData.auto_cancel_enabled,
+        auto_cancel_deadline: formData.auto_cancel_enabled && formData.auto_cancel_deadline ? formData.auto_cancel_deadline : null,
+        auto_cancel_min_participants: formData.auto_cancel_enabled && formData.auto_cancel_min_participants ? parseInt(formData.auto_cancel_min_participants) : null,
+        min_age: parseInt(formData.min_age),
+        max_age: formData.max_age ? parseInt(formData.max_age) : null,
+        kids_allowed: formData.kids_allowed,
         current_participants: 1,
         creator_id: user.id,
         moderation_status: 'active',
@@ -534,6 +548,121 @@ const CreateEvent = () => {
             max="100"
             required
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="min_participants">{t('createEvent.minParticipants')}</label>
+          <input
+            type="number"
+            id="min_participants"
+            name="min_participants"
+            value={formData.min_participants || ''}
+            onChange={handleChange}
+            min="1"
+            max={formData.max_participants}
+            placeholder={t('createEvent.minParticipantsHint')}
+          />
+          <p className="field-hint">{t('createEvent.minParticipantsHint')}</p>
+        </div>
+
+        {/* Настройки автоотмены */}
+        <div className="form-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              name="auto_cancel_enabled"
+              checked={formData.auto_cancel_enabled}
+              onChange={(e) => setFormData({ ...formData, auto_cancel_enabled: e.target.checked })}
+            />
+            <span>{t('createEvent.autoCancelEnabled')}</span>
+          </label>
+          <p className="field-hint">{t('createEvent.autoCancelEnabledHint')}</p>
+        </div>
+
+        {formData.auto_cancel_enabled && (
+          <>
+            <div className="form-group">
+              <label htmlFor="auto_cancel_deadline">{t('createEvent.autoCancelDeadline')}</label>
+              <input
+                type="datetime-local"
+                id="auto_cancel_deadline"
+                name="auto_cancel_deadline"
+                value={formData.auto_cancel_deadline}
+                onChange={handleChange}
+                min={new Date().toISOString().slice(0, 16)}
+                max={formData.event_date}
+                required
+              />
+              <p className="field-hint">{t('createEvent.autoCancelDeadlineHint')}</p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="auto_cancel_min_participants">{t('createEvent.autoCancelMinParticipants')}</label>
+              <input
+                type="number"
+                id="auto_cancel_min_participants"
+                name="auto_cancel_min_participants"
+                value={formData.auto_cancel_min_participants || ''}
+                onChange={handleChange}
+                min="1"
+                max={formData.max_participants}
+                required
+              />
+            </div>
+          </>
+        )}
+
+        {/* Возрастные ограничения */}
+        <div className="form-group">
+          <h3>{t('createEvent.ageRestrictions')}</h3>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="min_age">{t('createEvent.minAge')}</label>
+              <select
+                id="min_age"
+                name="min_age"
+                value={formData.min_age}
+                onChange={handleChange}
+              >
+                <option value="0">{t('createEvent.noAgeLimit')}</option>
+                <option value="6">6+</option>
+                <option value="12">12+</option>
+                <option value="14">14+</option>
+                <option value="16">16+</option>
+                <option value="18">18+</option>
+                <option value="21">21+</option>
+              </select>
+              <p className="field-hint">{t('createEvent.minAgeHint')}</p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="max_age">{t('createEvent.maxAge')}</label>
+              <input
+                type="number"
+                id="max_age"
+                name="max_age"
+                value={formData.max_age || ''}
+                onChange={handleChange}
+                min={formData.min_age || 0}
+                max="100"
+                placeholder={t('createEvent.noAgeLimit')}
+              />
+              <p className="field-hint">{t('createEvent.maxAgeHint')}</p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="kids_allowed"
+                checked={formData.kids_allowed}
+                onChange={(e) => setFormData({ ...formData, kids_allowed: e.target.checked })}
+              />
+              <span>{t('createEvent.kidsAllowed')}</span>
+            </label>
+            <p className="field-hint">{t('createEvent.kidsAllowedHint')}</p>
+          </div>
         </div>
 
         {/* Переключатель типа мероприятия */}

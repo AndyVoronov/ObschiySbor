@@ -33,6 +33,17 @@
   gap: 1rem;
 }
 
+.event-header-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
 .event-header h1 {
   color: var(--foreground);
   margin: 0;
