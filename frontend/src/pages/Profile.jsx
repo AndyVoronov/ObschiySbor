@@ -9,6 +9,7 @@ import ConnectedAccounts from '../components/ConnectedAccounts';
 import FriendsList from '../components/FriendsList';
 import EventInvitations from '../components/EventInvitations';
 import GamificationPanel from '../components/GamificationPanel';
+import ReferralPanel from '../components/ReferralPanel';
 import './Profile.css';
 
 const Profile = () => {
@@ -247,6 +248,12 @@ const Profile = () => {
           {t('gamification.title')}
         </button>
         <button
+          className={`tab-button ${activeTab === 'referral' ? 'active' : ''}`}
+          onClick={() => setActiveTab('referral')}
+        >
+          {t('referral.title')}
+        </button>
+        <button
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
@@ -368,6 +375,10 @@ const Profile = () => {
 
       {activeTab === 'progress' && (
         <GamificationPanel userId={user.id} />
+      )}
+
+      {activeTab === 'referral' && (
+        <ReferralPanel userId={user.id} />
       )}
 
       {activeTab === 'dashboard' && (

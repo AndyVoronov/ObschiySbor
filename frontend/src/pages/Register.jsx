@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import TelegramLoginButton from '../components/TelegramLoginButton';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
+import ReferralCodeInput from '../components/ReferralCodeInput';
 import './Auth.css';
 
 const Register = () => {
@@ -16,6 +17,7 @@ const Register = () => {
     fullName: '',
     city: '',
   });
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
@@ -54,10 +56,30 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await signUp(formData.email, formData.password, {
+      const { data, error: signUpError } = await signUp(formData.email, formData.password, {
         full_name: formData.fullName,
         city: formData.city,
       });
+
+      if (signUpError) throw signUpError;
+
+      // Если есть реферальный код, применяем его
+      if (referralCode && data?.user) {
+        try {
+          const { error: refError } = await supabase.rpc('apply_referral_code', {
+            p_user_id: data.user.id,
+            p_referral_code: referralCode,
+          });
+
+          if (refError) {
+            console.error('Ошибка применения реферального кода:', refError);
+            // Не блокируем регистрацию, просто логируем ошибку
+          }
+        } catch (refError) {
+          console.error('Ошибка применения реферального кода:', refError);
+        }
+      }
+
       navigate('/');
     } catch (error) {
       setError(t('auth.errorRegistration') + error.message);
@@ -466,6 +488,8 @@ const Register = () => {
               required
             />
           </div>
+
+          <ReferralCodeInput onCodeChange={setReferralCode} />
           <div className="form-group">
             <label htmlFor="password">{t('auth.password')}</label>
             <input

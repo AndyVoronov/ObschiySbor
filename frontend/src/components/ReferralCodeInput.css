@@ -1,0 +1,114 @@
+.referral-code-input {
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.toggle-referral-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--background-secondary);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-referral-input:hover {
+  background: var(--background);
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.referral-input-container {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-secondary);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.referral-code-field {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 2px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.referral-code-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.referral-code-field::placeholder {
+  color: var(--foreground-muted);
+  opacity: 0.6;
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: inherit;
+  font-weight: normal;
+}
+
+.referral-code-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+  border: 2px solid #2ecc71;
+  border-radius: var(--radius);
+  color: #2ecc71;
+  font-weight: 600;
+  font-size: 0.9rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hint-icon {
+  font-size: 1.2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .referral-code-field {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+}

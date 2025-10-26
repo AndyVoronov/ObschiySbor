@@ -1,0 +1,594 @@
+.referral-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+/* Загрузка и ошибки */
+.referral-panel.loading,
+.referral-panel.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+/* Заголовок */
+.referral-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.referral-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.referral-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--foreground-muted);
+}
+
+/* Секция реферального кода */
+.referral-code-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 2px solid var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.referral-code-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.referral-code-box {
+  background: var(--background-secondary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.referral-code {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  color: var(--primary);
+  letter-spacing: 4px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--background);
+  border-radius: var(--radius);
+}
+
+.referral-code-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-copy {
+  flex: 1;
+  max-width: 200px;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-copy:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Кнопки поделиться */
+.share-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-share {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-share:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.btn-share.telegram {
+  border-color: #0088cc;
+  color: #0088cc;
+}
+
+.btn-share.telegram:hover {
+  background: #0088cc;
+  color: white;
+}
+
+.btn-share.vk {
+  border-color: #4680c2;
+  color: #4680c2;
+}
+
+.btn-share.vk:hover {
+  background: #4680c2;
+  color: white;
+}
+
+.btn-share.whatsapp {
+  border-color: #25d366;
+  color: #25d366;
+}
+
+.btn-share.whatsapp:hover {
+  background: #25d366;
+  color: white;
+}
+
+.btn-share .icon {
+  font-size: 1.2rem;
+}
+
+/* Статистика */
+.referral-stats {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 2px solid var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.referral-stats h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px var(--card-shadow);
+  border-color: var(--primary);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--foreground-muted);
+}
+
+/* Как это работает */
+.how-it-works {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 2px solid var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.how-it-works h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  font-weight: 700;
+  text-align: center;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.step-card {
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  border: 2px solid var(--card-border);
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px var(--card-shadow);
+  border-color: var(--primary);
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.step-card h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.2rem;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.step-card p {
+  margin: 0;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* Награды */
+.referral-rewards {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 2px solid var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.referral-rewards h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.rewards-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rewards-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--foreground-muted);
+  text-transform: uppercase;
+}
+
+.reward-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.reward-row:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.reward-name {
+  display: flex;
+  align-items: center;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.reward-amount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.reward-you {
+  color: #2ecc71;
+}
+
+.reward-friend {
+  color: #3498db;
+}
+
+/* Список рефералов */
+.referrals-list {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 2px solid var(--card-border);
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+
+.referrals-list h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.referrals-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.referral-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--background-secondary);
+  border-radius: var(--radius);
+  border: 2px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.referral-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.referral-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.referral-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--card-border);
+}
+
+.referral-avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.referral-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.referral-name {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.referral-date {
+  font-size: 0.85rem;
+  color: var(--foreground-muted);
+}
+
+.referral-status-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.referral-status {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #f39c12;
+  color: white;
+}
+
+.status-active {
+  background: #3498db;
+  color: white;
+}
+
+.status-completed {
+  background: #2ecc71;
+  color: white;
+}
+
+.bonus-badge {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  padding: 0.3rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Нет рефералов */
+.no-referrals {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.no-data {
+  font-size: 1.1rem;
+  color: var(--foreground-muted);
+  margin-bottom: 0.5rem;
+}
+
+.invite-text {
+  font-size: 1rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .referral-panel {
+    padding: 0.5rem;
+    gap: 1.5rem;
+  }
+
+  .referral-code-section,
+  .referral-stats,
+  .how-it-works,
+  .referral-rewards,
+  .referrals-list {
+    padding: 1.5rem;
+  }
+
+  .referral-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .referral-code {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .referral-code-actions {
+    flex-direction: column;
+  }
+
+  .btn-copy {
+    max-width: 100%;
+  }
+
+  .share-buttons {
+    flex-direction: column;
+  }
+
+  .btn-share {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rewards-header,
+  .reward-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .rewards-header {
+    display: none; /* Скрываем заголовок на мобильных */
+  }
+
+  .reward-row {
+    text-align: center;
+  }
+
+  .reward-name::before {
+    content: '';
+    display: block;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--foreground-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .reward-amount::before {
+    content: attr(data-label);
+    display: inline;
+    font-weight: 500;
+    color: var(--foreground-muted);
+    margin-right: 0.5rem;
+  }
+
+  .referral-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .referral-status-info {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
