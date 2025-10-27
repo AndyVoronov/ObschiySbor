@@ -1219,5 +1219,59 @@
       "updateFailed": "Failed to update discount period",
       "deleteFailed": "Failed to delete discount period"
     }
+  },
+  "accountMerge": {
+    "title": "Account Merging",
+    "tabTitle": "Merge",
+    "description": "Merge duplicate accounts into one. All data, events, participations, and achievements will be preserved.",
+    "searchDuplicates": "Find Duplicates",
+    "searching": "Searching...",
+    "potentialDuplicates": "Potential Duplicates",
+    "duplicatesFound": "Found potential duplicates: {{count}}",
+    "noDuplicates": "No duplicates found",
+    "similarity": "Match",
+    "mergeAccount": "Merge",
+    "confirmTitle": "Confirm Account Merging",
+    "warningMessage": "WARNING! This action is irreversible. The secondary account will be deleted after all data is transferred.",
+    "primaryAccount": "Primary Account (will be kept)",
+    "secondaryAccount": "Secondary Account (will be deleted)",
+    "willBeDeleted": "Will be deleted after merging",
+    "whatWillBeMerged": "What will be merged:",
+    "mergeItems": {
+      "events": "Created events",
+      "participations": "Event participations",
+      "reviews": "Reviews and ratings",
+      "referrals": "Referrals and invitations",
+      "achievements": "Achievements",
+      "xp": "Experience and level (summed)"
+    },
+    "typeToConfirm": "Type to confirm",
+    "confirmMerge": "Confirm Merge",
+    "merging": "Merging...",
+    "mergeSuccess": "Accounts successfully merged!",
+    "mergeHistory": "Merge History",
+    "statuses": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "mergeTypes": {
+      "email_duplicate": "Email duplicate",
+      "manual_request": "Manual request",
+      "admin_initiated": "Admin initiated"
+    },
+    "stats": {
+      "events": "Events",
+      "participations": "Participations",
+      "reviews": "Reviews",
+      "xp": "Experience"
+    },
+    "errors": {
+      "loadFailed": "Error loading merge data",
+      "searchFailed": "Error searching for duplicates",
+      "confirmationRequired": "Type MERGE to confirm",
+      "mergeFailed": "Error merging accounts: {{error}}"
+    }
   }
 }

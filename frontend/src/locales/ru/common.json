@@ -1218,5 +1218,59 @@
       "updateFailed": "Не удалось обновить период скидки",
       "deleteFailed": "Не удалось удалить период скидки"
     }
+  },
+  "accountMerge": {
+    "title": "Слияние аккаунтов",
+    "tabTitle": "Слияние",
+    "description": "Объедините дублирующиеся аккаунты в один. Все данные, события, участия и достижения будут сохранены.",
+    "searchDuplicates": "Найти дубликаты",
+    "searching": "Поиск...",
+    "potentialDuplicates": "Потенциальные дубликаты",
+    "duplicatesFound": "Найдено потенциальных дубликатов: {{count}}",
+    "noDuplicates": "Дубликатов не найдено",
+    "similarity": "Совпадение",
+    "mergeAccount": "Объединить",
+    "confirmTitle": "Подтверждение слияния аккаунтов",
+    "warningMessage": "ВНИМАНИЕ! Это действие необратимо. Вторичный аккаунт будет удалён после переноса всех данных.",
+    "primaryAccount": "Основной аккаунт (сохранится)",
+    "secondaryAccount": "Вторичный аккаунт (будет удалён)",
+    "willBeDeleted": "Будет удалён после слияния",
+    "whatWillBeMerged": "Что будет объединено:",
+    "mergeItems": {
+      "events": "Созданные события",
+      "participations": "Участие в событиях",
+      "reviews": "Отзывы и оценки",
+      "referrals": "Рефералы и приглашения",
+      "achievements": "Достижения",
+      "xp": "Опыт и уровень (суммируются)"
+    },
+    "typeToConfirm": "Для подтверждения введите",
+    "confirmMerge": "Подтвердить слияние",
+    "merging": "Объединение...",
+    "mergeSuccess": "Аккаунты успешно объединены!",
+    "mergeHistory": "История слияний",
+    "statuses": {
+      "pending": "В ожидании",
+      "completed": "Завершено",
+      "failed": "Ошибка",
+      "cancelled": "Отменено"
+    },
+    "mergeTypes": {
+      "email_duplicate": "Дубликат по email",
+      "manual_request": "Ручной запрос",
+      "admin_initiated": "Инициировано администратором"
+    },
+    "stats": {
+      "events": "События",
+      "participations": "Участия",
+      "reviews": "Отзывы",
+      "xp": "Опыт"
+    },
+    "errors": {
+      "loadFailed": "Ошибка загрузки данных о слияниях",
+      "searchFailed": "Ошибка поиска дубликатов",
+      "confirmationRequired": "Введите MERGE для подтверждения",
+      "mergeFailed": "Ошибка при слиянии аккаунтов: {{error}}"
+    }
   }
 }

@@ -10,6 +10,7 @@ import FriendsList from '../components/FriendsList';
 import EventInvitations from '../components/EventInvitations';
 import GamificationPanel from '../components/GamificationPanel';
 import ReferralPanel from '../components/ReferralPanel';
+import MergeAccountsPanel from '../components/MergeAccountsPanel';
 import './Profile.css';
 
 const Profile = () => {
@@ -259,6 +260,12 @@ const Profile = () => {
         >
           {t('profile.dashboard')}
         </button>
+        <button
+          className={`tab-button ${activeTab === 'merge' ? 'active' : ''}`}
+          onClick={() => setActiveTab('merge')}
+        >
+          {t('accountMerge.tabTitle')}
+        </button>
       </div>
 
       {activeTab === 'profile' && (
@@ -385,6 +392,10 @@ const Profile = () => {
         <Suspense fallback={<ChartLoadingFallback />}>
           <OrganizerDashboard userId={user.id} />
         </Suspense>
+      )}
+
+      {activeTab === 'merge' && (
+        <MergeAccountsPanel />
       )}
     </div>
   );
