@@ -538,7 +538,7 @@ const AppealsTab = () => {
         .from('block_appeals')
         .select(`
           *,
-          user:user_id(id, full_name, email, avatar_url),
+          user:user_id(id, full_name, avatar_url),
           block:block_id(reason, blocked_at, blocked_until)
         `)
         .eq('status', 'pending')

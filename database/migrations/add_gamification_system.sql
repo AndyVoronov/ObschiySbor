@@ -188,7 +188,7 @@ BEGIN
 
   -- Записываем в лог
   INSERT INTO experience_log (user_id, points, reason, reference_id, reference_type, description)
-  VALUES (p_user_id, p_points, reason, p_reference_id, p_reference_type, p_description);
+  VALUES (p_user_id, p_points, p_reason, p_reference_id, p_reference_type, p_description);
 
   -- Если уровень повысился, проверяем достижения
   IF v_new_level > v_current_level THEN
