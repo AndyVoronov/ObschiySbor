@@ -263,7 +263,7 @@ const Admin = () => {
                   <strong>{t('admin.reportSender')}</strong>
                   {report.reporter ? (
                     <span>
-                      {report.reporter.username || report.reporter.email}
+                      {report.reporter.full_name || t('admin.reportUnknownUser')}
                     </span>
                   ) : (
                     <span className="text-muted">{t('admin.reportUserDeleted')}</span>
