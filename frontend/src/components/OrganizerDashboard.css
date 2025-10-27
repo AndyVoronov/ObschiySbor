@@ -63,9 +63,14 @@
   font-size: 36px;
   font-weight: bold;
   margin: 15px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
+}
+
+/* Адаптивный размер для мобильных */
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 24px;
+  }
 }
 
 .stat-breakdown {

@@ -228,17 +228,24 @@
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
 }
 
 .stat-label {
   font-size: 0.85rem;
   color: var(--foreground-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
+}
+
+/* Адаптивный размер для мобильных */
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
 }
 
 /* Достижения */

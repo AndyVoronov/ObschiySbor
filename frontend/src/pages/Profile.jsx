@@ -213,59 +213,80 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Табы */}
-      <div className="profile-tabs">
-        <button
-          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-          onClick={() => setActiveTab('profile')}
+      {/* Табы - Desktop горизонтальные кнопки, Mobile выпадающий список */}
+      <div className="profile-tabs-container">
+        {/* Mobile: выпадающий список */}
+        <select
+          className="profile-tabs-select mobile-only"
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
         >
-          {t('profile.title')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('invitations')}
-        >
-          {t('profile.invitations')}
-          {invitationsCount > 0 && (
-            <span className="tab-badge">{invitationsCount}</span>
-          )}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
-          onClick={() => setActiveTab('friends')}
-        >
-          {t('profile.friends')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'accounts' ? 'active' : ''}`}
-          onClick={() => setActiveTab('accounts')}
-        >
-          {t('profile.connectedAccounts')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'progress' ? 'active' : ''}`}
-          onClick={() => setActiveTab('progress')}
-        >
-          {t('gamification.title')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'referral' ? 'active' : ''}`}
-          onClick={() => setActiveTab('referral')}
-        >
-          {t('referral.title')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          {t('profile.dashboard')}
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'merge' ? 'active' : ''}`}
-          onClick={() => setActiveTab('merge')}
-        >
-          {t('accountMerge.tabTitle')}
-        </button>
+          <option value="profile">{t('profile.title')}</option>
+          <option value="invitations">
+            {t('profile.invitations')} {invitationsCount > 0 && `(${invitationsCount})`}
+          </option>
+          <option value="friends">{t('profile.friends')}</option>
+          <option value="accounts">{t('profile.connectedAccounts')}</option>
+          <option value="progress">{t('gamification.title')}</option>
+          <option value="referral">{t('referral.title')}</option>
+          <option value="dashboard">{t('profile.dashboard')}</option>
+          <option value="merge">{t('accountMerge.tabTitle')}</option>
+        </select>
+
+        {/* Desktop: горизонтальные кнопки */}
+        <div className="profile-tabs desktop-only">
+          <button
+            className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            {t('profile.title')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
+            onClick={() => setActiveTab('invitations')}
+          >
+            {t('profile.invitations')}
+            {invitationsCount > 0 && (
+              <span className="tab-badge">{invitationsCount}</span>
+            )}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
+            onClick={() => setActiveTab('friends')}
+          >
+            {t('profile.friends')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'accounts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('accounts')}
+          >
+            {t('profile.connectedAccounts')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'progress' ? 'active' : ''}`}
+            onClick={() => setActiveTab('progress')}
+          >
+            {t('gamification.title')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'referral' ? 'active' : ''}`}
+            onClick={() => setActiveTab('referral')}
+          >
+            {t('referral.title')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            {t('profile.dashboard')}
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'merge' ? 'active' : ''}`}
+            onClick={() => setActiveTab('merge')}
+          >
+            {t('accountMerge.tabTitle')}
+          </button>
+        </div>
       </div>
 
       {activeTab === 'profile' && (
