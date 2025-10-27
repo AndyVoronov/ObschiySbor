@@ -48,54 +48,54 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_user_email VARCHAR(255);
-  v_user_name VARCHAR(100);
+  v_user_name TEXT;
 BEGIN
-  -- Получаем данные текущего пользователя
-  SELECT email, name INTO v_user_email, v_user_name
-  FROM profiles
-  WHERE id = p_user_id;
+  -- Получаем данные текущего пользователя (email из auth.users, имя из profiles)
+  SELECT au.email, pr.full_name
+  INTO v_user_email, v_user_name
+  FROM auth.users au
+  LEFT JOIN profiles pr ON pr.id = au.id
+  WHERE au.id = p_user_id;
 
   -- Ищем дубликаты по различным критериям
   RETURN QUERY
   WITH potential_matches AS (
     SELECT
-      p.id,
-      p.email,
-      p.name,
+      pr.id,
+      au.email,
+      pr.full_name,
       CASE
-        WHEN p.email = v_user_email THEN 'Одинаковый email'
-        WHEN LOWER(p.name) = LOWER(v_user_name) AND p.email ILIKE '%' || SPLIT_PART(v_user_email, '@', 1) || '%'
+        WHEN au.email = v_user_email THEN 'Одинаковый email'
+        WHEN LOWER(pr.full_name) = LOWER(v_user_name) AND au.email ILIKE '%' || SPLIT_PART(v_user_email, '@', 1) || '%'
           THEN 'Похожее имя и часть email'
-        WHEN p.vk_id IS NOT NULL AND EXISTS (
-          SELECT 1 FROM profiles p2 WHERE p2.id = p_user_id AND p2.vk_id = p.vk_id
-        ) THEN 'Одинаковый VK ID'
+        WHEN LOWER(pr.full_name) = LOWER(v_user_name)
+          THEN 'Одинаковое имя'
         ELSE 'Другое совпадение'
       END as reason,
       CASE
-        WHEN p.email = v_user_email THEN 100
-        WHEN LOWER(p.name) = LOWER(v_user_name) THEN 70
-        WHEN p.email ILIKE '%' || SPLIT_PART(v_user_email, '@', 1) || '%' THEN 50
+        WHEN au.email = v_user_email THEN 100
+        WHEN LOWER(pr.full_name) = LOWER(v_user_name) THEN 70
+        WHEN au.email ILIKE '%' || SPLIT_PART(v_user_email, '@', 1) || '%' THEN 50
         ELSE 30
       END as score
-    FROM profiles p
-    WHERE p.id != p_user_id
-      AND p.id NOT IN (
+    FROM profiles pr
+    JOIN auth.users au ON au.id = pr.id
+    WHERE pr.id != p_user_id
+      AND pr.id NOT IN (
         -- Исключаем уже объединённые аккаунты
         SELECT secondary_user_id FROM account_merge_requests
         WHERE primary_user_id = p_user_id AND status = 'completed'
       )
       AND (
-        p.email = v_user_email
-        OR LOWER(p.name) = LOWER(v_user_name)
-        OR (p.vk_id IS NOT NULL AND EXISTS (
-          SELECT 1 FROM profiles p2 WHERE p2.id = p_user_id AND p2.vk_id = p.vk_id
-        ))
+        au.email = v_user_email
+        OR LOWER(pr.full_name) = LOWER(v_user_name)
+        OR au.email ILIKE '%' || SPLIT_PART(v_user_email, '@', 1) || '%'
       )
   )
   SELECT
     id,
     email,
-    name,
+    full_name,
     reason,
     score
   FROM potential_matches
@@ -105,7 +105,7 @@ END;
 $$;
 
 -- Комментарий к функции
-COMMENT ON FUNCTION find_potential_duplicate_accounts IS 'Находит потенциальные дубликаты аккаунта пользователя по email, имени и VK ID';
+COMMENT ON FUNCTION find_potential_duplicate_accounts IS 'Находит потенциальные дубликаты аккаунта пользователя по email и имени';
 
 -- Функция для слияния двух аккаунтов
 CREATE OR REPLACE FUNCTION merge_user_accounts(
