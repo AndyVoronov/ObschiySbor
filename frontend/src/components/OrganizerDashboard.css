@@ -63,6 +63,9 @@
   font-size: 36px;
   font-weight: bold;
   margin: 15px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-breakdown {

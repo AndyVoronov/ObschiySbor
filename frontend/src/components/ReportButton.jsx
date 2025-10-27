@@ -1,23 +1,25 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './ReportButton.css';
 
-const REPORT_REASONS = [
-  { value: 'spam', label: 'Спам или реклама' },
-  { value: 'inappropriate', label: 'Неприемлемый контент' },
-  { value: 'fake', label: 'Фейковое событие' },
-  { value: 'scam', label: 'Мошенничество' },
-  { value: 'duplicate', label: 'Дубликат события' },
-  { value: 'wrong_category', label: 'Неверная категория' },
-  { value: 'offensive', label: 'Оскорбления' },
-  { value: 'other', label: 'Другое' },
-];
-
 const ReportButton = ({ eventId, eventTitle }) => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const REPORT_REASONS = [
+    { value: 'spam', label: t('reportButton.reasons.spam') },
+    { value: 'inappropriate', label: t('reportButton.reasons.inappropriate') },
+    { value: 'fake', label: t('reportButton.reasons.fake') },
+    { value: 'scam', label: t('reportButton.reasons.scam') },
+    { value: 'duplicate', label: t('reportButton.reasons.duplicate') },
+    { value: 'wrong_category', label: t('reportButton.reasons.wrong_category') },
+    { value: 'offensive', label: t('reportButton.reasons.offensive') },
+    { value: 'other', label: t('reportButton.reasons.other') },
+  ];
   const [showModal, setShowModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState('');
   const [description, setDescription] = useState('');
@@ -45,7 +47,7 @@ const ReportButton = ({ eventId, eventTitle }) => {
     e.preventDefault();
 
     if (!selectedReason) {
-      setError('Пожалуйста, выберите причину жалобы');
+      setError(t('reportButton.errorSelectReason'));
       return;
     }
 
@@ -62,7 +64,7 @@ const ReportButton = ({ eventId, eventTitle }) => {
         .maybeSingle();
 
       if (existingReport) {
-        setError('Вы уже отправили жалобу на это событие');
+        setError(t('reportButton.errorAlreadyReported'));
         setSubmitting(false);
         return;
       }
@@ -91,7 +93,7 @@ const ReportButton = ({ eventId, eventTitle }) => {
       }, 2000);
     } catch (err) {
       console.error('Ошибка отправки жалобы:', err);
-      setError('Не удалось отправить жалобу. Попробуйте позже.');
+      setError(t('reportButton.errorGeneral'));
     } finally {
       setSubmitting(false);
     }
@@ -102,10 +104,10 @@ const ReportButton = ({ eventId, eventTitle }) => {
       <button
         className="report-button"
         onClick={handleOpenModal}
-        title="Пожаловаться на событие"
+        title={t('reportButton.buttonTitle')}
       >
         <span className="report-icon">⚠️</span>
-        Пожаловаться
+        {t('reportButton.buttonText')}
       </button>
 
       {showModal && (
@@ -114,13 +116,13 @@ const ReportButton = ({ eventId, eventTitle }) => {
             {submitted ? (
               <div className="report-success">
                 <div className="success-icon">✓</div>
-                <h3>Жалоба отправлена</h3>
-                <p>Спасибо за помощь в поддержании качества платформы!</p>
+                <h3>{t('reportButton.successTitle')}</h3>
+                <p>{t('reportButton.successMessage')}</p>
               </div>
             ) : (
               <>
                 <div className="modal-header">
-                  <h2>Пожаловаться на событие</h2>
+                  <h2>{t('reportButton.modalTitle')}</h2>
                   <button className="close-button" onClick={handleCloseModal}>
                     ×
                   </button>
@@ -128,19 +130,19 @@ const ReportButton = ({ eventId, eventTitle }) => {
 
                 <div className="modal-body">
                   <div className="event-info">
-                    <strong>Событие:</strong> {eventTitle}
+                    <strong>{t('reportButton.eventLabel')}</strong> {eventTitle}
                   </div>
 
                   <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                      <label htmlFor="reason">Причина жалобы *</label>
+                      <label htmlFor="reason">{t('reportButton.reasonLabel')} *</label>
                       <select
                         id="reason"
                         value={selectedReason}
                         onChange={(e) => setSelectedReason(e.target.value)}
                         required
                       >
-                        <option value="">Выберите причину...</option>
+                        <option value="">{t('reportButton.reasonPlaceholder')}</option>
                         {REPORT_REASONS.map((reason) => (
                           <option key={reason.value} value={reason.value}>
                             {reason.label}
@@ -151,18 +153,18 @@ const ReportButton = ({ eventId, eventTitle }) => {
 
                     <div className="form-group">
                       <label htmlFor="description">
-                        Дополнительная информация (необязательно)
+                        {t('reportButton.descriptionLabel')}
                       </label>
                       <textarea
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Опишите проблему подробнее..."
+                        placeholder={t('reportButton.descriptionPlaceholder')}
                         rows={4}
                         maxLength={500}
                       />
                       <small className="char-count">
-                        {description.length}/500
+                        {description.length}/500 {t('reportButton.charCount')}
                       </small>
                     </div>
 
@@ -179,14 +181,14 @@ const ReportButton = ({ eventId, eventTitle }) => {
                         onClick={handleCloseModal}
                         disabled={submitting}
                       >
-                        Отмена
+                        {t('reportButton.cancel')}
                       </button>
                       <button
                         type="submit"
                         className="btn-primary"
                         disabled={submitting}
                       >
-                        {submitting ? 'Отправка...' : 'Отправить жалобу'}
+                        {submitting ? t('reportButton.submitting') : t('reportButton.submit')}
                       </button>
                     </div>
                   </form>

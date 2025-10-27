@@ -37,6 +37,7 @@ const EventDetails = () => {
   const [cancellationReason, setCancellationReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const reviewsRef = useRef(null);
+  const chatRef = useRef(null);
   const [blockInfo, setBlockInfo] = useState(null);
   const [checkingBlock, setCheckingBlock] = useState(true);
 
@@ -281,6 +282,11 @@ const EventDetails = () => {
 
       // Отправляем уведомление организатору
       await notifyNewParticipant(id, event.creator_id, participantName);
+
+      // Обновляем чат, чтобы он стал доступен сразу
+      if (chatRef.current) {
+        chatRef.current.refetch();
+      }
     } catch (error) {
       if (error.message === 'GENDER_NOT_SET') {
         alert(t('eventDetails.genderNotSet'));
@@ -902,7 +908,7 @@ const EventDetails = () => {
         {user && (
           <div className="event-chat-section">
             <Suspense fallback={<ChatLoadingFallback />}>
-              <EventChat eventId={id} />
+              <EventChat ref={chatRef} eventId={id} />
             </Suspense>
           </div>
         )}

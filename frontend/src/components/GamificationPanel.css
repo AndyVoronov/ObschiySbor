@@ -220,17 +220,25 @@
 .stat-content {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Allow flex item to shrink below content size */
+  flex: 1;
 }
 
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-label {
   font-size: 0.85rem;
   color: var(--foreground-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Достижения */

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import './EventChat.css';
 
-function EventChat({ eventId }) {
+const EventChat = forwardRef(({ eventId }, ref) => {
   const { t } = useTranslation('common');
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -19,6 +19,13 @@ function EventChat({ eventId }) {
       initChat();
     }
   }, [eventId, user]);
+
+  // Expose refetch method to parent component
+  useImperativeHandle(ref, () => ({
+    refetch: () => {
+      initChat();
+    }
+  }));
 
   // Отдельный useEffect для подписки на real-time обновления
   useEffect(() => {
@@ -248,6 +255,8 @@ function EventChat({ eventId }) {
       </form>
     </div>
   );
-}
+});
+
+EventChat.displayName = 'EventChat';
 
 export default EventChat;

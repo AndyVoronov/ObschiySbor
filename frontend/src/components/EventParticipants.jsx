@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import InviteFriendsModal from './InviteFriendsModal';
 import './EventParticipants.css';
 
 const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +112,7 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
       setFriendships({ ...friendships, [friendId]: 'pending' });
     } catch (error) {
       console.error('Ошибка добавления в друзья:', error);
-      alert('Не удалось отправить запрос в друзья');
+      alert(t('eventParticipants.addFriendError'));
     } finally {
       setAddingFriend({ ...addingFriend, [friendId]: false });
     }
@@ -122,9 +124,9 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
 
   const getFriendButtonText = (participantId) => {
     const status = friendships[participantId];
-    if (status === 'accepted') return '✓ Друзья';
-    if (status === 'pending') return '⏳ Ожидание';
-    return '➕ В друзья';
+    if (status === 'accepted') return `✓ ${t('eventParticipants.alreadyFriends')}`;
+    if (status === 'pending') return `⏳ ${t('eventParticipants.friendRequestPending')}`;
+    return `➕ ${t('eventParticipants.addFriend')}`;
   };
 
   return (
@@ -133,7 +135,7 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
         className="participants-toggle"
         onClick={handleToggle}
       >
-        <span>👥 Участники ({participants.length || '...'}) </span>
+        <span>👥 {t('eventParticipants.count')} ({participants.length || '...'}) </span>
         <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
       </button>
 
@@ -145,15 +147,15 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
                 className="btn-invite-friends"
                 onClick={() => setShowInviteModal(true)}
               >
-                ✉️ Пригласить друзей
+                ✉️ {t('eventParticipants.inviteFriends')}
               </button>
             </div>
           )}
 
           {loading ? (
-            <div className="participants-loading">Загрузка...</div>
+            <div className="participants-loading">{t('eventParticipants.loading')}</div>
           ) : participants.length === 0 ? (
-            <div className="participants-empty">Нет участников</div>
+            <div className="participants-empty">{t('eventParticipants.empty')}</div>
           ) : (
             <div className="participants-grid">
               {participants.map(participant => (
@@ -172,7 +174,7 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
                     )}
                   </div>
                   <div className="participant-info">
-                    <h4>{participant.full_name || 'Имя не указано'}</h4>
+                    <h4>{participant.full_name || t('eventParticipants.noName')}</h4>
                     {participant.city && <span className="participant-city">📍 {participant.city}</span>}
                     {participant.joined_at && (
                       <span className="participant-joined">
@@ -186,12 +188,12 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
                         className={`btn-add-friend ${friendships[participant.id] ? 'disabled' : ''}`}
                         onClick={() => handleAddFriend(participant.id)}
                         disabled={friendships[participant.id] || addingFriend[participant.id]}
-                        title={friendships[participant.id] === 'accepted' ? 'Уже в друзьях' : friendships[participant.id] === 'pending' ? 'Ожидает подтверждения' : 'Добавить в друзья'}
+                        title={friendships[participant.id] === 'accepted' ? t('eventParticipants.alreadyFriendsTooltip') : friendships[participant.id] === 'pending' ? t('eventParticipants.pendingTooltip') : t('eventParticipants.addFriendTooltip')}
                       >
                         {addingFriend[participant.id] ? '⏳' : getFriendButtonText(participant.id)}
                       </button>
                       {user.id === creatorId && (
-                        <button className="btn-invite" title="Пригласить в другое событие">
+                        <button className="btn-invite" title={t('eventParticipants.inviteToEvent')}>
                           ✉️
                         </button>
                       )}
