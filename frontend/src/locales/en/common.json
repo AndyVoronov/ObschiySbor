@@ -1022,6 +1022,8 @@
     "progress": "Progress",
     "secret": "Secret achievement",
     "secretDescription": "This is a secret achievement. Unlock it to learn more!",
+    "showAchievements": "Show achievements",
+    "hideAchievements": "Hide achievements",
     "categories": {
       "all": "All",
       "events": "Events",

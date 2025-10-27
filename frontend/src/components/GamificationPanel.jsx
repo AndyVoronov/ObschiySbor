@@ -8,7 +8,7 @@ import './GamificationPanel.css';
  * Панель геймификации - отображает уровень, опыт, статистику и достижения пользователя
  */
 const GamificationPanel = ({ userId }) => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [currentLevel, setCurrentLevel] = useState(null);
@@ -16,6 +16,7 @@ const GamificationPanel = ({ userId }) => {
   const [achievements, setAchievements] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [showAllActivity, setShowAllActivity] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -257,13 +258,21 @@ const GamificationPanel = ({ userId }) => {
 
       {/* Достижения */}
       <div className="achievements-section">
-        <h3>
-          {t('gamification.achievements')}
-          <span className="achievement-count">
-            ({achievements.filter(a => a.is_unlocked).length}/{achievements.length})
-          </span>
-        </h3>
-        {achievements.length > 0 ? (
+        <div className="section-header-with-toggle">
+          <h3>
+            {t('gamification.achievements')}
+            <span className="achievement-count">
+              ({achievements.filter(a => a.is_unlocked).length}/{achievements.length})
+            </span>
+          </h3>
+          <button
+            className="toggle-button"
+            onClick={() => setShowAchievements(!showAchievements)}
+          >
+            {showAchievements ? '▼' : '▶'} {showAchievements ? t('gamification.hideAchievements') : t('gamification.showAchievements')}
+          </button>
+        </div>
+        {showAchievements && achievements.length > 0 ? (
           <div className="achievements-grid">
             {achievements.map((achievementData) => {
               const achievement = achievementData.achievement;
@@ -282,8 +291,8 @@ const GamificationPanel = ({ userId }) => {
                     {achievement.icon}
                   </div>
                   <div className="achievement-info">
-                    <h4>{achievement.name_ru}</h4>
-                    <p className="achievement-description">{achievement.description_ru}</p>
+                    <h4>{i18n.language === 'en' ? achievement.name_en : achievement.name_ru}</h4>
+                    <p className="achievement-description">{i18n.language === 'en' ? achievement.description_en : achievement.description_ru}</p>
 
                     {/* Прогресс-бар для незаблокированных достижений */}
                     {!isUnlocked && (
