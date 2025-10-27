@@ -1158,5 +1158,15 @@
       "updateFailed": "Не удалось обновить промокод",
       "deleteFailed": "Не удалось удалить промокод"
     }
+  },
+  "userProfile": {
+    "notFound": "Пользователь не найден",
+    "errorLoading": "Ошибка загрузки профиля пользователя",
+    "eventsCreated": "Создано событий",
+    "eventsParticipated": "Участвовал в событиях",
+    "createdEvents": "Созданные события",
+    "participatedEvents": "Участие в событиях",
+    "noCreatedEvents": "Пользователь ещё не создал ни одного события",
+    "noParticipatedEvents": "Пользователь ещё не участвовал в событиях"
   }
 }

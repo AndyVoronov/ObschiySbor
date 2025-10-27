@@ -16,6 +16,7 @@ const CreateEvent = lazy(() => import('./pages/CreateEvent'));
 const EventDetails = lazy(() => import('./pages/EventDetails'));
 const BoardGameDetails = lazy(() => import('./pages/BoardGameDetails'));
 const Profile = lazy(() => import('./pages/Profile'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
 const Chats = lazy(() => import('./pages/Chats'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Login = lazy(() => import('./pages/Login'));
@@ -119,6 +120,7 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route path="users/:userId" element={<UserProfile />} />
             <Route
               path="chats"
               element={

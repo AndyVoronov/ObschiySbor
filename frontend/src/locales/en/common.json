@@ -1159,5 +1159,15 @@
       "updateFailed": "Failed to update promo code",
       "deleteFailed": "Failed to delete promo code"
     }
+  },
+  "userProfile": {
+    "notFound": "User not found",
+    "errorLoading": "Error loading user profile",
+    "eventsCreated": "Events created",
+    "eventsParticipated": "Events participated",
+    "createdEvents": "Created Events",
+    "participatedEvents": "Participated Events",
+    "noCreatedEvents": "User hasn't created any events yet",
+    "noParticipatedEvents": "User hasn't participated in any events yet"
   }
 }

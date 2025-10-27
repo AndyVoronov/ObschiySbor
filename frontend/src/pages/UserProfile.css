@@ -1,0 +1,427 @@
+/* User Profile Page Styles */
+
+.user-profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.user-profile-error {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.user-profile-error h2 {
+  color: #f44336;
+  margin-bottom: 2rem;
+}
+
+/* Header Section */
+.user-profile-header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-section {
+  flex-shrink: 0;
+}
+
+.user-avatar-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #4CAF50;
+}
+
+.user-info-section {
+  flex: 1;
+}
+
+.user-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.user-city {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.user-city .icon {
+  font-size: 1.2rem;
+}
+
+.user-bio {
+  margin: 1rem 0;
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Stats */
+.user-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4CAF50;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Events Section */
+.user-events-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.tab-button.active {
+  color: #4CAF50;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #4CAF50;
+}
+
+.tab-content {
+  padding: 2rem;
+}
+
+.events-list {
+  min-height: 200px;
+}
+
+.no-events {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.event-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  border-color: #4CAF50;
+}
+
+.event-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-image img {
+  transform: scale(1.05);
+}
+
+.event-content {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.event-category {
+  margin: 0 0 0.75rem 0;
+  color: #4CAF50;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.event-date,
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.event-date .icon,
+.event-location .icon {
+  font-size: 1rem;
+}
+
+.event-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+}
+
+.participants {
+  color: #666;
+}
+
+.price {
+  font-weight: 700;
+  color: #4CAF50;
+  font-size: 1.1rem;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .user-profile-header,
+  .user-events-section {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .user-name {
+    color: #e0e0e0;
+  }
+
+  .user-city,
+  .user-bio {
+    color: #aaa;
+  }
+
+  .user-stats {
+    border-top-color: #333;
+  }
+
+  .stat-label {
+    color: #888;
+  }
+
+  .tabs {
+    border-bottom-color: #333;
+  }
+
+  .tab-button {
+    color: #aaa;
+  }
+
+  .tab-button:hover {
+    background: #333;
+    color: #e0e0e0;
+  }
+
+  .tab-button.active {
+    color: #4CAF50;
+  }
+
+  .event-card {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .event-card:hover {
+    border-color: #4CAF50;
+  }
+
+  .event-title {
+    color: #e0e0e0;
+  }
+
+  .event-date,
+  .event-location,
+  .participants {
+    color: #aaa;
+  }
+
+  .event-meta {
+    border-top-color: #333;
+  }
+
+  .event-image {
+    background: #333;
+  }
+
+  .no-events {
+    color: #666;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-profile-container {
+    padding: 1rem;
+  }
+
+  .user-profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .user-avatar-large {
+    width: 120px;
+    height: 120px;
+  }
+
+  .user-name {
+    font-size: 1.6rem;
+  }
+
+  .user-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+  }
+
+  .tab-button.active::after {
+    left: 0;
+    right: auto;
+    width: 4px;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-avatar-large {
+    width: 100px;
+    height: 100px;
+  }
+
+  .user-name {
+    font-size: 1.4rem;
+  }
+
+  .user-stats {
+    gap: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .event-image {
+    height: 150px;
+  }
+
+  .event-title {
+    font-size: 1.1rem;
+  }
+
+  .event-content {
+    padding: 1rem;
+  }
+}
