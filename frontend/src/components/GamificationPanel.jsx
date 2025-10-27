@@ -56,19 +56,36 @@ const GamificationPanel = ({ userId }) => {
 
       setNextLevel(nextLevelData);
 
-      // Загружаем разблокированные достижения
-      const { data: achievementsData, error: achievementsError } = await supabase
-        .from('user_achievements')
-        .select(`
-          *,
-          achievements (*)
-        `)
-        .eq('user_id', userId)
-        .eq('is_unlocked', true)
-        .order('unlocked_at', { ascending: false });
+      // Загружаем ВСЕ достижения
+      const { data: allAchievementsData, error: allAchievementsError } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('is_active', true)
+        .order('rarity', { ascending: true }); // сначала common, потом rare
 
-      if (achievementsError) throw achievementsError;
-      setAchievements(achievementsData || []);
+      if (allAchievementsError) throw allAchievementsError;
+
+      // Загружаем прогресс пользователя по достижениям
+      const { data: userProgressData, error: userProgressError } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (userProgressError) throw userProgressError;
+
+      // Объединяем данные: для каждого достижения добавляем прогресс пользователя
+      const achievementsWithProgress = allAchievementsData.map(achievement => {
+        const userProgress = userProgressData?.find(up => up.achievement_id === achievement.id);
+        return {
+          achievement,
+          progress: userProgress?.progress || 0,
+          target: userProgress?.target || achievement.requirement?.target || 1,
+          is_unlocked: userProgress?.is_unlocked || false,
+          unlocked_at: userProgress?.unlocked_at || null,
+        };
+      });
+
+      setAchievements(achievementsWithProgress || []);
 
       // Загружаем недавнюю активность (последние 10 записей)
       const { data: activityData, error: activityError } = await supabase
@@ -242,28 +259,56 @@ const GamificationPanel = ({ userId }) => {
       <div className="achievements-section">
         <h3>
           {t('gamification.achievements')}
-          <span className="achievement-count">({achievements.length})</span>
+          <span className="achievement-count">
+            ({achievements.filter(a => a.is_unlocked).length}/{achievements.length})
+          </span>
         </h3>
         {achievements.length > 0 ? (
           <div className="achievements-grid">
-            {achievements.map((userAchievement) => {
-              const achievement = userAchievement.achievements;
+            {achievements.map((achievementData) => {
+              const achievement = achievementData.achievement;
+              const isUnlocked = achievementData.is_unlocked;
+              const progress = achievementData.progress;
+              const target = achievementData.target;
+              const progressPercent = target > 0 ? Math.min((progress / target) * 100, 100) : 0;
+
               return (
                 <div
-                  key={userAchievement.id}
-                  className={`achievement-card ${getRarityClass(achievement.rarity)}`}
+                  key={achievement.id}
+                  className={`achievement-card ${getRarityClass(achievement.rarity)} ${!isUnlocked ? 'locked' : ''}`}
                   title={achievement.description_ru}
                 >
-                  <div className="achievement-icon">{achievement.icon}</div>
+                  <div className={`achievement-icon ${!isUnlocked ? 'grayscale' : ''}`}>
+                    {achievement.icon}
+                  </div>
                   <div className="achievement-info">
                     <h4>{achievement.name_ru}</h4>
                     <p className="achievement-description">{achievement.description_ru}</p>
+
+                    {/* Прогресс-бар для незаблокированных достижений */}
+                    {!isUnlocked && (
+                      <div className="achievement-progress">
+                        <div className="progress-bar-container">
+                          <div
+                            className="progress-bar-fill"
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                        <span className="progress-text">
+                          {progress}/{target}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="achievement-meta">
                       <span className="achievement-rarity">
                         {t(`gamification.rarity.${achievement.rarity}`)}
                       </span>
                       {achievement.points_reward > 0 && (
                         <span className="achievement-points">+{achievement.points_reward} XP</span>
+                      )}
+                      {isUnlocked && achievementData.unlocked_at && (
+                        <span className="achievement-unlocked">✓ {t('gamification.unlocked')}</span>
                       )}
                     </div>
                   </div>
