@@ -1,0 +1,469 @@
+/* Promo Code Input Component Styles */
+
+.promo-code-toggle {
+  margin: 1rem 0;
+}
+
+.promo-code-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  color: #666;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.promo-code-toggle-button:hover {
+  border-color: #4CAF50;
+  color: #4CAF50;
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.promo-code-toggle-button .promo-icon {
+  font-size: 1.2rem;
+}
+
+/* Main Container */
+.promo-code-input-container {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.promo-code-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.promo-code-label .promo-icon {
+  font-size: 1.3rem;
+}
+
+/* Input Wrapper */
+.promo-code-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  position: relative;
+}
+
+.promo-code-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promo-code-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.promo-code-input.error {
+  border-color: #f44336;
+}
+
+.promo-code-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.promo-code-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Buttons */
+.promo-code-apply-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.promo-code-apply-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.promo-code-apply-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.promo-code-apply-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.promo-code-cancel-button {
+  padding: 0.75rem;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+}
+
+.promo-code-cancel-button:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* Error Message */
+.promo-code-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  color: #c62828;
+  font-size: 0.9rem;
+}
+
+.promo-code-error .error-icon {
+  font-size: 1.1rem;
+}
+
+/* Applied Promo Code */
+.promo-code-applied {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.promo-code-applied-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(76, 175, 80, 0.1);
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.promo-code-applied-header .promo-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.promo-code-applied-title {
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 1rem;
+}
+
+.promo-code-applied-details {
+  padding: 1rem;
+}
+
+.promo-code-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.promo-code-name strong {
+  font-size: 1.2rem;
+  color: #2e7d32;
+  letter-spacing: 1px;
+}
+
+.promo-code-description {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.promo-code-discount {
+  margin-bottom: 0.75rem;
+}
+
+.discount-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.discount-badge.percentage {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
+.discount-badge.fixed {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+}
+
+.discount-badge.free {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  color: white;
+}
+
+/* Pricing Breakdown */
+.promo-code-pricing {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(76, 175, 80, 0.3);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.price-row.final {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid rgba(76, 175, 80, 0.3);
+  font-size: 1.1rem;
+}
+
+.price-label {
+  color: #666;
+}
+
+.price-row.final .price-label {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.price-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.price-value.original {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.price-value.discount {
+  color: #f44336;
+}
+
+.price-value.final {
+  color: #2e7d32;
+  font-size: 1.2rem;
+}
+
+/* Remove Button */
+.promo-code-remove-button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.promo-code-remove-button:hover {
+  background: #f5f5f5;
+  color: #333;
+  border-color: #bbb;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .promo-code-input-container {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .promo-code-label {
+    color: #e0e0e0;
+  }
+
+  .promo-code-input {
+    background: #333;
+    color: #fff;
+    border-color: #555;
+  }
+
+  .promo-code-input:focus {
+    border-color: #4CAF50;
+  }
+
+  .promo-code-toggle-button {
+    border-color: #555;
+    color: #aaa;
+  }
+
+  .promo-code-toggle-button:hover {
+    border-color: #4CAF50;
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+  }
+
+  .promo-code-cancel-button {
+    background: #333;
+    color: #aaa;
+  }
+
+  .promo-code-cancel-button:hover {
+    background: #444;
+    color: #fff;
+  }
+
+  .promo-code-error {
+    background: #3d1f1f;
+    border-color: #5d2e2e;
+    color: #ff8a80;
+  }
+
+  .promo-code-applied {
+    background: linear-gradient(135deg, #1e3a1e 0%, #2a3f2a 100%);
+    border-color: #4CAF50;
+  }
+
+  .promo-code-applied-header {
+    background: rgba(76, 175, 80, 0.2);
+    border-bottom-color: rgba(76, 175, 80, 0.3);
+  }
+
+  .promo-code-applied-title {
+    color: #81c784;
+  }
+
+  .promo-code-name strong {
+    color: #81c784;
+  }
+
+  .promo-code-description {
+    color: #aaa;
+  }
+
+  .promo-code-pricing {
+    border-top-color: rgba(76, 175, 80, 0.3);
+  }
+
+  .price-label {
+    color: #aaa;
+  }
+
+  .price-row.final .price-label {
+    color: #81c784;
+  }
+
+  .price-value {
+    color: #e0e0e0;
+  }
+
+  .price-value.final {
+    color: #81c784;
+  }
+
+  .promo-code-remove-button {
+    background: #333;
+    color: #aaa;
+    border-color: #555;
+  }
+
+  .promo-code-remove-button:hover {
+    background: #444;
+    color: #fff;
+    border-color: #666;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .promo-code-input-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .promo-code-input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .promo-code-apply-button {
+    flex: 1;
+  }
+
+  .promo-code-cancel-button {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .promo-code-applied-header {
+    padding: 0.75rem;
+  }
+
+  .promo-code-applied-details {
+    padding: 0.75rem;
+  }
+
+  .promo-code-name strong {
+    font-size: 1.1rem;
+  }
+
+  .price-row {
+    font-size: 0.9rem;
+  }
+
+  .price-row.final {
+    font-size: 1rem;
+  }
+
+  .price-value.final {
+    font-size: 1.1rem;
+  }
+}

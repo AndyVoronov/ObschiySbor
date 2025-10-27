@@ -10,6 +10,7 @@ import DictionarySelector from '../components/DictionarySelector';
 import RecurringEventSettings from '../components/RecurringEventSettings';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import BlockedUserNotice from '../components/BlockedUserNotice';
+import PromoCodeInput from '../components/PromoCodeInput';
 import { createRecurringEvents } from '../utils/recurringEvents';
 import { getCategoryName } from '../constants/categories';
 import './CreateEvent.css';
@@ -47,6 +48,7 @@ const CreateEvent = () => {
     kids_allowed: false,
     image_url: null,
     gender_filter: 'all', // Фильтр по полу: male, female, all
+    price: 0, // Цена события
     // Специфичные поля для категорий
     games: '',
     selectedBoardGames: [], // Для хранения выбранных настольных игр
@@ -68,9 +70,17 @@ const CreateEvent = () => {
     endType: 'count',
   });
 
+  // Состояние для промокода
+  const [appliedPromoCode, setAppliedPromoCode] = useState(null);
+
   // Мемоизируем callback для избежания бесконечного цикла
   const handleRecurrenceChange = useCallback((config) => {
     setRecurrenceConfig(config);
+  }, []);
+
+  // Обработчик применения промокода
+  const handlePromoApplied = useCallback((promoData) => {
+    setAppliedPromoCode(promoData);
   }, []);
 
   // Проверка блокировки при загрузке
@@ -176,6 +186,7 @@ const CreateEvent = () => {
         moderation_status: 'active',
         image_url: formData.image_url,
         gender_filter: formData.gender_filter,
+        price: appliedPromoCode ? appliedPromoCode.finalPrice : parseFloat(formData.price) || 0,
       };
 
       // Добавляем специфичные поля в зависимости от категории
@@ -376,6 +387,25 @@ const CreateEvent = () => {
           user_id: user.id,
           status: 'joined',
         }]);
+
+      // Записываем использование промокода если был применён
+      if (appliedPromoCode) {
+        try {
+          await supabase
+            .from('promo_code_usages')
+            .insert([{
+              promo_code_id: appliedPromoCode.promoCodeId,
+              user_id: user.id,
+              event_id: data.id,
+              original_price: parseFloat(formData.price) || 0,
+              discount_amount: appliedPromoCode.discountAmount,
+              final_price: appliedPromoCode.finalPrice,
+            }]);
+        } catch (promoError) {
+          console.error('Ошибка записи использования промокода:', promoError);
+          // Не прерываем процесс, событие уже создано
+        }
+      }
 
       // Создаём повторяющиеся события если настроено
       if (recurrenceConfig.isRecurring) {
@@ -761,6 +791,31 @@ const CreateEvent = () => {
           </select>
           <p className="field-hint">{t('createEvent.genderFilterHint')}</p>
         </div>
+
+        {/* Цена события */}
+        <div className="form-group">
+          <label htmlFor="price">{t('createEvent.price')}</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            min="0"
+            step="0.01"
+            placeholder="0"
+          />
+          <p className="field-hint">{t('createEvent.priceHint')}</p>
+        </div>
+
+        {/* Промокод */}
+        {formData.price > 0 && (
+          <PromoCodeInput
+            category={formData.category}
+            price={parseFloat(formData.price) || 0}
+            onPromoApplied={handlePromoApplied}
+          />
+        )}
 
         {/* Специфичные поля для настольных игр */}
         {formData.category === 'board_games' && (
