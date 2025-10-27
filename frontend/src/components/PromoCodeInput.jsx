@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import supabase from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import './PromoCodeInput.css';
 
 const PromoCodeInput = ({ category, price, onPromoApplied, initialCode = '' }) => {
