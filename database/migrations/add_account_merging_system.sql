@@ -38,8 +38,8 @@ CREATE OR REPLACE FUNCTION find_potential_duplicate_accounts(
 )
 RETURNS TABLE (
   duplicate_user_id UUID,
-  duplicate_email VARCHAR(255),
-  duplicate_name VARCHAR(100),
+  duplicate_email TEXT,
+  duplicate_name TEXT,
   match_reason TEXT,
   similarity_score INTEGER
 )
@@ -47,7 +47,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_user_email VARCHAR(255);
+  v_user_email TEXT;
   v_user_name TEXT;
 BEGIN
   -- Получаем данные текущего пользователя (email из auth.users, имя из profiles)

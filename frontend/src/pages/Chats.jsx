@@ -58,7 +58,6 @@ function Chats() {
             id,
             title,
             event_date,
-            status,
             image_url,
             creator_id
           )
@@ -186,8 +185,7 @@ function Chats() {
                     <h2>{selectedRoom.events.title}</h2>
                   </Link>
                   <span className="event-status-badge">
-                    {selectedRoom.events.status === 'active' ? `🟢 ${t('chats.statusActive')}` :
-                     selectedRoom.events.status === 'completed' ? `✅ ${t('chats.statusCompleted')}` : `❌ ${t('chats.statusCancelled')}`}
+                    {new Date(selectedRoom.events.event_date) > new Date() ? `🟢 ${t('chats.statusUpcoming')}` : `✅ ${t('chats.statusCompleted')}`}
                   </span>
                 </div>
                 <EventChat eventId={selectedRoom.events.id} />

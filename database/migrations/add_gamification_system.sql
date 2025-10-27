@@ -380,7 +380,7 @@ DECLARE
 BEGIN
   -- Начисляем баллы автору отзыва
   PERFORM add_experience_points(
-    NEW.reviewer_id,
+    NEW.user_id,
     10, -- 10 баллов за отзыв
     'review_given',
     NEW.id,
@@ -391,7 +391,7 @@ BEGIN
   -- Обновляем счётчик отзывов
   UPDATE profiles
   SET total_reviews_given = total_reviews_given + 1
-  WHERE id = NEW.reviewer_id;
+  WHERE id = NEW.user_id;
 
   -- Если отзыв с высокой оценкой (4-5), начисляем баллы организатору
   IF NEW.rating >= 4 THEN

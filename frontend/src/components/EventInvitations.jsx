@@ -35,7 +35,7 @@ const EventInvitations = () => {
             id,
             title,
             category,
-            date,
+            event_date,
             location,
             image_url,
             price
@@ -191,7 +191,7 @@ const EventInvitations = () => {
                     {getCategoryIcon(invitation.event.category)} {invitation.event.title}
                   </h3>
                   <p className="event-date-preview">
-                    📅 {new Date(invitation.event.date).toLocaleDateString('ru-RU', {
+                    📅 {new Date(invitation.event.event_date).toLocaleDateString('ru-RU', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',

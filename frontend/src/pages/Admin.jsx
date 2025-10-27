@@ -51,10 +51,10 @@ const Admin = () => {
         .from('reports')
         .select(`
           *,
-          event:events(id, title, status),
-          reporter:profiles!reports_reporter_id_fkey(id, username, email)
+          event:events(id, title),
+          reporter:profiles!reports_reporter_id_fkey(id, full_name, avatar_url)
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (filterStatus !== 'all') {
         query = query.eq('status', filterStatus);
@@ -248,9 +248,6 @@ const Admin = () => {
                       >
                         {report.event.title}
                       </a>
-                      {report.event.status === 'cancelled' && (
-                        <span className="blocked-badge">{t('admin.reportBlocked')}</span>
-                      )}
                     </>
                   ) : (
                     <span className="text-muted">{t('admin.reportDeleted')}</span>
@@ -327,7 +324,7 @@ const Admin = () => {
                   </>
                 )}
 
-                {report.event && report.event.status !== 'cancelled' && (
+                {report.event && (
                   <button
                     className="btn btn-danger"
                     onClick={() => handleBlockEvent(report.event_id)}
