@@ -1,18 +1,8 @@
 import { Outlet } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import TopNav from './TopNav';
-import GooeyNav from './GooeyNav';
 import './Layout.css';
 
 const Layout = () => {
-  const { t } = useTranslation('common');
-
-  const footerItems = [
-    { label: t('footer.about'), href: '/about' },
-    { label: t('footer.contacts'), href: '/contacts' },
-    { label: t('footer.rules'), href: '/rules' }
-  ];
-
   return (
     <div className="layout-container">
       {/* TopNav Header */}
@@ -22,22 +12,6 @@ const Layout = () => {
       <main className="layout-main">
         <Outlet />
       </main>
-
-      {/* GooeyNav Footer */}
-      <footer className="layout-footer">
-        <div className="footer-content">
-          <GooeyNav
-            items={footerItems}
-            particleCount={15}
-            particleDistances={[90, 10]}
-            particleR={100}
-            initialActiveIndex={0}
-            animationTime={600}
-            timeVariance={300}
-            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
-          />
-        </div>
-      </footer>
     </div>
   );
 };

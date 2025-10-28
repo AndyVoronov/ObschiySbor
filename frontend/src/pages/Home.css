@@ -9,3 +9,9 @@
   position: relative;
   z-index: 1;
 }
+
+@media (max-width: 768px) {
+  .home {
+    min-height: auto;
+  }
+}

@@ -24,6 +24,7 @@ const Register = lazy(() => import('./pages/Register'));
 const About = lazy(() => import('./pages/About'));
 const Contacts = lazy(() => import('./pages/Contacts'));
 const Rules = lazy(() => import('./pages/Rules'));
+const Support = lazy(() => import('./pages/Support'));
 
 // Компонент загрузки
 const LoadingFallback = () => (
@@ -137,6 +138,7 @@ function AppContent() {
                 </ProtectedAdminRoute>
               }
             />
+            <Route path="support" element={<Support />} />
             <Route path="about" element={<About />} />
             <Route path="contacts" element={<Contacts />} />
             <Route path="rules" element={<Rules />} />

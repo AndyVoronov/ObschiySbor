@@ -49,11 +49,13 @@ const TopNav = () => {
         { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
         { label: t('nav.profile'), href: '/profile', icon: 'fas fa-user' },
         { label: t('nav.chats'), href: '/chats', icon: 'fas fa-comments' },
+        { label: 'Поддержка', href: '/support', icon: 'fas fa-question-circle' },
         ...(isModerator ? [{ label: t('nav.admin'), href: '/admin', icon: 'fas fa-shield-alt' }] : [])
       ]
     : [
         { label: t('nav.home'), href: '/', icon: 'fas fa-home' },
         { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
+        { label: 'Поддержка', href: '/support', icon: 'fas fa-question-circle' },
         { label: t('nav.login'), href: '/login', icon: 'fas fa-sign-in-alt' },
         { label: t('nav.register'), href: '/register', icon: 'fas fa-user-plus' }
       ];

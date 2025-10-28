@@ -11,36 +11,14 @@
   width: 100%;
   background: transparent;
   padding-top: 80px; /* Отступ для фиксированного хедера */
-}
-
-.layout-footer {
-  background: transparent;
-  padding: 3rem 2rem;
   position: relative;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-}
-
-.footer-copyright {
-  color: var(--mint-cream);
-  font-size: 0.875rem;
-  opacity: 0.9;
-  text-align: center;
+  z-index: 0;
+  min-height: calc(100vh - 80px); /* Минимальная высота для заполнения экрана */
 }
 
 @media (max-width: 768px) {
   .layout-main {
     padding-top: 70px; /* Увеличенный отступ для мобильных */
-  }
-
-  .layout-footer {
-    padding: 2rem 1rem;
+    min-height: calc(100vh - 70px);
   }
 }

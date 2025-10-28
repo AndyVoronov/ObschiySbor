@@ -1,0 +1,142 @@
+.support-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.support-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 3rem;
+}
+
+.support-hero h1 {
+  font-size: 2.5rem;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+
+.support-hero p {
+  font-size: 1.2rem;
+  color: var(--foreground-muted);
+}
+
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.support-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.support-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px var(--card-shadow);
+  border-color: var(--primary);
+}
+
+.support-card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.support-card h3 {
+  font-size: 1.5rem;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+}
+
+.support-card p {
+  color: var(--foreground-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.support-card-button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: calc(var(--radius) * 0.75);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.support-card-button:hover {
+  background: var(--primary-hover);
+  transform: translateX(4px);
+}
+
+.support-faq {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.support-faq h2 {
+  font-size: 2rem;
+  color: var(--foreground);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.faq-item {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.faq-item h4 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.faq-item p {
+  color: var(--foreground-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .support-hero h1 {
+    font-size: 2rem;
+  }
+
+  .support-hero p {
+    font-size: 1rem;
+  }
+
+  .support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-page {
+    padding: 1rem;
+  }
+
+  .support-faq {
+    padding: 1.5rem;
+  }
+}
