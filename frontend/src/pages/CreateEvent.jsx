@@ -11,6 +11,7 @@ import RecurringEventSettings from '../components/RecurringEventSettings';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import BlockedUserNotice from '../components/BlockedUserNotice';
 import PromoCodeInput from '../components/PromoCodeInput';
+import RoundCheckbox from '../components/RoundCheckbox';
 import { createRecurringEvents } from '../utils/recurringEvents';
 import { getCategoryName } from '../constants/categories';
 import './CreateEvent.css';
@@ -539,16 +540,14 @@ const CreateEvent = () => {
         </div>
 
         <div className="form-row">
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="has_end_date"
-                checked={formData.has_end_date}
-                onChange={(e) => setFormData({ ...formData, has_end_date: e.target.checked })}
-              />
-              {t('createEvent.hasEndDate')}
-            </label>
+          <div className="form-group">
+            <RoundCheckbox
+              id="has_end_date"
+              name="has_end_date"
+              checked={formData.has_end_date}
+              onChange={(e) => setFormData({ ...formData, has_end_date: e.target.checked })}
+              label={t('createEvent.hasEndDate')}
+            />
           </div>
 
           {formData.has_end_date && (
@@ -597,15 +596,13 @@ const CreateEvent = () => {
 
         {/* Настройки автоотмены */}
         <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              name="auto_cancel_enabled"
-              checked={formData.auto_cancel_enabled}
-              onChange={(e) => setFormData({ ...formData, auto_cancel_enabled: e.target.checked })}
-            />
-            <span>{t('createEvent.autoCancelEnabled')}</span>
-          </label>
+          <RoundCheckbox
+            id="auto_cancel_enabled"
+            name="auto_cancel_enabled"
+            checked={formData.auto_cancel_enabled}
+            onChange={(e) => setFormData({ ...formData, auto_cancel_enabled: e.target.checked })}
+            label={t('createEvent.autoCancelEnabled')}
+          />
           <p className="field-hint">{t('createEvent.autoCancelEnabledHint')}</p>
         </div>
 
@@ -682,15 +679,13 @@ const CreateEvent = () => {
           </div>
 
           <div className="form-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="kids_allowed"
-                checked={formData.kids_allowed}
-                onChange={(e) => setFormData({ ...formData, kids_allowed: e.target.checked })}
-              />
-              <span>{t('createEvent.kidsAllowed')}</span>
-            </label>
+            <RoundCheckbox
+              id="kids_allowed"
+              name="kids_allowed"
+              checked={formData.kids_allowed}
+              onChange={(e) => setFormData({ ...formData, kids_allowed: e.target.checked })}
+              label={t('createEvent.kidsAllowed')}
+            />
             <p className="field-hint">{t('createEvent.kidsAllowedHint')}</p>
           </div>
         </div>
@@ -1408,16 +1403,14 @@ const CreateEvent = () => {
                 placeholder="120"
               />
             </div>
-            <div className="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  name="has_intermission"
-                  checked={formData.has_intermission}
-                  onChange={(e) => setFormData({ ...formData, has_intermission: e.target.checked })}
-                />
-                С антрактом
-              </label>
+            <div className="form-group">
+              <RoundCheckbox
+                id="has_intermission"
+                name="has_intermission"
+                checked={formData.has_intermission}
+                onChange={(e) => setFormData({ ...formData, has_intermission: e.target.checked })}
+                label="С антрактом"
+              />
             </div>
           </>
         )}

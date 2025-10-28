@@ -113,7 +113,7 @@ const Admin = () => {
     try {
       const { error: updateError } = await supabase
         .from('events')
-        .update({ status: 'cancelled' })
+        .update({ lifecycle_status: 'cancelled' })
         .eq('id', eventId);
 
       if (updateError) throw updateError;
@@ -168,11 +168,6 @@ const Admin = () => {
 
   return (
     <div className="admin-container">
-      <div className="admin-header">
-        <h1>{t('admin.title')}</h1>
-        <p>{t('admin.subtitle')}</p>
-      </div>
-
       {/* Вкладки */}
       <div className="admin-tabs">
         <button

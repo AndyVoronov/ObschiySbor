@@ -240,12 +240,13 @@
 }
 
 /* Показать/скрыть в зависимости от размера экрана */
+/* Теперь всегда показываем выпадающий список */
 .mobile-only {
   display: block;
 }
 
 .desktop-only {
-  display: none;
+  display: none !important; /* Всегда скрываем горизонтальные кнопки */
 }
 
 .tab-button {
@@ -301,14 +302,14 @@
   font-weight: 700;
 }
 
-/* Desktop версия (больше 768px) */
+/* Desktop версия (больше 768px) - теперь тоже используется select */
 @media (min-width: 769px) {
   .mobile-only {
-    display: none;
+    display: block; /* Показываем select всегда */
   }
 
   .desktop-only {
-    display: block;
+    display: none !important; /* Скрываем кнопки всегда */
   }
 }
 

@@ -33,7 +33,7 @@ const Home = () => {
       description: t('categories.hiking_desc'),
       color: '#45B7D1',
       categoryKey: 'hiking',
-      image: null
+      image: '/images/categories/Походы.png'
     },
     {
       icon: '🧘',
@@ -51,7 +51,7 @@ const Home = () => {
       description: t('categories.photo_walk_desc'),
       color: '#FDCB6E',
       categoryKey: 'photo_walk',
-      image: null
+      image: '/images/categories/Фотопрогулки.png'
     },
     {
       icon: '🎨',
@@ -69,7 +69,7 @@ const Home = () => {
       description: t('categories.picnic_desc'),
       color: '#96CEB4',
       categoryKey: 'picnic',
-      image: null
+      image: '/images/categories/Пикники.png'
     },
     {
       icon: '🎭',
@@ -87,7 +87,7 @@ const Home = () => {
       description: t('categories.music_jam_desc'),
       color: '#A29BFE',
       categoryKey: 'music_jam',
-      image: null
+      image: '/images/categories/Музыкальные джемы.png'
     },
     {
       icon: '🏃',
@@ -105,7 +105,7 @@ const Home = () => {
       description: t('categories.volunteer_desc'),
       color: '#00CEC9',
       categoryKey: 'volunteer',
-      image: null
+      image: '/images/categories/Волонтёрские акции.png'
     },
     {
       icon: '📚',
@@ -114,7 +114,7 @@ const Home = () => {
       description: t('categories.seminar_desc'),
       color: '#6C5CE7',
       categoryKey: 'seminar',
-      image: null
+      image: '/images/categories/Образовательные семинары.png'
     },
     {
       icon: '🍳',
@@ -123,7 +123,7 @@ const Home = () => {
       description: t('categories.cooking_desc'),
       color: '#E17055',
       categoryKey: 'cooking',
-      image: null
+      image: '/images/categories/Кулинарные мастер-классы.png'
     },
     {
       icon: '🎮',

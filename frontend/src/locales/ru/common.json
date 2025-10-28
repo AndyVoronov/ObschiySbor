@@ -409,6 +409,15 @@
     "boardGames": "Настольные игры",
     "players": "игроков",
     "minutes": "мин",
+    "tabs": {
+      "general": "Общее",
+      "participants": "Участники",
+      "chat": "Чат",
+      "reviews": "Отзывы"
+    },
+    "authRequiredForChat": "Войдите в систему, чтобы участвовать в чате",
+    "leaveReview": "Оставить отзыв",
+    "reviews": "Отзывы",
     "addToCalendar": "Добавить в календарь",
     "downloadICS": "Скачать .ics",
     "downloadICSTitle": "Скачать файл .ics для любого календаря",
@@ -538,11 +547,12 @@
     },
     "buttons": {
       "cancelEvent": "Отменить событие",
-      "leaveEvent": "Покинуть событие",
+      "leaveEvent": "Не участвовать",
       "leaving": "Выход...",
       "joinEvent": "Присоединиться",
       "joining": "Присоединение...",
-      "eventFull": "Мест нет"
+      "eventFull": "Мест нет",
+      "loginToJoin": "Войти чтобы присоединиться"
     },
     "cancelDialog": {
       "title": "Отменить событие",

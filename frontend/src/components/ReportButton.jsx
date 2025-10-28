@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './ReportButton.css';
 
-const ReportButton = ({ eventId, eventTitle }) => {
+const ReportButton = ({ eventId, eventTitle, showLabel = true }) => {
   const { t } = useTranslation('common');
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -107,7 +107,7 @@ const ReportButton = ({ eventId, eventTitle }) => {
         title={t('reportButton.buttonTitle')}
       >
         <span className="report-icon">⚠️</span>
-        {t('reportButton.buttonText')}
+        {showLabel && t('reportButton.buttonText')}
       </button>
 
       {showModal && (

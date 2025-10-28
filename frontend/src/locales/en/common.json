@@ -409,6 +409,15 @@
     "boardGames": "Board Games",
     "players": "players",
     "minutes": "min",
+    "tabs": {
+      "general": "General",
+      "participants": "Participants",
+      "chat": "Chat",
+      "reviews": "Reviews"
+    },
+    "authRequiredForChat": "Please sign in to participate in the chat",
+    "leaveReview": "Leave a review",
+    "reviews": "Reviews",
     "addToCalendar": "Add to calendar",
     "downloadICS": "Download .ics",
     "downloadICSTitle": "Download .ics file for any calendar",
@@ -538,11 +547,12 @@
     },
     "buttons": {
       "cancelEvent": "Cancel event",
-      "leaveEvent": "Leave event",
+      "leaveEvent": "Not participating",
       "leaving": "Leaving...",
       "joinEvent": "Join",
       "joining": "Joining...",
-      "eventFull": "Event is full"
+      "eventFull": "Event is full",
+      "loginToJoin": "Login to join"
     },
     "cancelDialog": {
       "title": "Cancel event",

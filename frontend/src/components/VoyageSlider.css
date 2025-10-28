@@ -278,7 +278,7 @@
 	position: absolute;
 	height: fit-content;
 	left: 50%;
-	bottom: 15%;
+	bottom: -30%; /* Изменено с 15% на -30% для ПК */
 	transform: translateX(-50%) translateZ(var(--z-offset));
 	z-index: 2;
 	pointer-events: none;
