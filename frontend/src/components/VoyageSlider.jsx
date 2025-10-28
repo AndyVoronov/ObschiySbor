@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './VoyageSlider.css';
 
 // Math utilities
@@ -24,10 +25,14 @@ class Vec2 {
 }
 
 const VoyageSlider = ({ slides }) => {
+  const { t, i18n } = useTranslation('common');
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
   const rafIdRef = useRef(null);
   const totalSlides = slides.length;
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const isRussian = i18n.language === 'ru';
 
 
   // Get data attributes based on position relative to current
@@ -49,6 +54,33 @@ const VoyageSlider = ({ slides }) => {
 
   const goToNext = () => {
     setCurrentIndex((prev) => wrap(prev + 1, totalSlides));
+  };
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; // минимальная дистанция для свайпа
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // Свайп влево - следующий слайд
+        goToNext();
+      } else {
+        // Свайп вправо - предыдущий слайд
+        goToPrevious();
+      }
+    }
+
+    touchStartX.current = 0;
+    touchEndX.current = 0;
   };
 
   // Tilt effect
@@ -133,7 +165,13 @@ const VoyageSlider = ({ slides }) => {
   }, []);
 
   return (
-    <div className="slider" ref={sliderRef}>
+    <div
+      className="slider"
+      ref={sliderRef}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <button className="slider--btn slider--btn__prev" onClick={goToPrevious}>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="m15 18-6-6 6-6" />
@@ -208,7 +246,7 @@ const VoyageSlider = ({ slides }) => {
                     </div>
                     <div className="slide-info--button-wrapper">
                       <Link to={`/events?category=${slide.categoryKey}`} className="slide-info--button">
-                        Смотреть события
+                        {isRussian ? 'Смотреть события' : 'View Events'}
                       </Link>
                     </div>
                   </div>
