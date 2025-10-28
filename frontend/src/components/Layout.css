@@ -16,9 +16,24 @@
   min-height: calc(100vh - 80px); /* Минимальная высота для заполнения экрана */
 }
 
+/* Уменьшенный отступ для страниц поддержки */
+.layout-main:has(.about-page),
+.layout-main:has(.contacts-page),
+.layout-main:has(.rules-page),
+.layout-main:has(.support-page) {
+  padding-top: 30px;
+}
+
 @media (max-width: 768px) {
   .layout-main {
     padding-top: 70px; /* Увеличенный отступ для мобильных */
     min-height: calc(100vh - 70px);
+  }
+
+  .layout-main:has(.about-page),
+  .layout-main:has(.contacts-page),
+  .layout-main:has(.rules-page),
+  .layout-main:has(.support-page) {
+    padding-top: 20px;
   }
 }
