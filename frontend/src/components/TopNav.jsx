@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -9,13 +9,11 @@ import './TopNav.css';
 
 const TopNav = () => {
   const { t } = useTranslation('common');
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const containerRef = useRef(null);
+  const location = useLocation();
   const navRef = useRef(null);
-  const filterRef = useRef(null);
-  const textRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const selectorRef = useRef(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
 
@@ -44,225 +42,116 @@ const TopNav = () => {
     checkModeratorRole();
   }, [user]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Ошибка выхода:', error.message);
-    }
-  };
-
-  // Формируем список навигации в зависимости от роли пользователя
+  // Формируем список навигации
   const navItems = user
     ? [
-        { label: t('nav.home'), href: '/' },
-        { label: t('nav.events'), href: '/events' },
-        { label: t('nav.profile'), href: '/profile' },
-        { label: t('nav.chats'), href: '/chats' },
-        ...(isModerator ? [{ label: t('nav.admin'), href: '/admin' }] : [])
+        { label: t('nav.home'), href: '/', icon: 'fas fa-home' },
+        { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
+        { label: t('nav.profile'), href: '/profile', icon: 'fas fa-user' },
+        { label: t('nav.chats'), href: '/chats', icon: 'fas fa-comments' },
+        ...(isModerator ? [{ label: t('nav.admin'), href: '/admin', icon: 'fas fa-shield-alt' }] : [])
       ]
     : [
-        { label: t('nav.home'), href: '/' },
-        { label: t('nav.events'), href: '/events' },
-        { label: t('nav.login'), href: '/login' },
-        { label: t('nav.register'), href: '/register' }
+        { label: t('nav.home'), href: '/', icon: 'fas fa-home' },
+        { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
+        { label: t('nav.login'), href: '/login', icon: 'fas fa-sign-in-alt' },
+        { label: t('nav.register'), href: '/register', icon: 'fas fa-user-plus' }
       ];
 
-  const noise = (n = 1) => n / 2 - Math.random() * n;
+  // Функция обновления позиции селектора
+  const updateSelectorPosition = () => {
+    if (!navRef.current || !selectorRef.current) return;
 
-  const getXY = (distance, pointIndex, totalPoints) => {
-    const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
-    return [distance * Math.cos(angle), distance * Math.sin(angle)];
+    const activeItem = navRef.current.querySelector('li.active');
+    if (!activeItem) return;
+
+    const activeHeight = activeItem.offsetHeight;
+    const activeWidth = activeItem.offsetWidth;
+    const itemPosTop = activeItem.offsetTop;
+    const itemPosLeft = activeItem.offsetLeft;
+
+    selectorRef.current.style.top = itemPosTop + 'px';
+    selectorRef.current.style.left = itemPosLeft + 'px';
+    selectorRef.current.style.height = activeHeight + 'px';
+    selectorRef.current.style.width = activeWidth + 'px';
   };
 
-  const createParticle = (i, particleCount, colors) => {
-    const animationTime = 600;
-    const timeVariance = 300;
-    const particleR = 100;
-    const particleDistances = [90, 10];
+  // Обновление при изменении маршрута
+  useEffect(() => {
+    setTimeout(updateSelectorPosition, 0);
+  }, [location.pathname, isModerator, user, navItems]);
 
-    let rotate = noise(particleR / 10);
-    return {
-      start: getXY(particleDistances[0], particleCount - i, particleCount),
-      end: getXY(particleDistances[1] + noise(7), particleCount - i, particleCount),
-      time: animationTime * 2 + noise(timeVariance * 2),
-      scale: 1 + noise(0.2),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      rotate: rotate > 0 ? (rotate + particleR / 20) * 10 : (rotate - particleR / 20) * 10
+  // Обновление при resize
+  useEffect(() => {
+    const handleResize = () => {
+      setTimeout(updateSelectorPosition, 500);
     };
-  };
 
-  const makeParticles = element => {
-    const particleCount = 15;
-    const colors = [1, 2, 3, 4];
-    const animationTime = 600;
-    const timeVariance = 300;
-    const bubbleTime = animationTime * 2 + timeVariance;
-    element.style.setProperty('--time', `${bubbleTime}ms`);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    for (let i = 0; i < particleCount; i++) {
-      const p = createParticle(i, particleCount, colors);
-      element.classList.remove('active');
-
-      setTimeout(() => {
-        const particle = document.createElement('span');
-        const point = document.createElement('span');
-        particle.classList.add('particle');
-        particle.style.setProperty('--start-x', `${p.start[0]}px`);
-        particle.style.setProperty('--start-y', `${p.start[1]}px`);
-        particle.style.setProperty('--end-x', `${p.end[0]}px`);
-        particle.style.setProperty('--end-y', `${p.end[1]}px`);
-        particle.style.setProperty('--time', `${p.time}ms`);
-        particle.style.setProperty('--scale', `${p.scale}`);
-        particle.style.setProperty('--color', `var(--color-${p.color}, white)`);
-        particle.style.setProperty('--rotate', `${p.rotate}deg`);
-
-        point.classList.add('point');
-        particle.appendChild(point);
-        element.appendChild(particle);
-        requestAnimationFrame(() => {
-          element.classList.add('active');
-        });
-        setTimeout(() => {
-          try {
-            element.removeChild(particle);
-          } catch {
-            // Do nothing
-          }
-        }, p.time);
-      }, 30);
-    }
-  };
-
-  const updateEffectPosition = element => {
-    if (!containerRef.current || !filterRef.current || !textRef.current) return;
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const pos = element.getBoundingClientRect();
-
-    const styles = {
-      left: `${pos.x - containerRect.x}px`,
-      top: `${pos.y - containerRect.y}px`,
-      width: `${pos.width}px`,
-      height: `${pos.height}px`
-    };
-    Object.assign(filterRef.current.style, styles);
-    Object.assign(textRef.current.style, styles);
-    textRef.current.innerText = element.innerText;
-  };
-
-  const handleClick = (e, index, href, onClick) => {
+  const handleNavClick = (e, href) => {
     e.preventDefault();
-    const liEl = e.currentTarget;
 
-    // Закрываем мобильное меню при клике на пункт
+    const clickedLi = e.currentTarget.parentElement;
+    navRef.current?.querySelectorAll('li').forEach(li => li.classList.remove('active'));
+    clickedLi.classList.add('active');
+
+    updateSelectorPosition();
     setIsMobileMenuOpen(false);
 
-    if (activeIndex === index) {
-      if (onClick) {
-        onClick(e);
-      } else if (href) {
-        // Принудительный переход через window.location
-        window.location.href = href;
-      }
-      return;
-    }
-
-    setActiveIndex(index);
-    updateEffectPosition(liEl);
-
-    if (filterRef.current) {
-      const particles = filterRef.current.querySelectorAll('.particle');
-      particles.forEach(p => filterRef.current.removeChild(p));
-    }
-
-    if (textRef.current) {
-      textRef.current.classList.remove('active');
-      void textRef.current.offsetWidth;
-      textRef.current.classList.add('active');
-    }
-
-    if (filterRef.current) {
-      makeParticles(filterRef.current);
-    }
-
-    // Небольшая задержка для анимации, затем переход
     setTimeout(() => {
-      if (onClick) {
-        onClick(e);
-      } else if (href) {
-        // Принудительный переход через window.location
-        window.location.href = href;
-      }
+      navigate(href);
     }, 300);
   };
 
-  useEffect(() => {
-    if (!navRef.current || !containerRef.current) return;
-    const activeLi = navRef.current.querySelectorAll('li')[activeIndex];
-    if (activeLi) {
-      updateEffectPosition(activeLi);
-      // Не добавляем класс 'active' автоматически при монтировании
-      // textRef.current?.classList.add('active');
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      const currentActiveLi = navRef.current?.querySelectorAll('li')[activeIndex];
-      if (currentActiveLi) {
-        updateEffectPosition(currentActiveLi);
-      }
-    });
-
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, [activeIndex]);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setTimeout(updateSelectorPosition, 300);
+  };
 
   return (
-    <header className="top-nav-header">
-      <div className="top-nav-content">
-        <a href="/" className="top-nav-logo">
-          {t('app.name')}
-        </a>
+    <nav className="navbar navbar-expand-custom navbar-mainbg">
+      <a className="navbar-brand navbar-logo" href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+        {t('app.name')}
+      </a>
 
-        <div className="top-nav-right">
-          {/* Переключатель языка */}
-          <LanguageSwitcher />
-
-          {/* Переключатель темы */}
-          <ThemeToggle />
-
-          {/* Кнопка гамбургер для мобильной версии */}
-          <button
-            className="mobile-menu-toggle"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Меню"
-          >
-            <span className={isMobileMenuOpen ? 'open' : ''}></span>
-            <span className={isMobileMenuOpen ? 'open' : ''}></span>
-            <span className={isMobileMenuOpen ? 'open' : ''}></span>
-          </button>
-        </div>
-
-        <div className={`top-nav-gooey-container ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={containerRef}>
-          <nav>
-            <ul ref={navRef}>
-              {navItems.map((item, index) => (
-                <li key={index} className={activeIndex === index ? 'active' : ''}>
-                  <a
-                    href={item.href}
-                    onClick={e => handleClick(e, index, item.href, item.onClick)}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <span className="effect filter" ref={filterRef} />
-          <span className="effect text" ref={textRef} />
-        </div>
+      <div className="navbar-controls">
+        <LanguageSwitcher />
+        <ThemeToggle />
       </div>
-    </header>
+
+      <button
+        className="navbar-toggler"
+        type="button"
+        onClick={toggleMobileMenu}
+        aria-controls="navbarSupportedContent"
+        aria-expanded={isMobileMenuOpen}
+        aria-label="Toggle navigation"
+      >
+        <i className="fas fa-bars text-white"></i>
+      </button>
+
+      <div className={`navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="navbarSupportedContent">
+        <ul className="navbar-nav ml-auto" ref={navRef}>
+          <div className="hori-selector" ref={selectorRef}>
+            <div className="left"></div>
+            <div className="right"></div>
+          </div>
+          {navItems.map((item, index) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <li key={index} className={`nav-item ${isActive ? 'active' : ''}`}>
+                <a className="nav-link" href={item.href} onClick={(e) => handleNavClick(e, item.href)}>
+                  <i className={item.icon}></i>{item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </nav>
   );
 };
 
