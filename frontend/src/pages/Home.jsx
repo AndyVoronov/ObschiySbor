@@ -141,7 +141,7 @@ const Home = () => {
       description: t('categories.sports_desc'),
       color: '#55EFC4',
       categoryKey: 'sports',
-      image: '/images/categories/Спортивные матчи.webp'
+      image: '/images/categories/Спортивные матчи.png'
     },
     {
       icon: '⛸️',
