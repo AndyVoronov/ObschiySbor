@@ -43,21 +43,19 @@ const TopNav = () => {
   }, [user]);
 
   // Формируем список навигации
-  const supportLabel = t('nav.support') || (t('language') === 'en' ? 'Support' : 'Поддержка');
-
   const navItems = user
     ? [
         { label: t('nav.home'), href: '/', icon: 'fas fa-home' },
         { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
         { label: t('nav.profile'), href: '/profile', icon: 'fas fa-user' },
         { label: t('nav.chats'), href: '/chats', icon: 'fas fa-comments' },
-        { label: supportLabel, href: '/support', icon: 'fas fa-question-circle' },
+        { label: t('nav.support'), href: '/support', icon: 'fas fa-question-circle' },
         ...(isModerator ? [{ label: t('nav.admin'), href: '/admin', icon: 'fas fa-shield-alt' }] : [])
       ]
     : [
         { label: t('nav.home'), href: '/', icon: 'fas fa-home' },
         { label: t('nav.events'), href: '/events', icon: 'fas fa-calendar-alt' },
-        { label: supportLabel, href: '/support', icon: 'fas fa-question-circle' },
+        { label: t('nav.support'), href: '/support', icon: 'fas fa-question-circle' },
         { label: t('nav.login'), href: '/login', icon: 'fas fa-sign-in-alt' },
         { label: t('nav.register'), href: '/register', icon: 'fas fa-user-plus' }
       ];
