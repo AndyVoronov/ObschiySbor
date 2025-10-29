@@ -36,16 +36,10 @@ const EventDetailsGeneral = ({
           <strong>{t('eventDetails.startLabel')}:</strong>
           <span>{new Date(event.event_date).toLocaleString('ru-RU')}</span>
         </div>
-        {event.has_end_date && event.end_date && (
+        {event.end_date && (
           <div className="info-item">
             <strong>{t('eventDetails.endLabel')}:</strong>
             <span>{new Date(event.end_date).toLocaleString('ru-RU')}</span>
-          </div>
-        )}
-        {!event.has_end_date && (
-          <div className="info-item">
-            <strong>{t('eventDetails.endLabel')}:</strong>
-            <span className="text-muted">{t('eventDetails.noEndDate')}</span>
           </div>
         )}
         <div className="info-item">

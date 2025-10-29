@@ -31,8 +31,7 @@ const CreateEvent = () => {
     description: '',
     category: 'board_games',
     event_date: '',
-    end_date: '',
-    has_end_date: true,
+    end_date: '2025-12-31T23:59',
     event_type: 'offline', // 'offline' или 'online'
     location: '',
     latitude: null,
@@ -166,8 +165,7 @@ const CreateEvent = () => {
         description: formData.description,
         category: formData.category,
         event_date: formData.event_date,
-        end_date: formData.has_end_date && formData.end_date ? formData.end_date : null,
-        has_end_date: formData.has_end_date,
+        end_date: formData.end_date || '2025-12-31T23:59',
         event_type: formData.event_type,
         location: formData.event_type === 'offline' ? formData.location : null,
         latitude: formData.event_type === 'offline' ? formData.latitude : null,
@@ -541,28 +539,18 @@ const CreateEvent = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <RoundCheckbox
-              id="has_end_date"
-              name="has_end_date"
-              checked={formData.has_end_date}
-              onChange={(e) => setFormData({ ...formData, has_end_date: e.target.checked })}
-              label={t('createEvent.hasEndDate')}
+            <label htmlFor="end_date">{t('createEvent.endDateTime')}</label>
+            <input
+              type="datetime-local"
+              id="end_date"
+              name="end_date"
+              value={formData.end_date}
+              onChange={handleChange}
+              min={formData.event_date}
+              required
             />
+            <small className="text-muted">{t('createEvent.endDateHint')}</small>
           </div>
-
-          {formData.has_end_date && (
-            <div className="form-group">
-              <label htmlFor="end_date">{t('createEvent.endDateTime')}</label>
-              <input
-                type="datetime-local"
-                id="end_date"
-                name="end_date"
-                value={formData.end_date}
-                onChange={handleChange}
-                min={formData.event_date}
-              />
-            </div>
-          )}
         </div>
 
         <div className="form-group">
