@@ -111,6 +111,17 @@
   border: 2px solid var(--card-border);
 }
 
+.profile-edit-form label {
+  color: var(--foreground);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.profile-edit-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
 .profile-events {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
