@@ -11,6 +11,7 @@ import EventInvitations from '../components/EventInvitations';
 import GamificationPanel from '../components/GamificationPanel';
 import ReferralPanel from '../components/ReferralPanel';
 import MergeAccountsPanel from '../components/MergeAccountsPanel';
+import GameCard from '../components/GameCard';
 import './Profile.css';
 
 const Profile = () => {
@@ -291,6 +292,8 @@ const Profile = () => {
 
       {activeTab === 'profile' && (
         <>
+          <GameCard />
+
           {editing && (
             <form onSubmit={handleSubmit} className="profile-edit-form">
               {/* Загрузка аватара */}
