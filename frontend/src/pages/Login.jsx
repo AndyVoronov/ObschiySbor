@@ -243,8 +243,8 @@ const Login = () => {
               reject(new Error('JSONP request failed'));
             };
 
-            // Создаём URL с callback параметром
-            const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131&callback=${callbackName}`;
+            // Создаём URL с callback параметром (добавляем sex в fields)
+            const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200,sex&access_token=${accessToken}&v=5.131&callback=${callbackName}`;
             script.src = vkApiUrl;
             document.body.appendChild(script);
           });
@@ -255,10 +255,20 @@ const Login = () => {
 
         if (data.response && data.response[0]) {
           const userData = data.response[0];
+
+          // Конвертируем VK пол (1 = женский, 2 = мужской, 0 = не указано) в наш формат
+          let gender = null;
+          if (userData.sex === 1) {
+            gender = 'female';
+          } else if (userData.sex === 2) {
+            gender = 'male';
+          }
+
           vkUserData = {
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
             photo_200: userData.photo_200 || null,
+            gender: gender,
           };
           console.log('VK User Data from API:', vkUserData);
         }
@@ -319,7 +329,7 @@ const Login = () => {
 
           console.log('Успешный вход через VK с обновлённым паролем:', signInData);
 
-          // Обновляем имя и фото из VK API (после входа)
+          // Обновляем имя, фото и пол из VK API (после входа)
           if (vkUserData) {
             const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
             const updateData = {
@@ -327,6 +337,9 @@ const Login = () => {
             };
             if (vkUserData.photo_200) {
               updateData.avatar_url = vkUserData.photo_200;
+            }
+            if (vkUserData.gender) {
+              updateData.gender = vkUserData.gender;
             }
 
             console.log('Обновляем профиль старого аккаунта:', updateData);
@@ -361,7 +374,7 @@ const Login = () => {
 
         console.log('Успешный вход через VK:', signInData);
 
-        // Теперь обновляем имя и фото из VK API (после входа, когда есть доступ по RLS)
+        // Теперь обновляем имя, фото и пол из VK API (после входа, когда есть доступ по RLS)
         if (vkUserData) {
           const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
           const updateData = {
@@ -369,6 +382,9 @@ const Login = () => {
           };
           if (vkUserData.photo_200) {
             updateData.avatar_url = vkUserData.photo_200;
+          }
+          if (vkUserData.gender) {
+            updateData.gender = vkUserData.gender;
           }
 
           console.log('Обновляем профиль после входа:', updateData);
@@ -420,6 +436,7 @@ const Login = () => {
             full_name: fullName,
             vk_id: vkUserId,
             avatar_url: vkUserData?.photo_200 || null,
+            gender: vkUserData?.gender || null,
           }
         }
       });
@@ -442,6 +459,9 @@ const Login = () => {
       };
       if (vkUserData?.photo_200) {
         updateData.avatar_url = vkUserData.photo_200;
+      }
+      if (vkUserData?.gender) {
+        updateData.gender = vkUserData.gender;
       }
 
       const { error: updateError } = await supabase

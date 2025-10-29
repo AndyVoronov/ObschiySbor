@@ -305,8 +305,8 @@ const Register = () => {
               reject(new Error('JSONP request failed'));
             };
 
-            // Создаём URL с callback параметром
-            const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200&access_token=${accessToken}&v=5.131&callback=${callbackName}`;
+            // Создаём URL с callback параметром (добавляем sex в fields)
+            const vkApiUrl = `https://api.vk.com/method/users.get?user_ids=${vkUserId}&fields=photo_200,sex&access_token=${accessToken}&v=5.131&callback=${callbackName}`;
             script.src = vkApiUrl;
             document.body.appendChild(script);
           });
@@ -317,10 +317,20 @@ const Register = () => {
 
         if (data.response && data.response[0]) {
           const userData = data.response[0];
+
+          // Конвертируем VK пол (1 = женский, 2 = мужской, 0 = не указано) в наш формат
+          let gender = null;
+          if (userData.sex === 1) {
+            gender = 'female';
+          } else if (userData.sex === 2) {
+            gender = 'male';
+          }
+
           vkUserData = {
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
             photo_200: userData.photo_200 || null,
+            gender: gender,
           };
           console.log('VK User Data from API:', vkUserData);
         }
@@ -340,7 +350,7 @@ const Register = () => {
         // Пользователь уже существует - обновляем данные и выполняем вход
         console.log('Пользователь с VK ID уже существует, обновляем данные и выполняем вход');
 
-        // Обновляем имя и фото из VK API при каждом входе
+        // Обновляем имя, фото и пол из VK API при каждом входе
         if (vkUserData) {
           const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
           const updateData = {
@@ -348,6 +358,9 @@ const Register = () => {
           };
           if (vkUserData.photo_200) {
             updateData.avatar_url = vkUserData.photo_200;
+          }
+          if (vkUserData.gender) {
+            updateData.gender = vkUserData.gender;
           }
 
           const { error: updateError } = await supabase
@@ -406,6 +419,7 @@ const Register = () => {
             full_name: fullName,
             vk_id: vkUserId,
             avatar_url: vkUserData?.photo_200 || null,
+            gender: vkUserData?.gender || null,
           }
         }
       });
@@ -428,6 +442,9 @@ const Register = () => {
       };
       if (vkUserData?.photo_200) {
         updateData.avatar_url = vkUserData.photo_200;
+      }
+      if (vkUserData?.gender) {
+        updateData.gender = vkUserData.gender;
       }
 
       const { error: updateError } = await supabase
