@@ -276,30 +276,8 @@ const Login = () => {
       console.log('Existing profile:', existingProfile, 'Error:', profileError);
 
       if (existingProfile) {
-        // Пользователь уже существует - обновляем данные и выполняем вход
-        console.log('Пользователь с VK ID уже существует, обновляем данные и выполняем вход');
-
-        // Обновляем имя и фото из VK API при каждом входе
-        if (vkUserData) {
-          const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
-          const updateData = {
-            full_name: fullName,
-          };
-          if (vkUserData.photo_200) {
-            updateData.avatar_url = vkUserData.photo_200;
-          }
-
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update(updateData)
-            .eq('id', existingProfile.id);
-
-          if (updateError) {
-            console.error('Update Profile Error:', updateError);
-          } else {
-            console.log('Профиль обновлён:', updateData);
-          }
-        }
+        // Пользователь уже существует - выполняем вход, затем обновляем данные
+        console.log('Пользователь с VK ID уже существует, выполняем вход');
 
         const email = `vk${vkUserId}@obschiysbor.local`;
 
@@ -340,8 +318,32 @@ const Login = () => {
           }
 
           console.log('Успешный вход через VK с обновлённым паролем:', signInData);
-          // Принудительная перезагрузка для обновления данных профиля
-          window.location.href = '/';
+
+          // Обновляем имя и фото из VK API (после входа)
+          if (vkUserData) {
+            const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
+            const updateData = {
+              full_name: fullName,
+            };
+            if (vkUserData.photo_200) {
+              updateData.avatar_url = vkUserData.photo_200;
+            }
+
+            console.log('Обновляем профиль старого аккаунта:', updateData);
+
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update(updateData)
+              .eq('id', existingProfile.id);
+
+            if (updateError) {
+              console.error('Update Profile Error:', updateError);
+            } else {
+              console.log('Профиль старого аккаунта успешно обновлён!');
+            }
+          }
+
+          navigate('/');
           return;
         }
 
@@ -359,22 +361,43 @@ const Login = () => {
 
         console.log('Успешный вход через VK:', signInData);
 
-        // Проверяем что данные действительно обновились в БД
-        const { data: updatedProfile, error: checkError } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url, vk_id')
-          .eq('id', existingProfile.id)
-          .single();
+        // Теперь обновляем имя и фото из VK API (после входа, когда есть доступ по RLS)
+        if (vkUserData) {
+          const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
+          const updateData = {
+            full_name: fullName,
+          };
+          if (vkUserData.photo_200) {
+            updateData.avatar_url = vkUserData.photo_200;
+          }
 
-        console.log('=== ПРОВЕРКА ДАННЫХ В БД ===');
-        console.log('Обновлённый профиль из БД:', updatedProfile);
-        console.log('Ошибка при проверке:', checkError);
-        console.log('============================');
+          console.log('Обновляем профиль после входа:', updateData);
 
-        // Даём время посмотреть логи перед переходом
-        setTimeout(() => {
-          navigate('/');
-        }, 3000);
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', existingProfile.id);
+
+          if (updateError) {
+            console.error('Update Profile Error:', updateError);
+          } else {
+            console.log('Профиль успешно обновлён!');
+          }
+
+          // Проверяем что данные действительно обновились в БД
+          const { data: updatedProfile, error: checkError } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url, vk_id')
+            .eq('id', existingProfile.id)
+            .single();
+
+          console.log('=== ПРОВЕРКА ДАННЫХ В БД ===');
+          console.log('Обновлённый профиль из БД:', updatedProfile);
+          console.log('Ошибка при проверке:', checkError);
+          console.log('============================');
+        }
+
+        navigate('/');
         return;
       }
 
