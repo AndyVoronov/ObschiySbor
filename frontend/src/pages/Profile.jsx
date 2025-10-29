@@ -292,7 +292,7 @@ const Profile = () => {
 
       {activeTab === 'profile' && (
         <>
-          <GameCard />
+          <GameCard userId={user.id} />
 
           {editing && (
             <form onSubmit={handleSubmit} className="profile-edit-form">
