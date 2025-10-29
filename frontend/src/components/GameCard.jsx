@@ -1,21 +1,83 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import './GameCard.css';
 
 const GameCard = () => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [activeAbility, setActiveAbility] = useState('attack');
+  useEffect(() => {
+    // FlipCard class
+    class FlipCard {
+      constructor(cardContainer) {
+        this.container = cardContainer;
+        this.isFlipped = false;
+        this.init();
+      }
 
-  const handleCardClick = () => {
-    setIsFlipped(!isFlipped);
-  };
+      init() {
+        this.addEventListeners();
+      }
 
-  const handleAbilityClick = (ability, e) => {
-    e.stopPropagation();
-    setActiveAbility(ability);
-  };
+      addEventListeners() {
+        this.container.addEventListener('click', (e) => {
+          if (!e.target.closest('.ability-tab')) {
+            this.flip();
+          }
+        });
+      }
+
+      flip() {
+        this.isFlipped = !this.isFlipped;
+        if (this.isFlipped) {
+          this.container.classList.add('flipped');
+        } else {
+          this.container.classList.remove('flipped');
+        }
+      }
+    }
+
+    // AbilitySelector class
+    class AbilitySelector {
+      constructor() {
+        this.currentAbility = 'attack';
+        this.init();
+      }
+
+      init() {
+        this.addEventListeners();
+      }
+
+      addEventListeners() {
+        const abilityTabs = document.querySelectorAll('.ability-tab');
+        abilityTabs.forEach(tab => {
+          tab.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const abilityType = tab.getAttribute('data-ability');
+            this.switchAbility(abilityType);
+          });
+        });
+      }
+
+      switchAbility(abilityType) {
+        if (abilityType === this.currentAbility) return;
+
+        document.querySelector(`.ability-tab[data-ability="${this.currentAbility}"]`).classList.remove('active');
+        document.querySelector(`.ability[data-ability="${this.currentAbility}"]`).classList.remove('active');
+
+        document.querySelector(`.ability-tab[data-ability="${abilityType}"]`).classList.add('active');
+        document.querySelector(`.ability[data-ability="${abilityType}"]`).classList.add('active');
+
+        this.currentAbility = abilityType;
+      }
+    }
+
+    // Initialize
+    const cardContainer = document.querySelector('.card-container');
+    if (cardContainer) {
+      new FlipCard(cardContainer);
+      new AbilitySelector();
+    }
+  }, []);
 
   return (
-    <div className={`card-container ${isFlipped ? 'flipped' : ''}`} onClick={handleCardClick}>
+    <div className="card-container">
       <div className="magical-bg"></div>
 
       <div className="game-card">
@@ -115,36 +177,16 @@ const GameCard = () => {
 
               {/* Ability Selector Tabs */}
               <div className="ability-selector">
-                <div
-                  className={`ability-tab ${activeAbility === 'attack' ? 'active' : ''}`}
-                  onClick={(e) => handleAbilityClick('attack', e)}
-                >
-                  ⚔️
-                </div>
-                <div
-                  className={`ability-tab ${activeAbility === 'frost' ? 'active' : ''}`}
-                  onClick={(e) => handleAbilityClick('frost', e)}
-                >
-                  🛡️
-                </div>
-                <div
-                  className={`ability-tab ${activeAbility === 'slam' ? 'active' : ''}`}
-                  onClick={(e) => handleAbilityClick('slam', e)}
-                >
-                  🪄
-                </div>
-                <div
-                  className={`ability-tab ${activeAbility === 'meteor' ? 'active' : ''}`}
-                  onClick={(e) => handleAbilityClick('meteor', e)}
-                >
-                  ☄️
-                </div>
+                <div className="ability-tab active" data-ability="attack">⚔️</div>
+                <div className="ability-tab" data-ability="frost">🛡️</div>
+                <div className="ability-tab" data-ability="slam">🪄</div>
+                <div className="ability-tab" data-ability="meteor">☄️</div>
               </div>
 
               {/* Ability Content Area */}
               <div className="ability-content">
                 {/* Attack Spell */}
-                <div className={`ability ${activeAbility === 'attack' ? 'active' : ''}`}>
+                <div className="ability active" data-ability="attack">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', borderRadius: '8px', background: 'transparent' }}>
@@ -188,7 +230,7 @@ const GameCard = () => {
                 </div>
 
                 {/* Frost Shield */}
-                <div className={`ability ${activeAbility === 'frost' ? 'active' : ''}`}>
+                <div className="ability" data-ability="frost">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', borderRadius: '8px', background: 'transparent' }}>
@@ -231,8 +273,8 @@ const GameCard = () => {
                   </div>
                 </div>
 
-                {/* Staff Strike */}
-                <div className={`ability ${activeAbility === 'slam' ? 'active' : ''}`}>
+                {/* Wand Slam */}
+                <div className="ability" data-ability="slam">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', borderRadius: '8px', background: 'transparent' }}>
@@ -276,7 +318,7 @@ const GameCard = () => {
                 </div>
 
                 {/* Meteor Ultimate */}
-                <div className={`ability ${activeAbility === 'meteor' ? 'active' : ''}`}>
+                <div className="ability" data-ability="meteor">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', borderRadius: '8px', background: 'transparent' }}>
