@@ -216,6 +216,19 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(141, 169, 196, 0.2);
 }
 
+/* Стили для option элементов внутри select */
+select option {
+  background: var(--input-bg);
+  color: var(--foreground);
+  padding: 0.5rem;
+}
+
+/* Дополнительная специфичность для тёмной темы */
+[data-theme="dark"] select option {
+  background: var(--input-bg);
+  color: var(--foreground);
+}
+
 /* Глобальные стили ссылок */
 a {
   color: var(--primary);

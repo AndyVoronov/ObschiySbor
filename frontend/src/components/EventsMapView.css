@@ -86,13 +86,12 @@
 .map-info {
   margin-top: 12px;
   text-align: center;
-  color: #000;
   font-size: 14px;
 }
 
 .map-info p {
   margin: 0;
-  color: #000;
+  color: var(--foreground);
   font-weight: 500;
 }
 
