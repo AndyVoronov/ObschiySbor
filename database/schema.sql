@@ -143,6 +143,9 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Профили доступны всем для чтения" ON profiles
   FOR SELECT USING (true);
 
+CREATE POLICY "Пользователи могут создавать свой профиль" ON profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "Пользователи могут обновлять свой профиль" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 

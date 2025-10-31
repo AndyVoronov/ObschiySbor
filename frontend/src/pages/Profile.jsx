@@ -47,11 +47,21 @@ const Profile = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error(t('profile.errorLoadingProfile'), error);
-        // Если профиль не найден, создаём пустой объект
+        // Если профиль не найден или произошла ошибка, создаём пустой объект
+        setProfile({
+          id: user.id,
+          full_name: '',
+          city: '',
+          interests: '',
+          gender: '',
+        });
+      } else if (!data) {
+        // Профиль не найден
+        console.warn('Профиль не найден, создаём пустой объект');
         setProfile({
           id: user.id,
           full_name: '',
