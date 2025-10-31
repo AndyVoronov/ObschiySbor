@@ -182,37 +182,11 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
-      <div className="profile-header">
-        <div className="profile-info">
-          <div className="profile-avatar-section">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="profile-avatar" />
-            ) : (
-              <div className="profile-avatar-placeholder">👤</div>
-            )}
-          </div>
-          <div>
-            <h1>{profile?.full_name || t('profile.noNameProvided')}</h1>
-            <p className="profile-email">{user?.email}</p>
-            {profile?.city && <p className="profile-city">📍 {profile.city}</p>}
-            {profile?.gender && <p className="profile-gender">{getGenderLabel(profile.gender)}</p>}
-          </div>
-        </div>
-        <div className="profile-header-actions">
-          <button
-            onClick={() => setEditing(!editing)}
-            className="btn btn-secondary"
-          >
-            {editing ? t('common.cancel') : t('common.edit')}
-          </button>
-          <button
-            onClick={handleSignOut}
-            className="btn btn-danger"
-          >
-            {t('profile.logout')}
-          </button>
-        </div>
-      </div>
+      <GameCard
+        userId={user.id}
+        onEdit={() => setEditing(true)}
+        onLogout={handleSignOut}
+      />
 
       {/* Табы - Desktop горизонтальные кнопки, Mobile выпадающий список */}
       <div className="profile-tabs-container">
@@ -292,8 +266,6 @@ const Profile = () => {
 
       {activeTab === 'profile' && (
         <>
-          <GameCard userId={user.id} />
-
           {editing && (
             <form onSubmit={handleSubmit} className="profile-edit-form">
               {/* Загрузка аватара */}

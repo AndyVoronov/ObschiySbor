@@ -1009,6 +1009,7 @@
   "gamification": {
     "title": "Your Progress",
     "level": "Level",
+    "levelShort": "Lv",
     "experience": "Experience",
     "experiencePoints": "experience points",
     "nextLevel": "To next level:",
@@ -1079,7 +1080,27 @@
     "topLevel": "By level",
     "position": "Position",
     "user": "User",
-    "score": "Score"
+    "score": "Score",
+    "stats": {
+      "eventsCreated": "Events created",
+      "eventsParticipated": "Event participation",
+      "reviewsGiven": "Reviews",
+      "friendsCount": "Friends",
+      "achievementsUnlocked": "Achievements unlocked"
+    }
+  },
+  "gameCard": {
+    "eventsCreatorDesc": "Event creator and new adventure architect",
+    "eventsCreatorEncouragement": "Keep inspiring people to new meetings and activities!",
+    "personalInfo": "Profile",
+    "profileSettings": "Settings",
+    "profileEdit": "Profile Editing",
+    "profileEditDescription": "Here you can change your personal data, profile photo, interests and other information.",
+    "editProfileButton": "✏️ Edit Profile",
+    "logoutTitle": "Logout",
+    "logoutDescription": "Are you sure you want to log out of your account? After logging out, you'll need to log in again to access your profile.",
+    "logoutButton": "🚪 Logout",
+    "activityStats": "Activity Statistics"
   },
   "referral": {
     "title": "Referral Program",

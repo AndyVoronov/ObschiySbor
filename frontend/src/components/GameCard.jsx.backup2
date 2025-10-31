@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import PropTypes from 'prop-types';
 import './GameCard.css';
 
 const GameCard = ({ userId, onEdit, onLogout }) => {
-  const { t } = useTranslation('common');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -126,7 +124,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
 
   const handleLogoutClick = () => {
     console.log('Logout button clicked');
-    if (window.confirm(t('profile.confirmLogout'))) {
+    if (window.confirm('Вы уверены, что хотите выйти из аккаунта?')) {
       console.log('Logout confirmed, calling onLogout()');
       onLogout();
     } else {
@@ -136,59 +134,99 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
 
   const getGenderLabel = (gender) => {
     const labels = {
-      male: `👨 ${t('profile.male')}`,
-      female: `👩 ${t('profile.female')}`,
-      other: `⚧️ ${t('profile.other')}`
+      male: '👨 Мужской',
+      female: '👩 Женский',
+      other: '⚧️ Другой'
     };
-    return labels[gender] || `❓ ${t('profile.notSpecified')}`;
+    return labels[gender] || '❓ Не указан';
   };
 
-  // Состояние для переворачивания карты
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [currentAbility, setCurrentAbility] = useState('attack');
-
-  const handleCardFlip = (e) => {
-    // Проверяем, был ли клик по кнопке - если да, не переворачиваем карту
-    if (e.target.closest('button')) {
-      return;
-    }
-
-    // Если клик по вкладке способностей, не переворачиваем карту
-    if (e.target.closest('.ability-tab')) {
-      return;
-    }
-
-    // Переворачиваем карту
-    setIsFlipped(!isFlipped);
-  };
-
-  const handleTabClick = (abilityType) => {
-    console.log(`Ability tab clicked: ${abilityType}`);
-
-    // Обработка специальных кнопок
-    if (abilityType === 'slam') {
-      console.log('Edit profile button clicked');
-      if (typeof onEdit === 'function') {
-        onEdit();
+  useEffect(() => {
+    // FlipCard class
+    class FlipCard {
+      constructor(cardContainer) {
+        this.container = cardContainer;
+        this.isFlipped = false;
+        this.init();
       }
-      return;
+
+      init() {
+        this.addEventListeners();
+      }
+
+      addEventListeners() {
+        this.container.addEventListener('click', (e) => {
+          // Проверяем, был ли клик по кнопке - если да, не переворачиваем карту
+          if (e.target.closest('button')) {
+            return;
+          }
+
+          // Если клик не по вкладке способностей, переворачиваем карту
+          if (!e.target.closest('.ability-tab')) {
+            this.flip();
+          }
+        });
+      }
+
+      flip() {
+        this.isFlipped = !this.isFlipped;
+        if (this.isFlipped) {
+          this.container.classList.add('flipped');
+        } else {
+          this.container.classList.remove('flipped');
+        }
+      }
     }
 
-    if (abilityType === 'meteor') {
-      console.log('Logout button clicked');
-      handleLogoutClick();
-      return;
+    // AbilitySelector class
+    class AbilitySelector {
+      constructor() {
+        this.currentAbility = 'attack';
+        this.init();
+      }
+
+      init() {
+        this.addEventListeners();
+      }
+
+      addEventListeners() {
+        const abilityTabs = document.querySelectorAll('.ability-tab');
+        abilityTabs.forEach(tab => {
+          tab.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const abilityType = tab.getAttribute('data-ability');
+            this.switchAbility(abilityType);
+          });
+        });
+      }
+
+      switchAbility(abilityType) {
+        if (abilityType === this.currentAbility) return;
+
+        document.querySelector(`.ability-tab[data-ability="${this.currentAbility}"]`).classList.remove('active');
+        document.querySelector(`.ability[data-ability="${this.currentAbility}"]`).classList.remove('active');
+
+        document.querySelector(`.ability-tab[data-ability="${abilityType}"]`).classList.add('active');
+        document.querySelector(`.ability[data-ability="${abilityType}"]`).classList.add('active');
+
+        this.currentAbility = abilityType;
+      }
     }
 
-    // Переключение вкладок для обычных способностей
-    setCurrentAbility(abilityType);
-  };
+    // Initialize
+    const cardContainer = document.querySelector('.card-container');
+    if (cardContainer) {
+      new FlipCard(cardContainer);
+      new AbilitySelector();
+    }
+  }, []);
 
   if (loading) {
     return (
       <div className="card-container">
+        <div className="magical-bg"></div>
         <div className="game-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-          {t('common.loading')}
+          Загрузка...
         </div>
       </div>
     );
@@ -206,12 +244,14 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
   const friendsMax = getScaleMax(friendsCount);
 
   // Правильный расчёт XP: текущий опыт минус минимум текущего уровня
-  const currentXP = currentLevel ? profile.experience_points - currentLevel.min_experience : profile.experience_points;
-  const nextLevelXP = nextLevel && currentLevel ? nextLevel.min_experience - currentLevel.min_experience : 100;
+  const currentXP = currentLevel ? profile.experience_points - currentLevel.min_xp : profile.experience_points;
+  const nextLevelXP = nextLevel && currentLevel ? nextLevel.min_xp - currentLevel.min_xp : 100;
   const xpPercentage = getPercentage(currentXP, nextLevelXP);
 
   return (
-    <div className={`card-container ${isFlipped ? 'flipped' : ''}`} onClick={handleCardFlip}>
+    <div className="card-container">
+      <div className="magical-bg"></div>
+
       <div className="game-card">
         <div className="card-flip-inner">
           {/* FRONT SIDE */}
@@ -222,12 +262,12 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
             <div className="card-frame">
               <div className="level-xp-bar">
                 <div className="level-section">
-                  <span className="level-number">{t('gamification.levelShort')}{profile.level}</span>
+                  <span className="level-number">Lv{profile.level}</span>
                 </div>
                 <div className="xp-section">
                   <div className="xp-fill" style={{ width: `${xpPercentage}%` }}></div>
                   <div className="xp-text">
-                    <span className="xp-text-full">{currentXP} / {nextLevelXP} {t('gamification.experience')}</span>
+                    <span className="xp-text-full">{currentXP} / {nextLevelXP} XP</span>
                     <span className="xp-text-short">{currentXP}/{nextLevelXP}</span>
                   </div>
                 </div>
@@ -241,7 +281,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'transparent', borderRadius: '8px' }}>
                       <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>
                         <div style={{ fontSize: '60px', marginBottom: '8px' }}>👤</div>
-                        <div>{t('profile.uploadAvatar')}</div>
+                        <div>Фото профиля</div>
                       </div>
                     </div>
                   )}
@@ -250,12 +290,12 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
               </div>
 
               <div className="card-name">
-                <h2>{profile.full_name || t('profile.noNameProvided')}</h2>
+                <h2>{profile.full_name || 'Без имени'}</h2>
               </div>
 
               <div className="card-description">
                 <div className="description-bg"></div>
-                <p>{profile.interests || t('profile.aboutMe') || 'Этот загадочный пользователь пока не указал свои интересы...'}</p>
+                <p>{profile.interests || 'Этот загадочный пользователь пока не указал свои интересы...'}</p>
               </div>
 
               <div className="card-stats">
@@ -299,12 +339,12 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
             <div className="card-frame">
               <div className="level-xp-bar">
                 <div className="level-section">
-                  <span className="level-number">{t('gamification.levelShort')}{profile.level}</span>
+                  <span className="level-number">Lv{profile.level}</span>
                 </div>
                 <div className="xp-section">
                   <div className="xp-fill" style={{ width: `${xpPercentage}%` }}></div>
                   <div className="xp-text">
-                    <span className="xp-text-full">{currentXP} / {nextLevelXP} {t('gamification.experience')}</span>
+                    <span className="xp-text-full">{currentXP} / {nextLevelXP} XP</span>
                     <span className="xp-text-short">{currentXP}/{nextLevelXP}</span>
                   </div>
                 </div>
@@ -312,16 +352,16 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
 
               {/* Ability Selector Tabs */}
               <div className="ability-selector">
-                <div className={`ability-tab ${currentAbility === 'attack' ? 'active' : ''}`} data-ability="attack" onClick={() => handleTabClick('attack')}>⚔️</div>
-                <div className={`ability-tab ${currentAbility === 'frost' ? 'active' : ''}`} data-ability="frost" onClick={() => handleTabClick('frost')}>👤</div>
-                <div className={`ability-tab ${currentAbility === 'slam' ? 'active' : ''}`} data-ability="slam" onClick={() => handleTabClick('slam')}>✏️</div>
-                <div className={`ability-tab ${currentAbility === 'meteor' ? 'active' : ''}`} data-ability="meteor" onClick={() => handleTabClick('meteor')}>🚪</div>
+                <div className="ability-tab active" data-ability="attack">⚔️</div>
+                <div className="ability-tab" data-ability="frost">👤</div>
+                <div className="ability-tab" data-ability="slam">✏️</div>
+                <div className="ability-tab" data-ability="meteor">🚪</div>
               </div>
 
               {/* Ability Content Area */}
               <div className="ability-content">
                 {/* Attack Spell - Events Created */}
-                <div className={`ability ${currentAbility === 'attack' ? 'active' : ''}`} data-ability="attack">
+                <div className="ability active" data-ability="attack">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       {profile.avatar_url ? (
@@ -336,13 +376,13 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       )}
                     </div>
                     <div className="ability-art-frame"></div>
-                    <div className="ability-cost">{eventsCreated} {t('dashboard.totalEvents')}</div>
+                    <div className="ability-cost">{eventsCreated} Created</div>
                   </div>
 
                   <div className="ability-info">
                     <div className="ability-info-bg"></div>
                     <div className="ability-header">
-                      <div className="ability-name">{t('gamification.stats.eventsCreated')}</div>
+                      <div className="ability-name">Создатель событий</div>
                       <div className="ability-progression">
                         <svg className={`ability-level ${eventsCreated >= 1 ? 'active' : 'inactive'}`} viewBox="0 0 32 32">
                           <circle cx="16" cy="16" r="14" fill={eventsCreated >= 1 ? 'rgba(255, 193, 7, 0.3)' : 'rgba(139, 69, 19, 0.2)'} stroke={eventsCreated >= 1 ? 'rgba(255, 193, 7, 0.9)' : 'rgba(139, 69, 19, 0.5)'} strokeWidth="2"/>
@@ -362,13 +402,13 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       </div>
                     </div>
                     <div className="ability-description">
-                      {t('gameCard.eventsCreatorDesc')}: {eventsCreated}. {t('gameCard.eventsCreatorEncouragement')}
+                      Организатор и творец новых приключений. Создано событий: {eventsCreated}. Продолжайте вдохновлять людей на новые встречи и активности!
                     </div>
                   </div>
                 </div>
 
                 {/* Frost - Profile Info (Gender & Location) */}
-                <div className={`ability ${currentAbility === 'frost' ? 'active' : ''}`} data-ability="frost">
+                <div className="ability" data-ability="frost">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       {profile.avatar_url ? (
@@ -383,13 +423,13 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       )}
                     </div>
                     <div className="ability-art-frame"></div>
-                    <div className="ability-cost defense-cost">{t('gameCard.personalInfo')}</div>
+                    <div className="ability-cost defense-cost">Профиль</div>
                   </div>
 
                   <div className="ability-info">
                     <div className="ability-info-bg"></div>
                     <div className="ability-header">
-                      <div className="ability-name">{t('gameCard.personalInfo')}</div>
+                      <div className="ability-name">Личная информация</div>
                       <div className="ability-progression" style={{ display: 'flex', gap: '15px', alignItems: 'center', marginTop: '10px' }}>
                         <div style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <span>{getGenderLabel(profile.gender)}</span>
@@ -397,13 +437,13 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       </div>
                     </div>
                     <div className="ability-description">
-                      <strong>{t('profile.city')}:</strong> {profile.city ? `📍 ${profile.city}` : `❓ ${t('profile.notSpecified')}`}
+                      <strong>Местоположение:</strong> {profile.city ? `📍 ${profile.city}` : '❓ Не указано'}
                       <br/><br/>
-                      <strong>{t('profile.email')}:</strong> {profile.email || t('profile.notSpecified')}
+                      <strong>Email:</strong> {profile.email || 'Не указан'}
                       <br/><br/>
                       {profile.interests && (
                         <>
-                          <strong>{t('profile.interests')}:</strong> {profile.interests}
+                          <strong>Интересы:</strong> {profile.interests}
                         </>
                       )}
                     </div>
@@ -411,7 +451,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                 </div>
 
                 {/* Slam - Edit Button */}
-                <div className={`ability ${currentAbility === 'slam' ? 'active' : ''}`} data-ability="slam">
+                <div className="ability" data-ability="slam">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       {profile.avatar_url ? (
@@ -426,16 +466,16 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       )}
                     </div>
                     <div className="ability-art-frame"></div>
-                    <div className="ability-cost attack-cost">{t('gameCard.profileSettings')}</div>
+                    <div className="ability-cost attack-cost">Настройки</div>
                   </div>
 
                   <div className="ability-info">
                     <div className="ability-info-bg"></div>
                     <div className="ability-header">
-                      <div className="ability-name">{t('gameCard.profileEdit')}</div>
+                      <div className="ability-name">Редактирование профиля</div>
                     </div>
                     <div className="ability-description">
-                      {t('gameCard.profileEditDescription')}
+                      Здесь вы можете изменить свои личные данные, фотографию профиля, интересы и другую информацию.
                       <br/><br/>
                       <button
                         onClick={(e) => {
@@ -453,14 +493,14 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                           marginTop: '10px'
                         }}
                       >
-                        {t('gameCard.editProfileButton')}
+                        ✏️ Редактировать профиль
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Meteor - Logout Button */}
-                <div className={`ability ${currentAbility === 'meteor' ? 'active' : ''}`} data-ability="meteor">
+                <div className="ability" data-ability="meteor">
                   <div className="ability-art">
                     <div className="ability-art-placeholder">
                       {profile.avatar_url ? (
@@ -475,16 +515,16 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       )}
                     </div>
                     <div className="ability-art-frame"></div>
-                    <div className="ability-cost">{t('nav.logout')}</div>
+                    <div className="ability-cost">Выход</div>
                   </div>
 
                   <div className="ability-info">
                     <div className="ability-info-bg"></div>
                     <div className="ability-header">
-                      <div className="ability-name">{t('gameCard.logoutTitle')}</div>
+                      <div className="ability-name">Выход из аккаунта</div>
                     </div>
                     <div className="ability-description">
-                      {t('gameCard.logoutDescription')}
+                      Вы уверены, что хотите выйти из своего аккаунта? После выхода вам потребуется снова войти, чтобы получить доступ к своему профилю.
                       <br/><br/>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleLogoutClick(); }}
@@ -498,7 +538,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                           marginTop: '10px'
                         }}
                       >
-                        {t('gameCard.logoutButton')}
+                        🚪 Выйти из аккаунта
                       </button>
                     </div>
                   </div>
@@ -506,7 +546,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
               </div>
 
               <div className="card-name">
-                <h2>{t('gameCard.activityStats')}</h2>
+                <h2>Статистика активности</h2>
               </div>
 
               <div className="combat-stats">

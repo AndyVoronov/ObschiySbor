@@ -378,6 +378,10 @@
     "notSpecified": "Не указан",
     "avatar": "Аватар",
     "uploadAvatar": "Загрузить аватар",
+    "changePhoto": "Изменить фото",
+    "uploadingAvatar": "Загрузка...",
+    "remove": "Удалить",
+    "avatarHint": "JPG, PNG или WEBP. Максимум 2MB.",
     "invitations": "Приглашения",
     "friends": "Друзья",
     "connectedAccounts": "Подключенные аккаунты",
@@ -1008,6 +1012,7 @@
   "gamification": {
     "title": "Ваш прогресс",
     "level": "Уровень",
+    "levelShort": "Lv",
     "experience": "Опыт",
     "experiencePoints": "баллов опыта",
     "nextLevel": "До следующего уровня:",
@@ -1078,7 +1083,27 @@
     "topLevel": "По уровню",
     "position": "Позиция",
     "user": "Пользователь",
-    "score": "Счёт"
+    "score": "Счёт",
+    "stats": {
+      "eventsCreated": "Создано событий",
+      "eventsParticipated": "Участие в событиях",
+      "reviewsGiven": "Отзывы",
+      "friendsCount": "Друзья",
+      "achievementsUnlocked": "Достижения разблокированы"
+    }
+  },
+  "gameCard": {
+    "eventsCreatorDesc": "Организатор и творец новых приключений. Создано событий",
+    "eventsCreatorEncouragement": "Продолжайте вдохновлять людей на новые встречи и активности!",
+    "personalInfo": "Личная информация",
+    "profileSettings": "Настройки профиля",
+    "profileEdit": "Редактирование профиля",
+    "profileEditDescription": "Здесь вы можете изменить свои личные данные, фотографию профиля, интересы и другую информацию.",
+    "editProfileButton": "✏️ Редактировать профиль",
+    "logoutTitle": "Выход из аккаунта",
+    "logoutDescription": "Вы уверены, что хотите выйти из своего аккаунта? После выхода вам потребуется снова войти, чтобы получить доступ к своему профилю.",
+    "logoutButton": "🚪 Выйти из аккаунта",
+    "activityStats": "Статистика активности"
   },
   "referral": {
     "title": "Реферальная программа",

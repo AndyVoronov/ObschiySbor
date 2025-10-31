@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import './AvatarUpload.css';
 
 const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
+  const { t } = useTranslation('common');
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState(currentAvatar);
+  const [avatarUrl, setAvatarUrl] = useState(currentAvatar);
+  const fileInputRef = useRef(null);
+  
+  // Обновляем локальное состояние при изменении внешнего значения
+  useEffect(() => {
+    if (currentAvatar !== avatarUrl) {
+      setAvatarUrl(currentAvatar);
+    }
+  }, [currentAvatar]);
 
   const uploadAvatar = async (event) => {
     try {
@@ -58,7 +68,7 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
         throw updateError;
       }
 
-      setPreview(publicUrl);
+      setAvatarUrl(publicUrl);
       onAvatarUpdate(publicUrl);
       alert('Аватар успешно обновлён!');
     } catch (error) {
@@ -81,7 +91,7 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
 
       if (error) throw error;
 
-      setPreview(null);
+      setAvatarUrl(null);
       onAvatarUpdate(null);
       alert('Аватар удалён');
     } catch (error) {
@@ -92,11 +102,18 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
     }
   };
 
+  // Обработчик для кнопки "Загрузить фото"
+  const handleFileInputClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="avatar-upload">
       <div className="avatar-preview">
-        {preview ? (
-          <img src={preview} alt="Avatar" className="avatar-image" />
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="Avatar" className="avatar-image" />
         ) : (
           <div className="avatar-placeholder">
             <span>👤</span>
@@ -105,10 +122,11 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
       </div>
 
       <div className="avatar-actions">
-        <label htmlFor="avatar-upload" className="btn btn-secondary btn-sm">
-          {uploading ? 'Загрузка...' : preview ? 'Изменить фото' : 'Загрузить фото'}
+        <label htmlFor="avatar-upload" className="btn btn-secondary btn-sm" onClick={handleFileInputClick}>
+          {uploading ? t('profile.uploadingAvatar') : avatarUrl ? t('profile.changePhoto') : t('profile.uploadAvatar')}
           <input
             id="avatar-upload"
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={uploadAvatar}
@@ -117,18 +135,18 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
           />
         </label>
 
-        {preview && (
+        {avatarUrl && (
           <button
             onClick={removeAvatar}
             disabled={uploading}
             className="btn btn-danger btn-sm"
           >
-            Удалить
+            {t('profile.remove')}
           </button>
         )}
       </div>
 
-      <p className="avatar-hint">JPG, PNG или WEBP. Максимум 2MB.</p>
+      <p className="avatar-hint">{t('profile.avatarHint')}</p>
     </div>
   );
 };
