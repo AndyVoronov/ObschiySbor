@@ -26,12 +26,20 @@ const TopNav = () => {
       }
 
       try {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
+        if (error) {
+          console.error('Ошибка проверки роли:', error);
+          setIsModerator(false);
+          return;
+        }
+
+        // Профиль всегда должен существовать для зарегистрированного пользователя
+        // Если профиль не найден, это означает проблему с базой данных
         setIsModerator(profile?.role === 'moderator' || profile?.role === 'admin');
       } catch (error) {
         console.error('Ошибка проверки роли:', error);

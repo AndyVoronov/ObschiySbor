@@ -405,7 +405,7 @@ const Login = () => {
             .from('profiles')
             .select('id, full_name, avatar_url, vk_id')
             .eq('id', existingProfile.id)
-            .single();
+            .maybeSingle();
 
           console.log('=== ПРОВЕРКА ДАННЫХ В БД ===');
           console.log('Обновлённый профиль из БД:', updatedProfile);

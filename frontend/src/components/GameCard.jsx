@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import './GameCard.css';
 
 const GameCard = ({ userId, onEdit, onLogout }) => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,9 +24,14 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
+      
+      if (!profile) {
+        console.error('Профиль не найден в базе данных для пользователя:', userId);
+        return;
+      }
 
       // Загружаем количество созданных событий
       const { count: eventsCreated, error: eventsError } = await supabase
@@ -78,6 +83,9 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
 
       if (totalAchievementsError) throw totalAchievementsError;
 
+      // Используем дату создания из профиля, т.к. admin API недоступен
+      const registrationDate = profile.created_at;
+
       // Загружаем информацию о текущем и следующем уровне
       const { data: currentLevel } = await supabase
         .from('levels')
@@ -101,6 +109,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
         totalAchievements: totalAchievements || 0,
         currentLevel,
         nextLevel,
+        registrationDate,
       });
 
     } catch (error) {
@@ -110,18 +119,37 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
     }
   };
 
-  // Функция для определения максимума шкалы
+  // Utility functions
   const getScaleMax = (value) => {
-    if (value <= 5) return 5;
-    if (value <= 20) return 20;
-    if (value <= 100) return 100;
-    if (value <= 1000) return 1000;
-    return 5000;
+    const scales = [5, 20, 100, 1000, 5000];
+    return scales.find(scale => value <= scale) || 5000;
   };
 
-  // Функция для расчёта процента заполнения шкалы
   const getPercentage = (value, max) => {
     return Math.min((value / max) * 100, 100);
+  };
+
+  const getGenderLabel = (gender) => {
+    const labels = {
+      male: `👨 ${t('profile.male')}`,
+      female: `👩 ${t('profile.female')}`,
+      other: `⚧️ ${t('profile.other')}`
+    };
+    return labels[gender] || `❓ ${t('profile.notSpecified')}`;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Неизвестно';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return 'Ошибка даты';
+    }
   };
 
   const handleLogoutClick = () => {
@@ -132,15 +160,6 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
     } else {
       console.log('Logout cancelled');
     }
-  };
-
-  const getGenderLabel = (gender) => {
-    const labels = {
-      male: `👨 ${t('profile.male')}`,
-      female: `👩 ${t('profile.female')}`,
-      other: `⚧️ ${t('profile.other')}`
-    };
-    return labels[gender] || `❓ ${t('profile.notSpecified')}`;
   };
 
   // Состояние для переворачивания карты
@@ -401,6 +420,8 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                       <br/><br/>
                       <strong>{t('profile.email')}:</strong> {profile.email || t('profile.notSpecified')}
                       <br/><br/>
+                      <strong>{i18n.language === 'en' ? 'Member since:' : 'Участник с:'}</strong> 📅 {formatDate(userData.registrationDate)}
+                      <br/><br/>
                       {profile.interests && (
                         <>
                           <strong>{t('profile.interests')}:</strong> {profile.interests}
@@ -505,10 +526,7 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
                 </div>
               </div>
 
-              <div className="card-name">
-                <h2>{t('gameCard.activityStats')}</h2>
-              </div>
-
+  
               <div className="combat-stats">
                 <div className="combat-stat attack" title={`Создано событий: ${eventsCreated} из ${eventsCreatedMax}`}>
                   <div className="combat-stat-icon">

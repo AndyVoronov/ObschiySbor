@@ -25,9 +25,15 @@ const ProtectedAdminRoute = ({ children }) => {
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Ошибка проверки роли:', error);
+        }
+
+        if (!profile) {
+          console.warn('Профиль не найден для пользователя:', user.id);
+        }
 
         const hasAccess = profile?.role === 'moderator' || profile?.role === 'admin';
         setIsModerator(hasAccess);

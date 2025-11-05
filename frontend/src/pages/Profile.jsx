@@ -60,11 +60,12 @@ const Profile = () => {
           gender: '',
         });
       } else if (!data) {
-        // Профиль не найден
-        console.warn('Профиль не найден, создаём пустой объект');
+        // Профиль не найден - это ошибка, т.к. профиль должен создаваться автоматически
+        console.error('Профиль не найден в базе данных для пользователя:', user.id);
+        // Создаём временный профиль, чтобы избежать падения UI
         setProfile({
           id: user.id,
-          full_name: '',
+          full_name: user.user_metadata?.full_name || '',
           city: '',
           interests: '',
           gender: '',

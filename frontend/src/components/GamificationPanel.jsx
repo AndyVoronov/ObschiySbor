@@ -144,6 +144,119 @@ const GamificationPanel = ({ userId }) => {
     return `rarity-${rarity || 'common'}`;
   };
 
+  // Achievement text translations
+  const getAchievementTexts = () => {
+    const isEnglish = i18n.language === 'en';
+    return {
+      unlocked: isEnglish ? 'Achievement unlocked:' : 'Достижение разблокировано:',
+      eventCreated: isEnglish ? 'Event created' : 'Создание события',
+      participated: isEnglish ? 'Participated in event' : 'Участие в событии',
+      review: isEnglish ? 'Review for event' : 'Отзыв о событии',
+      positiveReview: isEnglish ? 'Received positive review' : 'Получен положительный отзыв',
+      friendInvited: isEnglish ? 'Friend invited' : 'Приглашение друга'
+    };
+  };
+
+  const extractAchievementKey = (description) => {
+    const match = description.match(/Достижение разблокировано:\s*(\w+)/);
+    return match ? match[1] : null;
+  };
+
+  const findAchievementByKey = (key) => {
+    return achievements.find(a =>
+      a.achievement?.key === key ||
+      a.achievement?.id === key ||
+      a.achievement?.achievement_key === key
+    );
+  };
+
+  const formatKeyName = (key) => {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const getAchievementName = (description) => {
+    const achievementKey = extractAchievementKey(description);
+    if (!achievementKey) return description;
+
+    // Try to find the achievement in loaded data
+    const achievement = findAchievementByKey(achievementKey);
+    if (achievement?.achievement) {
+      return i18n.language === 'en' ? achievement.achievement.name_en : achievement.achievement.name_ru;
+    }
+
+    // Special case for first_event
+    if (achievementKey === 'first_event') {
+      return i18n.language === 'en' ? 'First Event Created' : 'Первое событие создано';
+    }
+
+    // Fallback to formatted key
+    return formatKeyName(achievementKey);
+  };
+
+  const getFormattedDescription = (description) => {
+    const texts = getAchievementTexts();
+
+    // Handle achievement descriptions
+    if (description.includes('Достижение разблокировано:')) {
+      return `${texts.unlocked} ${getAchievementName(description)}`;
+    }
+
+    // Handle event creation descriptions
+    if (description.includes('Создание события:')) {
+      const eventName = description.replace('Создание события:', '').trim();
+      if (eventName && eventName !== 'аыва') {
+        return `${texts.eventCreated}: ${eventName}`;
+      }
+      return texts.eventCreated;
+    }
+
+    // Handle participation descriptions
+    if (description.includes('Участие в событии:')) {
+      const eventName = description.replace('Участие в событии:', '').trim();
+      if (eventName) {
+        return `${texts.participated}: ${eventName}`;
+      }
+      return texts.participated;
+    }
+
+    // Handle review descriptions
+    if (description.includes('Отзыв о событии:')) {
+      const eventName = description.replace('Отзыв о событии:', '').trim();
+      if (eventName) {
+        return `${texts.review}: ${eventName}`;
+      }
+      return texts.review;
+    }
+
+    // Handle phrase replacements
+    const phraseReplacements = {
+      'Создание события': texts.eventCreated,
+      'Участие в событии': texts.participated,
+      'Отзыв о событии': texts.review,
+      'Получен положительный отзыв': texts.positiveReview,
+      'Приглашение друга': texts.friendInvited
+    };
+
+    for (const [russian, english] of Object.entries(phraseReplacements)) {
+      if (description.includes(russian)) {
+        return description.replace(russian, english);
+      }
+    }
+
+    // Handle gamification translation keys
+    if (description.includes('gamification.')) {
+      const keyMatch = description.match(/gamification\.[\w.]+/);
+      if (keyMatch) {
+        const translation = t(keyMatch[0]);
+        if (translation !== keyMatch[0]) {
+          return description.replace(keyMatch[0], translation);
+        }
+      }
+    }
+
+    return description;
+  };
+
   if (loading) {
     return (
       <div className="gamification-panel loading">
@@ -166,96 +279,8 @@ const GamificationPanel = ({ userId }) => {
   return (
     <div className="gamification-panel">
 
-      {/* Секция уровня и опыта */}
-      <div className="level-section">
-        <div className="level-info">
-          <div className="level-badge" style={{ backgroundColor: currentLevel?.color }}>
-            <span className="level-icon">{currentLevel?.icon}</span>
-            <div className="level-text">
-              <span className="level-label">{t('gamification.level')}</span>
-              <span className="level-number">{profile.level}</span>
-            </div>
-          </div>
-          <div className="level-name">
-            <h2>{t(`gamification.levels.${profile.level}`)}</h2>
-            <p className="experience-count">
-              {profile.experience_points} {t('gamification.experiencePoints')}
-            </p>
-          </div>
-        </div>
-
-        {nextLevel && (
-          <div className="experience-progress">
-            <div className="progress-header">
-              <span>{t('gamification.nextLevel')}</span>
-              <span className="exp-remaining">
-                {getRemainingExpForNextLevel()} XP
-              </span>
-            </div>
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${calculateLevelProgress()}%` }}
-              ></div>
-            </div>
-            <div className="next-level-info">
-              <span>{t(`gamification.levels.${nextLevel.level}`)}</span>
-              <span>{nextLevel.min_experience} XP</span>
-            </div>
-          </div>
-        )}
-
-        {/* Привилегии уровня */}
-        {currentLevel?.perks && currentLevel.perks.length > 0 && (
-          <div className="level-perks">
-            <h3>{t('gamification.perks')}</h3>
-            <ul>
-              {currentLevel.perks.map((perk, index) => (
-                <li key={index}>
-                  <span className="perk-icon">✓</span>
-                  <span>{perk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      {/* Статистика */}
-      <div className="stats-section">
-        <h3>{t('gamification.stats')}</h3>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-icon">📅</span>
-            <div className="stat-content">
-              <span className="stat-value">{profile.total_events_created}</span>
-              <span className="stat-label">{t('gamification.eventsCreated')}</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">🎉</span>
-            <div className="stat-content">
-              <span className="stat-value">{profile.total_events_participated}</span>
-              <span className="stat-label">{t('gamification.eventsParticipated')}</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">⭐</span>
-            <div className="stat-content">
-              <span className="stat-value">{profile.total_reviews_given}</span>
-              <span className="stat-label">{t('gamification.reviewsGiven')}</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">📆</span>
-            <div className="stat-content">
-              <span className="stat-value">{formatDate(profile.member_since || profile.created_at)}</span>
-              <span className="stat-label">{t('gamification.memberSince')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+  
+  
       {/* Достижения */}
       <div className="achievements-section">
         <div className="section-header-with-toggle">
@@ -343,7 +368,9 @@ const GamificationPanel = ({ userId }) => {
                       {t(`gamification.reasons.${activity.reason}`) || activity.reason}
                     </span>
                     {activity.description && (
-                      <span className="activity-description">{activity.description}</span>
+                      <span className="activity-description">
+                        {getFormattedDescription(activity.description)}
+                      </span>
                     )}
                   </div>
                   <div className="activity-meta">

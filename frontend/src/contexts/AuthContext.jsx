@@ -48,6 +48,39 @@ export const AuthProvider = ({ children }) => {
       },
     });
     if (error) throw error;
+
+    // После успешной регистрации проверяем, что профиль создался корректно
+    if (data.user) {
+      // Даем задержку для работы триггера, затем проверяем и при необходимости исправляем профиль
+      setTimeout(async () => {
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('full_name, city')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profileError || !profile || !profile.full_name || !profile.city) {
+            console.warn('Профиль не заполнен корректно, создаем/обновляем вручную');
+
+            // Создаем/обновляем профиль с правильными данными
+            await supabase.from('profiles').upsert({
+              id: data.user.id,
+              full_name: userData.full_name || '',
+              city: userData.city || '',
+              interests: userData.interests || '',
+              gender: userData.gender && ['male', 'female', 'other'].includes(userData.gender)
+                ? userData.gender
+                : null,
+              updated_at: new Date().toISOString(),
+            });
+          }
+        } catch (profileError) {
+          console.warn('Ошибка проверки/создания профиля при регистрации:', profileError);
+        }
+      }, 1500); // 1.5 секунды задержки для работы триггера
+    }
+
     return data;
   };
 

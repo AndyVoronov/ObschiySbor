@@ -61,9 +61,15 @@ const EventDetails = () => {
           .from('profiles')
           .select('is_blocked, block_reason, blocked_at, blocked_until')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
+
+        if (!profile) {
+          console.warn('Профиль не найден для пользователя:', user.id);
+          setBlockInfo(null);
+          return;
+        }
 
         setBlockInfo(profile);
       } catch (err) {
@@ -279,7 +285,12 @@ const EventDetails = () => {
         .from('profiles')
         .select('full_name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (!profileData) {
+        console.warn('Профиль не найден для пользователя:', user.id);
+        return;
+      }
 
       const participantName = profileData?.full_name || 'Новый участник';
 

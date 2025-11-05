@@ -25,13 +25,21 @@ const Admin = () => {
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (!profile || profile.role !== 'moderator') {
+      if (error) {
+        console.error('Ошибка проверки роли:', error);
+      }
+
+      if (!profile) {
+        console.warn('Профиль не найден для пользователя:', user.id);
+      }
+
+      if (!profile?.role || profile.role !== 'moderator') {
         navigate('/');
         return;
       }

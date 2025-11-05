@@ -242,6 +242,9 @@
   padding-left: 8px;
   flex-shrink: 0;
   width: auto;
+  background: #0e2a4d;
+  border-radius: 20px 0 0 20px;
+  padding-right: 4px;
 }
 
 .level-number {
