@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { eventsApi } from '../lib/api';
 import {
   BarChart,
   Bar,
@@ -46,16 +46,8 @@ function OrganizerDashboard({ userId }) {
       setLoading(true);
 
       // Загрузка всех событий организатора
-      const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_participants(count),
-          reviews(rating)
-        `)
-        .eq('creator_id', userId);
-
-      if (eventsError) throw eventsError;
+      const response = await eventsApi.list({ creator_id: userId });
+      const events = response.data || [];
 
       // Общая статистика
       const totalEvents = events.length;
@@ -70,7 +62,7 @@ function OrganizerDashboard({ userId }) {
 
       events.forEach(event => {
         // Подсчёт участников
-        const participantsCount = event.event_participants?.[0]?.count || 0;
+        const participantsCount = event.participant_count || event.participants_count || 0;
         totalParticipants += participantsCount;
 
         // Подсчёт доходов
@@ -83,6 +75,9 @@ function OrganizerDashboard({ userId }) {
             totalRating += review.rating;
             ratingCount++;
           });
+        } else if (event.avg_rating) {
+          totalRating += event.avg_rating;
+          ratingCount++;
         }
       });
 
@@ -113,7 +108,7 @@ function OrganizerDashboard({ userId }) {
       // Популярность категорий (по участникам)
       const categoryPopularityData = {};
       events.forEach(event => {
-        const participantsCount = event.event_participants?.[0]?.count || 0;
+        const participantsCount = event.participant_count || event.participants_count || 0;
         if (!categoryPopularityData[event.category]) {
           categoryPopularityData[event.category] = { count: 0, participants: 0 };
         }
@@ -131,7 +126,7 @@ function OrganizerDashboard({ userId }) {
       const sortedByParticipants = [...events]
         .map(event => ({
           ...event,
-          participantsCount: event.event_participants?.[0]?.count || 0
+          participantsCount: event.participant_count || event.participants_count || 0
         }))
         .sort((a, b) => b.participantsCount - a.participantsCount)
         .slice(0, 5);
@@ -145,7 +140,7 @@ function OrganizerDashboard({ userId }) {
           year: 'numeric',
           month: 'short'
         });
-        const participantsCount = event.event_participants?.[0]?.count || 0;
+        const participantsCount = event.participant_count || event.participants_count || 0;
         participantsByMonth[month] = (participantsByMonth[month] || 0) + participantsCount;
       });
 
@@ -161,7 +156,7 @@ function OrganizerDashboard({ userId }) {
           year: 'numeric',
           month: 'short'
         });
-        const participantsCount = event.event_participants?.[0]?.count || 0;
+        const participantsCount = event.participant_count || event.participants_count || 0;
         const revenue = (event.price || 0) * participantsCount;
         revenueByMonth[month] = (revenueByMonth[month] || 0) + revenue;
       });

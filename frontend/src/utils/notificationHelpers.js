@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import api from '../lib/api';
 
 /**
  * Типы уведомлений
@@ -12,6 +12,12 @@ export const NOTIFICATION_TYPES = {
 
 /**
  * Создаёт уведомление для участников события
+ * 
+ * Note: Notifications are now primarily created server-side by the backend
+ * (e.g., when a user joins an event). This utility remains for cases where
+ * the client needs to trigger notifications directly (e.g., event updates,
+ * cancellations initiated by the organizer).
+ * 
  * @param {string} eventId - ID события
  * @param {string} type - Тип уведомления
  * @param {string} message - Текст уведомления
@@ -19,37 +25,13 @@ export const NOTIFICATION_TYPES = {
  */
 export const createEventNotification = async (eventId, type, message, excludeUserId = null) => {
   try {
-    // Получаем всех участников события
-    const { data: participants, error: participantsError } = await supabase
-      .from('event_participants')
-      .select('user_id')
-      .eq('event_id', eventId)
-      .eq('status', 'joined');
-
-    if (participantsError) throw participantsError;
-
-    // Фильтруем участников (исключаем инициатора)
-    const userIds = participants
-      .map(p => p.user_id)
-      .filter(userId => userId !== excludeUserId);
-
-    if (userIds.length === 0) return;
-
-    // Создаём уведомления для всех участников
-    const notifications = userIds.map(userId => ({
-      user_id: userId,
+    // Delegate notification creation to the backend
+    await api.post('/notifications/broadcast', {
       event_id: eventId,
-      type: type,
-      message: message,
-      is_read: false,
-    }));
-
-    const { error: insertError } = await supabase
-      .from('notifications')
-      .insert(notifications);
-
-    if (insertError) throw insertError;
-
+      type,
+      message,
+      exclude_user_id: excludeUserId,
+    });
   } catch (error) {
     console.error('Ошибка создания уведомлений:', error);
   }
@@ -57,18 +39,23 @@ export const createEventNotification = async (eventId, type, message, excludeUse
 
 /**
  * Уведомляет организатора о новом участнике
+ * 
+ * Note: The backend automatically sends this notification when a user joins
+ * an event via POST /events/:id/join. This function is kept as a fallback
+ * for any edge cases where client-side notification is needed.
+ * 
  * @param {string} eventId - ID события
  * @param {string} creatorId - ID организатора
  * @param {string} participantName - Имя нового участника
  */
 export const notifyNewParticipant = async (eventId, creatorId, participantName) => {
   try {
-    await supabase.from('notifications').insert({
+    // Backend handles this automatically on join, but provide a fallback
+    await api.post('/notifications', {
       user_id: creatorId,
       event_id: eventId,
       type: NOTIFICATION_TYPES.NEW_PARTICIPANT,
       message: `${participantName} присоединился к вашему событию`,
-      is_read: false,
     });
   } catch (error) {
     console.error('Ошибка создания уведомления о новом участнике:', error);

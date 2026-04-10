@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { profilesApi, eventsApi } from '../lib/api';
 import ImageUpload from '../components/ImageUpload';
 import { MapPicker, MapLoadingFallback } from '../components/LazyComponents';
 import BoardGameSelector from '../components/BoardGameSelector';
@@ -12,7 +12,6 @@ import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import BlockedUserNotice from '../components/BlockedUserNotice';
 import PromoCodeInput from '../components/PromoCodeInput';
 import RoundCheckbox from '../components/RoundCheckbox';
-import { createRecurringEvents } from '../utils/recurringEvents';
 import { getCategoryName } from '../constants/categories';
 import './CreateEvent.css';
 
@@ -92,13 +91,7 @@ const CreateEvent = () => {
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('is_blocked, block_reason, blocked_at, blocked_until')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) throw error;
+        const { data: profile } = await profilesApi.getMe();
 
         if (!profile) {
           console.warn('Профиль не найден для пользователя:', user.id);
@@ -316,117 +309,39 @@ const CreateEvent = () => {
         };
       }
 
-      const { data, error } = await supabase
-        .from('events')
-        .insert([eventData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Добавляем связи с настольными играми
+      // Добавляем ID связей для категории (бэкенд создаст связи)
       if (formData.category === 'board_games' && formData.selectedBoardGames?.length > 0) {
-        const gameLinks = formData.selectedBoardGames.map(game => ({
-          event_id: data.id,
-          board_game_id: game.id,
-        }));
-
-        await supabase
-          .from('event_board_games')
-          .insert(gameLinks);
+        eventData.board_game_ids = formData.selectedBoardGames.map(game => game.id);
       }
 
-      // Добавляем связи с музыкальными инструментами
       if (formData.category === 'music_jam' && formData.musical_instruments?.length > 0) {
-        const instrumentLinks = formData.musical_instruments.map(instrument => ({
-          event_id: data.id,
-          musical_instrument_id: instrument.id,
-        }));
-
-        await supabase
-          .from('event_musical_instruments')
-          .insert(instrumentLinks);
+        eventData.musical_instrument_ids = formData.musical_instruments.map(instrument => instrument.id);
       }
 
-      // Добавляем связи с фото оборудованием
       if (formData.category === 'photo_walk' && formData.photography_equipment?.length > 0) {
-        const equipmentLinks = formData.photography_equipment.map(equipment => ({
-          event_id: data.id,
-          photography_equipment_id: equipment.id,
-        }));
-
-        await supabase
-          .from('event_photography_equipment')
-          .insert(equipmentLinks);
+        eventData.photography_equipment_ids = formData.photography_equipment.map(equipment => equipment.id);
       }
 
-      // Добавляем связи с навыками волонтёра
       if (formData.category === 'volunteer' && formData.volunteer_skills?.length > 0) {
-        const skillLinks = formData.volunteer_skills.map(skill => ({
-          event_id: data.id,
-          volunteer_skill_id: skill.id,
-        }));
-
-        await supabase
-          .from('event_volunteer_skills')
-          .insert(skillLinks);
+        eventData.volunteer_skill_ids = formData.volunteer_skills.map(skill => skill.id);
       }
 
-      // Добавляем связи с материалами для ремесла
       if (formData.category === 'craft' && formData.craft_materials?.length > 0) {
-        const materialLinks = formData.craft_materials.map(material => ({
-          event_id: data.id,
-          craft_material_id: material.id,
-        }));
-
-        await supabase
-          .from('event_craft_materials')
-          .insert(materialLinks);
+        eventData.craft_material_ids = formData.craft_materials.map(material => material.id);
       }
 
-      // Автоматически добавляем создателя как участника
-      await supabase
-        .from('event_participants')
-        .insert([{
-          event_id: data.id,
-          user_id: user.id,
-          status: 'joined',
-        }]);
-
-      // Записываем использование промокода если был применён
-      if (appliedPromoCode) {
-        try {
-          await supabase
-            .from('promo_code_usages')
-            .insert([{
-              promo_code_id: appliedPromoCode.promoCodeId,
-              user_id: user.id,
-              event_id: data.id,
-              original_price: parseFloat(formData.price) || 0,
-              discount_amount: appliedPromoCode.discountAmount,
-              final_price: appliedPromoCode.finalPrice,
-            }]);
-        } catch (promoError) {
-          console.error('Ошибка записи использования промокода:', promoError);
-          // Не прерываем процесс, событие уже создано
-        }
-      }
-
-      // Создаём повторяющиеся события если настроено
+      // Добавляем конфигурацию повторяющихся событий
       if (recurrenceConfig.isRecurring) {
-        try {
-          await createRecurringEvents(data.id, {
-            frequency: recurrenceConfig.frequency,
-            interval: recurrenceConfig.interval,
-            occurrenceCount: recurrenceConfig.occurrenceCount,
-            daysOfWeek: recurrenceConfig.daysOfWeek,
-            endDate: recurrenceConfig.endDate,
-          });
-        } catch (recError) {
-          console.error('Ошибка создания повторяющихся событий:', recError);
-          // Не прерываем процесс, основное событие уже создано
-        }
+        eventData.recurrence = recurrenceConfig;
       }
+
+      // Добавляем ID промокода если был применён
+      if (appliedPromoCode) {
+        eventData.promo_code_id = appliedPromoCode.promoCodeId;
+      }
+
+      // Создаём событие (бэкенд обрабатывает все связи: участник, связи с играми, промокод, повторяющиеся события)
+      const { data } = await eventsApi.create(eventData);
 
       // Принудительный редирект через window.location для надёжности
       window.location.href = `/events/${data.id}`;

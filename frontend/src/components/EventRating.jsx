@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { reviewsApi } from '../lib/api';
 import './EventRating.css';
 
 const EventRating = ({ eventId, compact = false }) => {
@@ -12,18 +12,8 @@ const EventRating = ({ eventId, compact = false }) => {
 
   const fetchRating = async () => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('event_id', eventId);
-
-      // Если таблицы reviews не существует, молча скрываем компонент
-      if (error && error.code === 'PGRST205') {
-        setLoading(false);
-        return;
-      }
-
-      if (error) throw error;
+      const response = await reviewsApi.list(eventId);
+      const data = response.data;
 
       if (data && data.length > 0) {
         const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
@@ -33,8 +23,8 @@ const EventRating = ({ eventId, compact = false }) => {
         });
       }
     } catch (error) {
-      // Игнорируем ошибки отсутствия таблицы
-      if (error.code !== 'PGRST205') {
+      // Игнорируем ошибки (например, 404 если таблица не существует)
+      if (error.response?.status !== 404) {
         console.error('Ошибка загрузки рейтинга:', error);
       }
     } finally {

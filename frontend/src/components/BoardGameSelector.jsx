@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { dictionariesApi } from '../lib/api';
 import './BoardGameSelector.css';
 
 const BoardGameSelector = ({ selectedGames = [], onGamesChange }) => {
@@ -14,13 +14,8 @@ const BoardGameSelector = ({ selectedGames = [], onGamesChange }) => {
 
   const fetchBoardGames = async () => {
     try {
-      const { data, error } = await supabase
-        .from('board_games')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setBoardGames(data || []);
+      const response = await dictionariesApi.get('board_games');
+      setBoardGames(response.data || []);
     } catch (error) {
       console.error('Ошибка загрузки настольных игр:', error.message);
     } finally {

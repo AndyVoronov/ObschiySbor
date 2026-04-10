@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { eventsApi, dictionariesApi } from '../lib/api';
 import './BoardGameDetails.css';
 
 const BoardGameDetails = () => {
@@ -18,13 +18,7 @@ const BoardGameDetails = () => {
 
   const fetchGameDetails = async () => {
     try {
-      const { data, error } = await supabase
-        .from('board_games')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
+      const { data } = await dictionariesApi.getById('board_games', id);
       setGame(data);
     } catch (error) {
       console.error('Ошибка загрузки игры:', error);
@@ -36,36 +30,14 @@ const BoardGameDetails = () => {
   const fetchGameEvents = async () => {
     try {
       // Получаем события с этой игрой, которые ещё не прошли
-      const now = new Date().toISOString();
-
-      const { data: gameEventLinks, error: linksError } = await supabase
-        .from('event_board_games')
-        .select('event_id')
-        .eq('board_game_id', id);
-
-      if (linksError) throw linksError;
-
-      const eventIds = gameEventLinks.map(link => link.event_id);
-
-      if (eventIds.length > 0) {
-        const { data: eventsData, error: eventsError } = await supabase
-          .from('events')
-          .select(`
-            *,
-            profiles:creator_id (
-              id,
-              full_name,
-              avatar_url
-            )
-          `)
-          .in('id', eventIds)
-          .gte('event_date', now)
-          .eq('status', 'active')
-          .order('event_date', { ascending: true });
-
-        if (eventsError) throw eventsError;
-        setEvents(eventsData || []);
-      }
+      const { data } = await eventsApi.list({
+        board_game_id: id,
+        upcoming: true,
+        status: 'active',
+        sort: 'event_date',
+        order: 'asc',
+      });
+      setEvents(data || []);
     } catch (error) {
       console.error('Ошибка загрузки событий с игрой:', error);
     }
@@ -138,7 +110,7 @@ const BoardGameDetails = () => {
                       👥 {event.current_participants}/{event.max_participants}
                     </span>
                     <span className="organizer">
-                      {t('boardGame.organizer')}: {event.profiles?.full_name || t('profile.noNameProvided')}
+                      {t('boardGame.organizer')}: {event.profiles?.full_name || event.creator_name || t('profile.noNameProvided')}
                     </span>
                   </div>
                 </div>

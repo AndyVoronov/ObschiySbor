@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { profilesApi, adminApi } from '../lib/api';
 import BlockUserModal from '../components/BlockUserModal';
 import { useTranslation } from 'react-i18next';
 import './Admin.css';
@@ -25,26 +25,22 @@ const Admin = () => {
         return;
       }
 
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle();
+      try {
+        const { data: profile } = await profilesApi.getMe();
 
-      if (error) {
-        console.error('Ошибка проверки роли:', error);
+        if (!profile) {
+          console.warn('Профиль не найден для пользователя:', user.id);
+        }
+
+        if (!profile?.role || profile.role !== 'moderator') {
+          navigate('/');
+          return;
+        }
+
+        loadReports();
+      } catch (err) {
+        console.error('Ошибка проверки роли:', err);
       }
-
-      if (!profile) {
-        console.warn('Профиль не найден для пользователя:', user.id);
-      }
-
-      if (!profile?.role || profile.role !== 'moderator') {
-        navigate('/');
-        return;
-      }
-
-      loadReports();
     };
 
     checkModeratorAccess();
@@ -55,22 +51,12 @@ const Admin = () => {
     setError(null);
 
     try {
-      let query = supabase
-        .from('reports')
-        .select(`
-          *,
-          event:events(id, title),
-          reporter:profiles!reports_reporter_id_fkey(id, full_name, avatar_url)
-        `)
-        .order('created_at', { ascending: false});
-
+      const params = {};
       if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
+        params.status = filterStatus;
       }
 
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) throw fetchError;
+      const { data } = await adminApi.listReports(params);
 
       setReports(data || []);
     } catch (err) {
@@ -86,15 +72,7 @@ const Admin = () => {
     setError(null);
 
     try {
-      const { error: updateError } = await supabase
-        .from('reports')
-        .update({
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', reportId);
-
-      if (updateError) throw updateError;
+      await adminApi.updateReport(reportId, newStatus);
 
       // Обновляем локальное состояние
       setReports(reports.map(report =>
@@ -119,12 +97,7 @@ const Admin = () => {
     setError(null);
 
     try {
-      const { error: updateError } = await supabase
-        .from('events')
-        .update({ lifecycle_status: 'cancelled' })
-        .eq('id', eventId);
-
-      if (updateError) throw updateError;
+      await adminApi.blockEvent(eventId);
 
       alert(t('admin.eventBlocked'));
       loadReports(); // Перезагружаем список
@@ -373,19 +346,14 @@ const UsersTab = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const params = {};
       if (filterBlocked === 'blocked') {
-        query = query.eq('is_blocked', true);
+        params.is_blocked = 'true';
       } else if (filterBlocked === 'active') {
-        query = query.eq('is_blocked', false);
+        params.is_blocked = 'false';
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
+      const { data } = await adminApi.listUsers(params);
       setUsers(data || []);
     } catch (err) {
       console.error('Ошибка загрузки пользователей:', err);
@@ -398,13 +366,7 @@ const UsersTab = () => {
     if (!confirm(`${t('admin.confirmUnblock')} "${userName}"?`)) return;
 
     try {
-      const { error } = await supabase.rpc('unblock_user', {
-        p_user_id: userId,
-        p_unblocked_by: user.id,
-        p_reason: 'Разблокирован администратором'
-      });
-
-      if (error) throw error;
+      await adminApi.unblockUser(userId);
       alert(t('admin.userUnblocked'));
       loadUsers();
     } catch (err) {
@@ -537,17 +499,7 @@ const AppealsTab = () => {
   const loadAppeals = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('block_appeals')
-        .select(`
-          *,
-          user:user_id(id, full_name, avatar_url),
-          block:block_id(reason, blocked_at, blocked_until)
-        `)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminApi.listBlockAppeals();
       setAppeals(data || []);
     } catch (err) {
       console.error('Ошибка загрузки обжалований:', err);
@@ -561,13 +513,7 @@ const AppealsTab = () => {
 
     setProcessing(appealId);
     try {
-      const { error } = await supabase.rpc('approve_block_appeal', {
-        p_appeal_id: appealId,
-        p_reviewed_by: user.id,
-        p_admin_comment: 'Обжалование одобрено'
-      });
-
-      if (error) throw error;
+      await adminApi.approveAppeal(appealId);
       alert(t('admin.appealApproved'));
       loadAppeals();
     } catch (err) {
@@ -583,13 +529,7 @@ const AppealsTab = () => {
 
     setProcessing(appealId);
     try {
-      const { error } = await supabase.rpc('reject_block_appeal', {
-        p_appeal_id: appealId,
-        p_reviewed_by: user.id,
-        p_admin_comment: adminComment
-      });
-
-      if (error) throw error;
+      await adminApi.rejectAppeal(appealId, adminComment);
       alert(t('admin.appealRejected'));
       loadAppeals();
     } catch (err) {

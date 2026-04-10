@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { eventsApi, friendsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import InviteFriendsModal from './InviteFriendsModal';
 import './EventParticipants.css';
@@ -26,27 +26,11 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
     try {
       setLoading(true);
 
-      // Получаем всех участников события
-      const { data, error } = await supabase
-        .from('event_participants')
-        .select(`
-          user_id,
-          joined_at,
-          profiles (
-            id,
-            full_name,
-            avatar_url,
-            city
-          )
-        `)
-        .eq('event_id', eventId)
-        .order('joined_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await eventsApi.getParticipants(eventId);
 
       // Формируем список участников с отметкой организатора
-      const participantsList = data.map(p => ({
-        ...p.profiles,
+      const participantsList = (data || []).map(p => ({
+        ...p,
         joined_at: p.joined_at,
         is_creator: p.user_id === creatorId
       }));
@@ -70,19 +54,12 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
     if (!user) return;
 
     try {
-      // Получаем все дружеские связи текущего пользователя
-      const { data, error } = await supabase
-        .from('friendships')
-        .select('user_id, friend_id, status')
-        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
-
-      if (error) throw error;
+      const { data } = await friendsApi.list();
 
       // Формируем объект с информацией о дружбе для каждого пользователя
       const friendshipsMap = {};
-      data.forEach(friendship => {
-        const friendId = friendship.user_id === user.id ? friendship.friend_id : friendship.user_id;
-        friendshipsMap[friendId] = friendship.status;
+      (data || []).forEach(friend => {
+        friendshipsMap[friend.id] = friend.status || 'accepted';
       });
 
       setFriendships(friendshipsMap);
@@ -97,16 +74,7 @@ const EventParticipants = ({ eventId, creatorId, eventTitle }) => {
     setAddingFriend({ ...addingFriend, [friendId]: true });
 
     try {
-      // Отправляем запрос в друзья
-      const { error } = await supabase
-        .from('friendships')
-        .insert({
-          user_id: user.id,
-          friend_id: friendId,
-          status: 'pending'
-        });
-
-      if (error) throw error;
+      await friendsApi.request(friendId);
 
       // Обновляем локальное состояние
       setFriendships({ ...friendships, [friendId]: 'pending' });

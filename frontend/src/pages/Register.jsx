@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { authApi } from '../lib/api';
 import TelegramLoginButton from '../components/TelegramLoginButton';
 import RecaptchaWrapper from '../components/RecaptchaWrapper';
 import ReferralCodeInput from '../components/ReferralCodeInput';
@@ -56,34 +56,36 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const { data, error: signUpError } = await signUp(formData.email, formData.password, {
+      // Реферальный код передаётся в тело запроса — бэкенд сам его обработает
+      const registerPayload = {
+        email: formData.email,
+        password: formData.password,
         full_name: formData.fullName,
         city: formData.city,
-      });
+      };
+      if (referralCode) {
+        registerPayload.referral_code = referralCode;
+      }
+
+      const { data, error: signUpError } = await authApi.register(registerPayload);
 
       if (signUpError) throw signUpError;
 
-      // Если есть реферальный код, применяем его
-      if (referralCode && data?.user) {
-        try {
-          const { error: refError } = await supabase.rpc('apply_referral_code', {
-            p_user_id: data.user.id,
-            p_referral_code: referralCode,
-          });
-
-          if (refError) {
-            console.error('Ошибка применения реферального кода:', refError);
-            // Не блокируем регистрацию, просто логируем ошибку
-          }
-        } catch (refError) {
-          console.error('Ошибка применения реферального кода:', refError);
-        }
+      // Сохраняем токены в localStorage (backend возвращает access_token, refresh_token, user)
+      if (data?.access_token) {
+        localStorage.setItem('obschiysbor_auth', JSON.stringify({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          user: data.user,
+          saved_at: Date.now(),
+        }));
       }
 
       navigate('/');
     } catch (error) {
-      setError(t('auth.errorRegistration') + error.message);
-      console.error('Ошибка регистрации:', error.message);
+      const message = error.response?.data?.detail || error.message;
+      setError(t('auth.errorRegistration') + message);
+      console.error('Ошибка регистрации:', message);
       // Сбрасываем reCAPTCHA при ошибке
       if (recaptchaRef.current) {
         recaptchaRef.current.reset();
@@ -98,110 +100,42 @@ const Register = () => {
     try {
       console.log('Telegram User Data:', telegramUser);
 
-      const telegramId = telegramUser.id;
-      const firstName = telegramUser.first_name;
-      const lastName = telegramUser.last_name || '';
-      const username = telegramUser.username || '';
-      const photoUrl = telegramUser.photo_url || null;
+      const formData = new FormData();
+      formData.append('telegram_id', telegramUser.id);
+      formData.append('first_name', telegramUser.first_name || '');
+      formData.append('last_name', telegramUser.last_name || '');
+      formData.append('username', telegramUser.username || '');
+      formData.append('photo_url', telegramUser.photo_url || '');
 
-      // Проверяем, существует ли пользователь с этим Telegram ID
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, telegram_password')
-        .eq('telegram_id', telegramId)
-        .maybeSingle();
-
-      console.log('Existing Telegram profile:', existingProfile, 'Error:', profileError);
-
-      if (existingProfile) {
-        // Пользователь уже существует - выполняем вход
-        console.log('Пользователь с Telegram ID уже существует, выполняем вход');
-
-        if (!existingProfile.telegram_password) {
-          console.error('У существующего Telegram пользователя нет сохранённого пароля');
-          setError('Это старый Telegram аккаунт без сохранённого пароля. Обратитесь к администратору.');
-          return;
-        }
-
-        // Выполняем вход с сохранённым паролем
-        const email = `tg${telegramId}@obschiysbor.local`;
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: existingProfile.telegram_password,
-        });
-
-        if (signInError) {
-          console.error('Sign In Error:', signInError);
-          setError('Аккаунт с этим Telegram уже существует. Пожалуйста, используйте страницу входа.');
-          return;
-        }
-
-        console.log('Успешный вход через Telegram:', signInData);
-        navigate('/');
-        return;
-      }
-
-      // Новый пользователь - создаём аккаунт
-      const email = `tg${telegramId}@obschiysbor.local`;
-      const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
-      const fullName = `${firstName} ${lastName}`.trim() || `Пользователь Telegram ${telegramId}`;
-
-      console.log('Creating new Telegram user with email:', email, 'name:', fullName);
-
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            full_name: fullName,
-            telegram_id: telegramId,
-            telegram_username: username,
-            avatar_url: photoUrl,
-          }
-        }
-      });
-
-      if (signUpError) {
-        console.error('SignUp Error:', signUpError);
-        throw signUpError;
-      }
-
-      console.log('Telegram user created:', signUpData);
-
-      if (!signUpData.user) {
-        throw new Error('Не удалось создать пользователя');
-      }
-
-      // Обновляем профиль с Telegram ID, паролем и данными
-      const updateData = {
-        telegram_id: telegramId,
-        telegram_password: password,
-        telegram_username: username,
-      };
-      if (photoUrl) {
-        updateData.avatar_url = photoUrl;
-      }
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', signUpData.user.id);
-
-      if (updateError) {
-        console.error('Update Profile Error:', updateError);
-        throw updateError;
-      }
-
-      console.log('Telegram ID and user data updated in profile');
-      navigate('/');
+      const { data } = await authApi.telegramAuth(formData);
+      localStorage.setItem('obschiysbor_auth', JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user: data.user,
+        saved_at: Date.now(),
+      }));
+      window.location.href = '/';
     } catch (err) {
       console.error('Ошибка Telegram регистрации:', err);
-      setError(`Не удалось создать аккаунт через Telegram: ${err.message}`);
+      const message = err.response?.data?.detail || err.message;
+      setError(`Не удалось создать аккаунт через Telegram: ${message}`);
     }
   };
 
-  // Инициализация VK ID SDK для регистрации
+  // VK ID allowed domains (configured in VK Developer Console)
+  const VK_ALLOWED_DOMAINS = [
+    'obschiy-sbor.vercel.app',
+    'www.obschiy-sbor.vercel.app',
+    'localhost',
+    '127.0.0.1',
+  ];
+  const isVKAllowed = VK_ALLOWED_DOMAINS.some(d => window.location.hostname === d || window.location.hostname.endsWith('.' + d));
+  const [vkAvailable] = useState(isVKAllowed);
+
+  // Инициализация VK ID SDK для регистрации (только на разрешённых доменах)
   useEffect(() => {
+    if (!vkAvailable) return;
+
     // Проверяем, не загружен ли уже скрипт
     if (window.VKIDSDK) {
       initVKID();
@@ -218,9 +152,10 @@ const Register = () => {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js';
     script.async = true;
+    script.onerror = () => console.warn('VK ID SDK не удалось загрузить');
     script.onload = initVKID;
     document.head.appendChild(script);
-  }, []);
+  }, [vkAvailable]);
 
   const initVKID = () => {
     if (!window.VKIDSDK) return;
@@ -283,7 +218,11 @@ const Register = () => {
       console.log('VK User ID:', vkUserId);
 
       // Получаем данные пользователя через VK API (используем JSONP для обхода CORS)
-      let vkUserData = null;
+      let first_name = '';
+      let last_name = '';
+      let photoUrl = '';
+      let gender = '';
+
       try {
         // Создаём promise для JSONP запроса
         const fetchVKUser = () => {
@@ -319,150 +258,42 @@ const Register = () => {
           const userData = data.response[0];
 
           // Конвертируем VK пол (1 = женский, 2 = мужской, 0 = не указано) в наш формат
-          let gender = null;
           if (userData.sex === 1) {
             gender = 'female';
           } else if (userData.sex === 2) {
             gender = 'male';
           }
 
-          vkUserData = {
-            first_name: userData.first_name || '',
-            last_name: userData.last_name || '',
-            photo_200: userData.photo_200 || null,
-            gender: gender,
-          };
-          console.log('VK User Data from API:', vkUserData);
+          first_name = userData.first_name || '';
+          last_name = userData.last_name || '';
+          photoUrl = userData.photo_200 || '';
+          console.log('VK User Data from API:', { first_name, last_name, photoUrl, gender });
         }
       } catch (apiError) {
         console.error('Ошибка получения данных из VK API:', apiError);
       }
 
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, vk_password')
-        .eq('vk_id', vkUserId)
-        .maybeSingle(); // Используем maybeSingle() вместо single() чтобы не было ошибки если записи нет
+      // Отправляем всё на бэкенд — он сам решит, создать нового пользователя или войти
+      const formData = new FormData();
+      formData.append('vk_user_id', vkUserId);
+      formData.append('access_token', accessToken);
+      formData.append('first_name', first_name);
+      formData.append('last_name', last_name);
+      formData.append('photo_url', photoUrl);
+      formData.append('gender', gender);
 
-      console.log('Existing profile:', existingProfile, 'Error:', profileError);
-
-      if (existingProfile) {
-        // Пользователь уже существует - обновляем данные и выполняем вход
-        console.log('Пользователь с VK ID уже существует, обновляем данные и выполняем вход');
-
-        // Обновляем имя, фото и пол из VK API при каждом входе
-        if (vkUserData) {
-          const fullName = `${vkUserData.first_name} ${vkUserData.last_name}`;
-          const updateData = {
-            full_name: fullName,
-          };
-          if (vkUserData.photo_200) {
-            updateData.avatar_url = vkUserData.photo_200;
-          }
-          if (vkUserData.gender) {
-            updateData.gender = vkUserData.gender;
-          }
-
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update(updateData)
-            .eq('id', existingProfile.id);
-
-          if (updateError) {
-            console.error('Update Profile Error:', updateError);
-          } else {
-            console.log('Профиль обновлён:', updateData);
-          }
-        }
-
-        // Проверяем, есть ли сохранённый пароль
-        if (!existingProfile.vk_password) {
-          console.error('У существующего VK пользователя нет сохранённого пароля');
-          setError('Это старый VK аккаунт без сохранённого пароля. Обратитесь к администратору или используйте восстановление пароля.');
-          return;
-        }
-
-        // Выполняем вход с сохранённым паролем
-        const email = `vk${vkUserId}@obschiysbor.local`;
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: existingProfile.vk_password,
-        });
-
-        if (signInError) {
-          console.error('Sign In Error:', signInError);
-          setError('Аккаунт с этим VK уже существует. Пожалуйста, используйте страницу входа.');
-          return;
-        }
-
-        console.log('Успешный вход через VK:', signInData);
-        // Принудительная перезагрузка для обновления данных профиля
-        window.location.href = '/';
-        return;
-      }
-
-      const email = `vk${vkUserId}@obschiysbor.local`;
-      const password = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
-
-      // Используем реальное имя из VK если получили, иначе базовое
-      const fullName = vkUserData
-        ? `${vkUserData.first_name} ${vkUserData.last_name}`
-        : `Пользователь VK ${vkUserId}`;
-
-      console.log('Creating new user with email:', email, 'name:', fullName);
-
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            full_name: fullName,
-            vk_id: vkUserId,
-            avatar_url: vkUserData?.photo_200 || null,
-            gender: vkUserData?.gender || null,
-          }
-        }
-      });
-
-      if (signUpError) {
-        console.error('SignUp Error:', signUpError);
-        throw signUpError;
-      }
-
-      console.log('User created:', signUpData);
-
-      if (!signUpData.user) {
-        throw new Error('Не удалось создать пользователя');
-      }
-
-      // Обновляем профиль с VK ID, паролем и данными
-      const updateData = {
-        vk_id: vkUserId,
-        vk_password: password  // Сохраняем пароль для последующих входов
-      };
-      if (vkUserData?.photo_200) {
-        updateData.avatar_url = vkUserData.photo_200;
-      }
-      if (vkUserData?.gender) {
-        updateData.gender = vkUserData.gender;
-      }
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', signUpData.user.id);
-
-      if (updateError) {
-        console.error('Update Profile Error:', updateError);
-        throw updateError;
-      }
-
-      console.log('VK ID and user data updated in profile');
-      // Принудительная перезагрузка для обновления данных профиля
+      const { data } = await authApi.vkAuth(formData);
+      localStorage.setItem('obschiysbor_auth', JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user: data.user,
+        saved_at: Date.now(),
+      }));
       window.location.href = '/';
     } catch (err) {
       console.error('Ошибка VK регистрации:', err);
-      setError(`Не удалось создать аккаунт через ВКонтакте: ${err.message}`);
+      const message = err.response?.data?.detail || err.message;
+      setError(`Не удалось создать аккаунт через ВКонтакте: ${message}`);
     }
   };
 
@@ -549,7 +380,14 @@ const Register = () => {
         </div>
 
         <div className="social-login">
-          <div id="vk-auth-container-register"></div>
+          {vkAvailable ? (
+            <div id="vk-auth-container-register"></div>
+          ) : (
+            <div className="social-btn-disabled" title="VK ID будет доступен после настройки домена">
+              <span className="social-btn-icon">VK</span>
+              <span className="social-btn-text">ВКонтакте (временно недоступен)</span>
+            </div>
+          )}
           <TelegramLoginButton
             botUsername="ObschiySbor_bot"
             onAuth={handleTelegramAuth}

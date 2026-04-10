@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { dictionariesApi } from '../lib/api';
 import './DictionarySelector.css';
 
 /**
@@ -31,13 +31,8 @@ const DictionarySelector = ({
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setItems(data || []);
+      const response = await dictionariesApi.get(tableName);
+      setItems(response.data || []);
     } catch (error) {
       console.error(`Ошибка загрузки ${tableName}:`, error.message);
     } finally {

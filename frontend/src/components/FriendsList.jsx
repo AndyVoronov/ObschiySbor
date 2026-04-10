@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { friendsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './FriendsList.css';
 
@@ -21,51 +21,32 @@ const FriendsList = () => {
     try {
       setLoading(true);
 
-      // Получаем все дружеские связи
-      const { data, error } = await supabase
-        .from('friendships')
-        .select(`
-          id,
-          user_id,
-          friend_id,
-          status,
-          created_at,
-          user:user_id (id, full_name, avatar_url, city),
-          friend:friend_id (id, full_name, avatar_url, city)
-        `)
-        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
-
-      if (error) throw error;
+      const { data } = await friendsApi.list();
 
       // Разделяем по статусам
       const acceptedFriends = [];
       const incoming = [];
       const outgoing = [];
 
-      data.forEach(friendship => {
-        const isInitiator = friendship.user_id === user.id;
-        const friendData = isInitiator ? friendship.friend : friendship.user;
-
-        if (friendship.status === 'accepted') {
+      (data || []).forEach(item => {
+        if (item.status === 'accepted') {
           acceptedFriends.push({
-            ...friendData,
-            friendshipId: friendship.id,
-            since: friendship.created_at
+            ...item,
+            friendshipId: item.friendship_id || item.id,
+            since: item.created_at,
           });
-        } else if (friendship.status === 'pending') {
-          if (isInitiator) {
-            // Я отправил запрос
+        } else if (item.status === 'pending') {
+          if (item.direction === 'outgoing') {
             outgoing.push({
-              ...friendData,
-              friendshipId: friendship.id,
-              sentAt: friendship.created_at
+              ...item,
+              friendshipId: item.friendship_id || item.id,
+              sentAt: item.created_at,
             });
           } else {
-            // Мне отправили запрос
             incoming.push({
-              ...friendData,
-              friendshipId: friendship.id,
-              receivedAt: friendship.created_at
+              ...item,
+              friendshipId: item.friendship_id || item.id,
+              receivedAt: item.created_at,
             });
           }
         }
@@ -83,12 +64,7 @@ const FriendsList = () => {
 
   const handleAcceptRequest = async (friendshipId) => {
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .update({ status: 'accepted' })
-        .eq('id', friendshipId);
-
-      if (error) throw error;
+      await friendsApi.accept(friendshipId);
 
       // Обновляем локальное состояние
       await fetchFriendships();
@@ -100,12 +76,7 @@ const FriendsList = () => {
 
   const handleRejectRequest = async (friendshipId) => {
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .delete()
-        .eq('id', friendshipId);
-
-      if (error) throw error;
+      await friendsApi.remove(friendshipId);
 
       // Обновляем локальное состояние
       await fetchFriendships();
@@ -119,12 +90,7 @@ const FriendsList = () => {
     if (!confirm('Вы уверены, что хотите удалить этого друга?')) return;
 
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .delete()
-        .eq('id', friendshipId);
-
-      if (error) throw error;
+      await friendsApi.remove(friendshipId);
 
       // Обновляем локальное состояние
       await fetchFriendships();
@@ -136,12 +102,7 @@ const FriendsList = () => {
 
   const handleCancelRequest = async (friendshipId) => {
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .delete()
-        .eq('id', friendshipId);
-
-      if (error) throw error;
+      await friendsApi.remove(friendshipId);
 
       // Обновляем локальное состояние
       await fetchFriendships();

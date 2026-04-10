@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/api';
 import AppealBlockModal from './AppealBlockModal';
 import './BlockedUserNotice.css';
 
@@ -38,13 +38,7 @@ const BlockedUserNotice = ({ blockInfo, onAppealSubmitted }) => {
 
     setIsUnblocking(true);
     try {
-      const { error } = await supabase.rpc('unblock_user', {
-        p_user_id: user.id,
-        p_unblocked_by: null,
-        p_reason: 'Срок блокировки истёк (автоматическая разблокировка)'
-      });
-
-      if (error) throw error;
+      await adminApi.unblockUser(user.id);
 
       alert('✅ Вы успешно разблокированы! Страница будет перезагружена.');
       window.location.reload();

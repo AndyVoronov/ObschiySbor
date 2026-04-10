@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { profilesApi } from '../lib/api';
 
 /**
  * Компонент для защиты админ/модератор роутов
@@ -21,15 +21,8 @@ const ProtectedAdminRoute = ({ children }) => {
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Ошибка проверки роли:', error);
-        }
+        const response = await profilesApi.getMe();
+        const profile = response.data;
 
         if (!profile) {
           console.warn('Профиль не найден для пользователя:', user.id);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { friendsApi, eventsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './InviteFriendsModal.css';
 
@@ -22,43 +22,22 @@ const InviteFriendsModal = ({ isOpen, onClose, eventId, eventTitle }) => {
       setLoading(true);
 
       // Получаем всех принятых друзей
-      const { data: friendshipsData, error: friendshipsError } = await supabase
-        .from('friendships')
-        .select(`
-          id,
-          user_id,
-          friend_id,
-          user:user_id (id, full_name, avatar_url, city),
-          friend:friend_id (id, full_name, avatar_url, city)
-        `)
-        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
-        .eq('status', 'accepted');
+      const { data: friendsData } = await friendsApi.list();
 
-      if (friendshipsError) throw friendshipsError;
+      const friendsList = (friendsData || []).map(f => ({
+        id: f.id,
+        full_name: f.full_name,
+        avatar_url: f.avatar_url,
+        city: f.city,
+      }));
 
-      // Формируем список друзей
-      const friendsList = friendshipsData.map(friendship => {
-        const isInitiator = friendship.user_id === user.id;
-        return isInitiator ? friendship.friend : friendship.user;
-      });
+      // Получаем список участников события, чтобы исключить уже участвующих
+      const { data: participantsData } = await eventsApi.getParticipants(eventId);
+      const participantIds = new Set((participantsData || []).map(p => p.user_id || p.id));
 
-      // Получаем список уже приглашённых и участников
-      const { data: invitationsData } = await supabase
-        .from('event_invitations')
-        .select('invitee_id')
-        .eq('event_id', eventId);
-
-      const { data: participantsData } = await supabase
-        .from('event_participants')
-        .select('user_id')
-        .eq('event_id', eventId);
-
-      const invitedIds = new Set(invitationsData?.map(inv => inv.invitee_id) || []);
-      const participantIds = new Set(participantsData?.map(p => p.user_id) || []);
-
-      // Фильтруем друзей (исключаем уже приглашённых и участников)
+      // Фильтруем друзей (исключаем уже участников)
       const availableFriends = friendsList.filter(friend =>
-        !invitedIds.has(friend.id) && !participantIds.has(friend.id)
+        !participantIds.has(friend.id)
       );
 
       setFriends(availableFriends);
@@ -88,20 +67,9 @@ const InviteFriendsModal = ({ isOpen, onClose, eventId, eventTitle }) => {
     setInviting({ all: true });
 
     try {
-      // Отправляем приглашения всем выбранным друзьям
-      const invitations = Array.from(selectedFriends).map(friendId => ({
-        event_id: eventId,
-        inviter_id: user.id,
-        invitee_id: friendId,
-        status: 'pending',
-        message: message || null
-      }));
+      const userIds = Array.from(selectedFriends);
 
-      const { error } = await supabase
-        .from('event_invitations')
-        .insert(invitations);
-
-      if (error) throw error;
+      await eventsApi.invite(eventId, userIds);
 
       alert(`Приглашения отправлены (${selectedFriends.size})`);
       setSelectedFriends(new Set());

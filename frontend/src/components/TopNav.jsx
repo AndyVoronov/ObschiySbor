@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { profilesApi } from '../lib/api';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import './TopNav.css';
@@ -26,20 +26,7 @@ const TopNav = () => {
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Ошибка проверки роли:', error);
-          setIsModerator(false);
-          return;
-        }
-
-        // Профиль всегда должен существовать для зарегистрированного пользователя
-        // Если профиль не найден, это означает проблему с базой данных
+        const { data: profile } = await profilesApi.getMe();
         setIsModerator(profile?.role === 'moderator' || profile?.role === 'admin');
       } catch (error) {
         console.error('Ошибка проверки роли:', error);

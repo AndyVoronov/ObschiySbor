@@ -1,7 +1,7 @@
 // Компонент для вкладки "Участники" - отображает список без сворачивания
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { eventsApi, friendsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './EventParticipants.css';
 
@@ -26,25 +26,10 @@ const EventDetailsParticipants = ({ eventId, creatorId, eventTitle }) => {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from('event_participants')
-        .select(`
-          user_id,
-          joined_at,
-          profiles (
-            id,
-            full_name,
-            avatar_url,
-            city
-          )
-        `)
-        .eq('event_id', eventId)
-        .order('joined_at', { ascending: false });
+      const { data } = await eventsApi.getParticipants(eventId);
 
-      if (error) throw error;
-
-      const participantsList = data.map(p => ({
-        ...p.profiles,
+      const participantsList = (data || []).map(p => ({
+        ...p,
         joined_at: p.joined_at,
         is_creator: p.user_id === creatorId
       }));
@@ -67,17 +52,11 @@ const EventDetailsParticipants = ({ eventId, creatorId, eventTitle }) => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('friendships')
-        .select('user_id, friend_id, status')
-        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
-
-      if (error) throw error;
+      const { data } = await friendsApi.list();
 
       const friendshipMap = {};
-      data.forEach(f => {
-        const friendId = f.user_id === user.id ? f.friend_id : f.user_id;
-        friendshipMap[friendId] = f.status;
+      (data || []).forEach(friend => {
+        friendshipMap[friend.id] = friend.status || 'accepted';
       });
 
       setFriendships(friendshipMap);
@@ -92,26 +71,7 @@ const EventDetailsParticipants = ({ eventId, creatorId, eventTitle }) => {
     setAddingFriend({ ...addingFriend, [friendId]: true });
 
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .insert({
-          user_id: user.id,
-          friend_id: friendId,
-          status: 'pending'
-        });
-
-      if (error) throw error;
-
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: friendId,
-          type: 'friend_request',
-          title: t('notifications.friendRequestTitle'),
-          message: t('notifications.friendRequestMessage'),
-          link: '/profile?tab=friends',
-          read: false
-        });
+      await friendsApi.request(friendId);
 
       setFriendships({ ...friendships, [friendId]: 'pending' });
       alert(t('profile.friends.requestSent'));

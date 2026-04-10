@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { profilesApi, eventsApi, notificationsApi, dictionariesApi } from '../lib/api';
 import { useEvent, useBoardGames, useParticipation, useJoinEvent, useLeaveEvent } from '../hooks/useEvent';
 import EventStatusBadge from '../components/EventStatusBadge';
 import ReportButton from '../components/ReportButton';
@@ -57,13 +57,7 @@ const EventDetails = () => {
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('is_blocked, block_reason, blocked_at, blocked_until')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) throw error;
+        const { data: profile } = await profilesApi.getMe();
 
         if (!profile) {
           console.warn('Профиль не найден для пользователя:', user.id);
@@ -82,182 +76,110 @@ const EventDetails = () => {
     checkBlockStatus();
   }, [user]);
 
+  // Вспомогательная функция для загрузки названия из справочника по ID
+  const fetchDictionaryName = async (tableName, idValue) => {
+    try {
+      const { data } = await dictionariesApi.getById(tableName, idValue);
+      return data?.name || null;
+    } catch {
+      return null;
+    }
+  };
+
   // Функция загрузки связанных данных (справочники для категорий)
   const fetchCategoryRelatedData = async () => {
     if (!event?.category_data) return;
 
     try {
       const relatedData = {};
+      const catData = event.category_data;
 
       // Загружаем данные в зависимости от категории
-      if (event.category === 'yoga' && event.category_data.yoga_practice_type_id) {
-        const { data } = await supabase
-          .from('yoga_practice_types')
-          .select('name')
-          .eq('id', event.category_data.yoga_practice_type_id)
-          .single();
-        if (data) relatedData.practice_type = data.name;
+      if (event.category === 'yoga' && catData.yoga_practice_type_id) {
+        relatedData.practice_type = await fetchDictionaryName('yoga_practice_types', catData.yoga_practice_type_id);
       }
 
-      if (event.category === 'cooking' && event.category_data.cuisine_type_id) {
-        const { data } = await supabase
-          .from('cuisine_types')
-          .select('name')
-          .eq('id', event.category_data.cuisine_type_id)
-          .single();
-        if (data) relatedData.cuisine_type = data.name;
+      if (event.category === 'cooking' && catData.cuisine_type_id) {
+        relatedData.cuisine_type = await fetchDictionaryName('cuisine_types', catData.cuisine_type_id);
       }
 
-      if (event.category === 'movie' && event.category_data.genre_id) {
-        const { data } = await supabase
-          .from('movie_genres')
-          .select('name')
-          .eq('id', event.category_data.genre_id)
-          .single();
-        if (data) relatedData.genre = data.name;
+      if (event.category === 'movie' && catData.genre_id) {
+        relatedData.genre = await fetchDictionaryName('movie_genres', catData.genre_id);
       }
 
-      if (event.category === 'photo_walk' && event.category_data.theme_id) {
-        const { data } = await supabase
-          .from('photo_walk_themes')
-          .select('name')
-          .eq('id', event.category_data.theme_id)
-          .single();
-        if (data) relatedData.theme = data.name;
+      if (event.category === 'photo_walk' && catData.theme_id) {
+        relatedData.theme = await fetchDictionaryName('photo_walk_themes', catData.theme_id);
       }
 
-      if (event.category === 'exhibition' && event.category_data.exhibition_type_id) {
-        const { data } = await supabase
-          .from('exhibition_types')
-          .select('name')
-          .eq('id', event.category_data.exhibition_type_id)
-          .single();
-        if (data) relatedData.exhibition_type = data.name;
+      if (event.category === 'exhibition' && catData.exhibition_type_id) {
+        relatedData.exhibition_type = await fetchDictionaryName('exhibition_types', catData.exhibition_type_id);
       }
 
-      if (event.category === 'volunteer' && event.category_data.activity_type_id) {
-        const { data } = await supabase
-          .from('volunteer_activity_types')
-          .select('name')
-          .eq('id', event.category_data.activity_type_id)
-          .single();
-        if (data) relatedData.activity_type = data.name;
+      if (event.category === 'volunteer' && catData.activity_type_id) {
+        relatedData.activity_type = await fetchDictionaryName('volunteer_activity_types', catData.activity_type_id);
       }
 
-      if (event.category === 'quest' && event.category_data.quest_type_id) {
-        const { data } = await supabase
-          .from('quest_types')
-          .select('name')
-          .eq('id', event.category_data.quest_type_id)
-          .single();
-        if (data) relatedData.quest_type = data.name;
+      if (event.category === 'quest' && catData.quest_type_id) {
+        relatedData.quest_type = await fetchDictionaryName('quest_types', catData.quest_type_id);
       }
 
-      if (event.category === 'book_club' && event.category_data.genre_id) {
-        const { data } = await supabase
-          .from('book_genres')
-          .select('name')
-          .eq('id', event.category_data.genre_id)
-          .single();
-        if (data) relatedData.genre = data.name;
+      if (event.category === 'book_club' && catData.genre_id) {
+        relatedData.genre = await fetchDictionaryName('book_genres', catData.genre_id);
       }
 
-      if (event.category === 'pets' && event.category_data.pet_type_id) {
-        const { data } = await supabase
-          .from('pet_types')
-          .select('name')
-          .eq('id', event.category_data.pet_type_id)
-          .single();
-        if (data) relatedData.pet_type = data.name;
+      if (event.category === 'pets' && catData.pet_type_id) {
+        relatedData.pet_type = await fetchDictionaryName('pet_types', catData.pet_type_id);
       }
 
-      if (event.category === 'dance' && event.category_data.dance_style_id) {
-        const { data } = await supabase
-          .from('dance_styles')
-          .select('name')
-          .eq('id', event.category_data.dance_style_id)
-          .single();
-        if (data) relatedData.dance_style = data.name;
+      if (event.category === 'dance' && catData.dance_style_id) {
+        relatedData.dance_style = await fetchDictionaryName('dance_styles', catData.dance_style_id);
       }
 
-      if (event.category === 'music_jam' && event.category_data.genre_id) {
-        const { data } = await supabase
-          .from('music_genres')
-          .select('name')
-          .eq('id', event.category_data.genre_id)
-          .single();
-        if (data) relatedData.genre = data.name;
+      if (event.category === 'music_jam' && catData.genre_id) {
+        relatedData.genre = await fetchDictionaryName('music_genres', catData.genre_id);
       }
 
-      if (event.category === 'language' && event.category_data.language_id) {
-        const { data } = await supabase
-          .from('languages')
-          .select('name')
-          .eq('id', event.category_data.language_id)
-          .single();
-        if (data) relatedData.language = data.name;
+      if (event.category === 'language' && catData.language_id) {
+        relatedData.language = await fetchDictionaryName('languages', catData.language_id);
       }
 
-      if (event.category === 'fitness' && event.category_data.workout_type_id) {
-        const { data } = await supabase
-          .from('workout_types')
-          .select('name')
-          .eq('id', event.category_data.workout_type_id)
-          .single();
-        if (data) relatedData.workout_type = data.name;
+      if (event.category === 'fitness' && catData.workout_type_id) {
+        relatedData.workout_type = await fetchDictionaryName('workout_types', catData.workout_type_id);
       }
 
-      if (event.category === 'theater' && event.category_data.genre_id) {
-        const { data } = await supabase
-          .from('theater_genres')
-          .select('name')
-          .eq('id', event.category_data.genre_id)
-          .single();
-        if (data) relatedData.genre = data.name;
+      if (event.category === 'theater' && catData.genre_id) {
+        relatedData.genre = await fetchDictionaryName('theater_genres', catData.genre_id);
       }
 
       if (event.category === 'craft') {
-        if (event.category_data.craft_type_id) {
-          const { data } = await supabase
-            .from('craft_types')
-            .select('name')
-            .eq('id', event.category_data.craft_type_id)
-            .single();
-          if (data) relatedData.craft_type = data.name;
+        if (catData.craft_type_id) {
+          relatedData.craft_type = await fetchDictionaryName('craft_types', catData.craft_type_id);
         }
 
-        const { data: materials } = await supabase
-          .from('event_craft_materials')
-          .select('craft_materials(name)')
-          .eq('event_id', id);
-        if (materials) relatedData.materials = materials.map(m => m.craft_materials.name);
+        // Загружаем материалы для ремесла, связанные с этим событием
+        try {
+          const { data: materials } = await eventsApi.getCraftMaterials?.(id)
+            || await dictionariesApi.getById('event_craft_materials', id);
+          if (materials) {
+            relatedData.materials = Array.isArray(materials)
+              ? materials.map(m => m.name || m.craft_materials?.name)
+              : [];
+          }
+        } catch {
+          // Не критично — пропускаем материалы
+        }
       }
 
-      if (event.category === 'concert' && event.category_data.genre_id) {
-        const { data } = await supabase
-          .from('music_genres')
-          .select('name')
-          .eq('id', event.category_data.genre_id)
-          .single();
-        if (data) relatedData.genre = data.name;
+      if (event.category === 'concert' && catData.genre_id) {
+        relatedData.genre = await fetchDictionaryName('music_genres', catData.genre_id);
       }
 
-      if (event.category === 'sports' && event.category_data.sport_type_id) {
-        const { data } = await supabase
-          .from('sports_types')
-          .select('name')
-          .eq('id', event.category_data.sport_type_id)
-          .single();
-        if (data) relatedData.sport_type = data.name;
+      if (event.category === 'sports' && catData.sport_type_id) {
+        relatedData.sport_type = await fetchDictionaryName('sports_types', catData.sport_type_id);
       }
 
-      if (event.category === 'eco_tour' && event.category_data.tour_type_id) {
-        const { data } = await supabase
-          .from('eco_tour_types')
-          .select('name')
-          .eq('id', event.category_data.tour_type_id)
-          .single();
-        if (data) relatedData.tour_type = data.name;
+      if (event.category === 'eco_tour' && catData.tour_type_id) {
+        relatedData.tour_type = await fetchDictionaryName('eco_tour_types', catData.tour_type_id);
       }
 
       setCategoryRelatedData(relatedData);
@@ -281,11 +203,7 @@ const EventDetails = () => {
       });
 
       // Получаем имя пользователя для уведомления
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .maybeSingle();
+      const { data: profileData } = await profilesApi.getMe();
 
       if (!profileData) {
         console.warn('Профиль не найден для пользователя:', user.id);
@@ -336,29 +254,18 @@ const EventDetails = () => {
     setCancelling(true);
     try {
       // Обновляем статус события на cancelled
-      const { error: updateError } = await supabase
-        .from('events')
-        .update({
-          lifecycle_status: EVENT_STATUS.CANCELLED,
-          cancellation_reason: cancellationReason
-        })
-        .eq('id', id);
-
-      if (updateError) throw updateError;
+      await eventsApi.update(id, {
+        lifecycle_status: EVENT_STATUS.CANCELLED,
+        cancellation_reason: cancellationReason
+      });
 
       // Получаем всех участников события
-      const { data: participants, error: participantsError } = await supabase
-        .from('event_participants')
-        .select('user_id, profiles(full_name)')
-        .eq('event_id', id);
-
-      if (participantsError) throw participantsError;
+      const { data: participants } = await eventsApi.getParticipants(id);
 
       // Отправляем уведомления всем участникам
-      for (const participant of participants) {
-        await supabase
-          .from('notifications')
-          .insert({
+      if (participants && participants.length > 0) {
+        for (const participant of participants) {
+          await notificationsApi.create({
             user_id: participant.user_id,
             type: 'event_cancelled',
             title: t('eventDetails.eventCancelled'),
@@ -366,6 +273,7 @@ const EventDetails = () => {
             link: `/events/${id}`,
             read: false
           });
+        }
       }
 
       // Перезагружаем страницу для обновления статуса

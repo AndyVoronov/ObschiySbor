@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useEffect, useState, useRef } from 'react';
+import { notificationsApi, wsHelpers } from '../lib/api';
+import { getAccessToken } from '../lib/authStorage';
 
 /**
- * Хук для работы с real-time уведомлениями
+ * Хук для работы с уведомлениями через API + WebSocket
  * @param {string} userId - ID пользователя
  * @returns {Object} - Объект с уведомлениями и методами управления
  */
@@ -10,6 +11,8 @@ export const useNotifications = (userId) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [permission, setPermission] = useState('default');
+  const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
 
   // Запрос разрешения на уведомления
   useEffect(() => {
@@ -29,116 +32,120 @@ export const useNotifications = (userId) => {
     if (!userId) return;
 
     const fetchNotifications = async () => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (!error && data) {
-        setNotifications(data);
-        setUnreadCount(data.filter(n => !n.is_read).length);
+      try {
+        const { data } = await notificationsApi.list();
+        if (data) {
+          setNotifications(data);
+          setUnreadCount(data.filter(n => !n.is_read).length);
+        }
+      } catch (err) {
+        console.error('Error loading notifications:', err);
       }
     };
 
     fetchNotifications();
   }, [userId]);
 
-  // Подписка на real-time обновления
+  // WebSocket для real-time уведомлений
   useEffect(() => {
     if (!userId) return;
 
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          const newNotification = payload.new;
+    const token = getAccessToken();
+    if (!token) return;
 
-          // Добавляем уведомление в список
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
+    const connectWs = () => {
+      try {
+        const url = wsHelpers.getNotificationsUrl(token);
+        const ws = new WebSocket(url);
+        wsRef.current = ws;
 
-          // Показываем браузерное уведомление
-          if ('Notification' in window && Notification.permission === 'granted') {
-            const notification = new Notification('Общий сбор!', {
-              body: newNotification.message,
-              icon: '/favicon.ico',
-              badge: '/favicon.ico',
-              tag: newNotification.id,
-            });
+        ws.onopen = () => console.log('Notification WS connected');
+        ws.onmessage = (event) => {
+          try {
+            const newNotification = JSON.parse(event.data);
+            setNotifications((prev) => [newNotification, ...prev]);
+            setUnreadCount((prev) => prev + 1);
 
-            // Автоматически закрываем через 5 секунд
-            setTimeout(() => notification.close(), 5000);
-
-            // Обработка клика по уведомлению
-            notification.onclick = () => {
-              window.focus();
-              if (newNotification.event_id) {
-                window.location.href = `/events/${newNotification.event_id}`;
-              }
-              notification.close();
-            };
+            if ('Notification' in window && Notification.permission === 'granted') {
+              const notification = new Notification('Общий сбор!', {
+                body: newNotification.message,
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: newNotification.id,
+              });
+              setTimeout(() => notification.close(), 5000);
+              notification.onclick = () => {
+                window.focus();
+                if (newNotification.event_id) {
+                  window.location.href = `/events/${newNotification.event_id}`;
+                }
+                notification.close();
+              };
+            }
+          } catch (err) {
+            console.error('Error parsing WS notification:', err);
           }
-        }
-      )
-      .subscribe();
+        };
+        ws.onclose = () => {
+          console.log('Notification WS closed, reconnecting...');
+          reconnectTimeoutRef.current = setTimeout(connectWs, 5000);
+        };
+        ws.onerror = () => {
+          ws.close();
+        };
+      } catch (err) {
+        console.error('Error connecting notification WS:', err);
+        reconnectTimeoutRef.current = setTimeout(connectWs, 10000);
+      }
+    };
 
-    // Очистка при размонтировании
+    connectWs();
+
     return () => {
-      supabase.removeChannel(channel);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
   }, [userId]);
 
   // Отметить уведомление как прочитанное
   const markAsRead = async (notificationId) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', notificationId);
-
-    if (!error) {
+    try {
+      await notificationsApi.markRead(notificationId);
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
     }
   };
 
   // Отметить все уведомления как прочитанные
   const markAllAsRead = async () => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', userId)
-      .eq('is_read', false);
-
-    if (!error) {
+    try {
+      await notificationsApi.markAllRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
+    } catch (err) {
+      console.error('Error marking all as read:', err);
     }
   };
 
   // Удалить уведомление
   const deleteNotification = async (notificationId) => {
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('id', notificationId);
-
-    if (!error) {
+    try {
+      await notificationsApi.delete(notificationId);
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       const deletedNotification = notifications.find((n) => n.id === notificationId);
       if (deletedNotification && !deletedNotification.is_read) {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
+    } catch (err) {
+      console.error('Error deleting notification:', err);
     }
   };
 

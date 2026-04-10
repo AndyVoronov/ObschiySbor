@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { promoCodesApi } from '../lib/api';
+import { getCurrentUser } from '../lib/authStorage';
 import './PromoCodeInput.css';
 
 const PromoCodeInput = ({ category, price, onPromoApplied, initialCode = '' }) => {
@@ -21,7 +22,7 @@ const PromoCodeInput = ({ category, price, onPromoApplied, initialCode = '' }) =
     setError('');
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = getCurrentUser();
 
       if (!user) {
         setError(t('promoCode.errors.authRequired'));
@@ -29,47 +30,33 @@ const PromoCodeInput = ({ category, price, onPromoApplied, initialCode = '' }) =
         return;
       }
 
-      const { data, error: rpcError } = await supabase.rpc('validate_promo_code', {
-        p_code: code.trim().toUpperCase(),
-        p_user_id: user.id,
-        p_category: category || null,
-        p_price: price || 0
-      });
+      const response = await promoCodesApi.validate(code.trim().toUpperCase(), category || null);
+      const data = response.data;
 
-      if (rpcError) {
-        console.error('Promo code validation error:', rpcError);
-        setError(t('promoCode.errors.invalid'));
-        setValidating(false);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const promoData = data[0];
-
-        if (!promoData.is_valid) {
-          setError(t(`promoCode.errors.${promoData.error_message}`) || promoData.error_message);
-          setValidating(false);
-          return;
-        }
-
-        setAppliedPromo(promoData);
+      if (data && data.is_valid) {
+        setAppliedPromo(data);
         if (onPromoApplied) {
           onPromoApplied({
             code: code.trim().toUpperCase(),
-            promoCodeId: promoData.promo_code_id,
-            discountAmount: promoData.discount_amount,
-            finalPrice: promoData.final_price,
-            discountType: promoData.discount_type,
-            description: promoData.description,
-            discountValue: promoData.discount_value
+            promoCodeId: data.promo_code_id,
+            discountAmount: data.discount_amount,
+            finalPrice: data.final_price,
+            discountType: data.discount_type,
+            description: data.description,
+            discountValue: data.discount_value
           });
         }
       } else {
-        setError(t('promoCode.errors.invalid'));
+        const errorMsg = data?.error_message || 'invalid';
+        setError(t(`promoCode.errors.${errorMsg}`) || errorMsg);
       }
     } catch (err) {
       console.error('Unexpected error during promo code validation:', err);
-      setError(t('promoCode.errors.validationFailed'));
+      if (err.response?.status === 404 || err.response?.status === 400) {
+        setError(t('promoCode.errors.invalid'));
+      } else {
+        setError(t('promoCode.errors.validationFailed'));
+      }
     }
 
     setValidating(false);

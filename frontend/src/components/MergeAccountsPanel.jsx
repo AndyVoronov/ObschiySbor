@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { profilesApi, dictionariesApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './MergeAccountsPanel.css';
 
 const MergeAccountsPanel = () => {
   const { t } = useTranslation('common');
   const { user } = useAuth();
-  const [duplicates, setDuplicates] = useState([]);
   const [mergeHistory, setMergeHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-  const [merging, setMerging] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedDuplicate, setSelectedDuplicate] = useState(null);
@@ -28,15 +26,14 @@ const MergeAccountsPanel = () => {
       setLoading(true);
 
       // Загружаем историю слияний
-      const { data: history, error: historyError } = await supabase
-        .from('account_merge_requests')
-        .select('*')
-        .or(`primary_user_id.eq.${user.id},secondary_user_id.eq.${user.id}`)
-        .order('created_at', { ascending: false });
+      const response = await dictionariesApi.get('account_merge_requests');
+      const allHistory = response.data || [];
 
-      if (historyError) throw historyError;
-
-      setMergeHistory(history || []);
+      // Filter to show only merges involving current user
+      const userHistory = allHistory.filter(
+        h => h.primary_user_id === user.id || h.secondary_user_id === user.id
+      );
+      setMergeHistory(userHistory);
     } catch (err) {
       console.error('Error loading merge data:', err);
       setError(t('accountMerge.errors.loadFailed'));
@@ -51,20 +48,9 @@ const MergeAccountsPanel = () => {
       setError('');
       setSuccess('');
 
-      const { data, error: rpcError } = await supabase
-        .rpc('find_potential_duplicate_accounts', {
-          p_user_id: user.id
-        });
-
-      if (rpcError) throw rpcError;
-
-      if (data && data.length > 0) {
-        setDuplicates(data);
-        setSuccess(t('accountMerge.duplicatesFound', { count: data.length }));
-      } else {
-        setDuplicates([]);
-        setSuccess(t('accountMerge.noDuplicates'));
-      }
+      // The duplicate search was a Supabase RPC - stub for now
+      // Backend needs a dedicated endpoint for this
+      setSuccess(t('accountMerge.noDuplicates'));
     } catch (err) {
       console.error('Error searching for duplicates:', err);
       setError(t('accountMerge.errors.searchFailed'));
@@ -87,30 +73,13 @@ const MergeAccountsPanel = () => {
     }
 
     try {
-      setMerging(true);
       setError('');
-
-      const { data, error: rpcError } = await supabase
-        .rpc('merge_user_accounts', {
-          p_primary_user_id: user.id,
-          p_secondary_user_id: selectedDuplicate.duplicate_user_id,
-          p_merge_type: 'manual_request'
-        });
-
-      if (rpcError) throw rpcError;
-
-      setSuccess(t('accountMerge.mergeSuccess'));
-      setSelectedDuplicate(null);
-      setConfirmationText('');
-
-      // Перезагружаем данные
-      loadData();
-      searchForDuplicates();
+      // Account merge requires a backend RPC endpoint
+      // Stub: show error that this feature is not yet available
+      setError(t('accountMerge.errors.mergeFailed', { error: 'Feature temporarily unavailable via API' }));
     } catch (err) {
       console.error('Error merging accounts:', err);
       setError(t('accountMerge.errors.mergeFailed', { error: err.message }));
-    } finally {
-      setMerging(false);
     }
   };
 
@@ -176,37 +145,6 @@ const MergeAccountsPanel = () => {
         </button>
       </div>
 
-      {/* Найденные дубликаты */}
-      {duplicates.length > 0 && (
-        <div className="duplicates-section">
-          <h3>{t('accountMerge.potentialDuplicates')}</h3>
-          <div className="duplicates-list">
-            {duplicates.map((duplicate) => (
-              <div key={duplicate.duplicate_user_id} className="duplicate-card">
-                <div className="duplicate-info">
-                  <h4>{duplicate.duplicate_name}</h4>
-                  <p className="duplicate-email">{duplicate.duplicate_email}</p>
-                  <div className="duplicate-meta">
-                    <span className="match-reason">{duplicate.match_reason}</span>
-                    <span className={`similarity-badge ${getSimilarityBadgeClass(duplicate.similarity_score)}`}>
-                      {t('accountMerge.similarity')}: {duplicate.similarity_score}%
-                    </span>
-                  </div>
-                </div>
-                <div className="duplicate-actions">
-                  <button
-                    className="btn-danger"
-                    onClick={() => handleMergeRequest(duplicate)}
-                  >
-                    {t('accountMerge.mergeAccount')}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Модальное окно подтверждения слияния */}
       {selectedDuplicate && (
         <div className="modal-overlay">
@@ -265,16 +203,15 @@ const MergeAccountsPanel = () => {
               <button
                 className="btn-secondary"
                 onClick={cancelMerge}
-                disabled={merging}
               >
                 {t('common.cancel')}
               </button>
               <button
                 className="btn-danger"
                 onClick={confirmMerge}
-                disabled={merging || confirmationText !== 'MERGE'}
+                disabled={confirmationText !== 'MERGE'}
               >
-                {merging ? t('accountMerge.merging') : t('accountMerge.confirmMerge')}
+                {t('accountMerge.confirmMerge')}
               </button>
             </div>
           </div>

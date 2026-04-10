@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { profilesApi, gamificationApi } from '../lib/api';
 import PropTypes from 'prop-types';
 import './GameCard.css';
 
@@ -19,97 +19,34 @@ const GameCard = ({ userId, onEdit, onLogout }) => {
     try {
       setLoading(true);
 
-      // Загружаем профиль пользователя
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+      // Загружаем профиль пользователя и статистику параллельно
+      const [profileRes, statsRes, gamificationRes] = await Promise.all([
+        profilesApi.getById(userId),
+        profilesApi.getStats(userId),
+        gamificationApi.get(userId),
+      ]);
 
-      if (profileError) throw profileError;
-      
+      const profile = profileRes.data;
+
       if (!profile) {
         console.error('Профиль не найден в базе данных для пользователя:', userId);
         return;
       }
 
-      // Загружаем количество созданных событий
-      const { count: eventsCreated, error: eventsError } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .eq('creator_id', userId);
-
-      if (eventsError) throw eventsError;
-
-      // Загружаем количество посещённых событий
-      const { count: eventsAttended, error: attendedError } = await supabase
-        .from('event_participants')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      if (attendedError) throw attendedError;
-
-      // Загружаем количество отзывов
-      const { count: reviewsCount, error: reviewsError } = await supabase
-        .from('reviews')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      if (reviewsError) throw reviewsError;
-
-      // Загружаем количество друзей
-      const { count: friendsCount, error: friendsError } = await supabase
-        .from('friendships')
-        .select('*', { count: 'exact', head: true })
-        .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
-        .eq('status', 'accepted');
-
-      if (friendsError) throw friendsError;
-
-      // Загружаем количество разблокированных достижений
-      const { count: achievementsUnlocked, error: achievementsError } = await supabase
-        .from('user_achievements')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('is_unlocked', true);
-
-      if (achievementsError) throw achievementsError;
-
-      // Загружаем общее количество достижений
-      const { count: totalAchievements, error: totalAchievementsError } = await supabase
-        .from('achievements')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-
-      if (totalAchievementsError) throw totalAchievementsError;
-
-      // Используем дату создания из профиля, т.к. admin API недоступен
-      const registrationDate = profile.created_at;
-
-      // Загружаем информацию о текущем и следующем уровне
-      const { data: currentLevel } = await supabase
-        .from('levels')
-        .select('*')
-        .eq('level', profile.level)
-        .single();
-
-      const { data: nextLevel } = await supabase
-        .from('levels')
-        .select('*')
-        .eq('level', profile.level + 1)
-        .single();
+      const stats = statsRes.data || {};
+      const gamification = gamificationRes.data || {};
 
       setUserData({
         profile,
-        eventsCreated: eventsCreated || 0,
-        eventsAttended: eventsAttended || 0,
-        reviewsCount: reviewsCount || 0,
-        friendsCount: friendsCount || 0,
-        achievementsUnlocked: achievementsUnlocked || 0,
-        totalAchievements: totalAchievements || 0,
-        currentLevel,
-        nextLevel,
-        registrationDate,
+        eventsCreated: stats.events_created || stats.eventsCreated || 0,
+        eventsAttended: stats.events_attended || stats.eventsAttended || 0,
+        reviewsCount: stats.reviews_count || stats.reviewsCount || 0,
+        friendsCount: stats.friends_count || stats.friendsCount || 0,
+        achievementsUnlocked: gamification.achievements_unlocked || gamification.achievementsUnlocked || 0,
+        totalAchievements: gamification.total_achievements || gamification.totalAchievements || 0,
+        currentLevel: gamification.current_level || gamification.currentLevel || null,
+        nextLevel: gamification.next_level || gamification.nextLevel || null,
+        registrationDate: profile.created_at,
       });
 
     } catch (error) {

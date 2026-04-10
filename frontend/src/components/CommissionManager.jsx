@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { commissionApi } from '../lib/api';
+import { getCurrentUser } from '../lib/authStorage';
 import './CommissionManager.css';
 
 const CommissionManager = () => {
@@ -31,29 +32,12 @@ const CommissionManager = () => {
       setLoading(true);
 
       // Загрузка настроек комиссии
-      const { data: settings, error: settingsError } = await supabase
-        .from('service_commission_settings')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (settingsError && settingsError.code !== 'PGRST116') { // PGRST116 = no rows
-        throw settingsError;
-      }
-
-      setCommissionSettings(settings);
+      const settingsResponse = await commissionApi.get();
+      setCommissionSettings(settingsResponse.data || null);
 
       // Загрузка периодов скидок
-      const { data: periods, error: periodsError } = await supabase
-        .from('commission_discount_periods')
-        .select('*')
-        .order('start_date', { ascending: false });
-
-      if (periodsError) throw periodsError;
-
-      setDiscountPeriods(periods || []);
+      const periodsResponse = await commissionApi.listDiscounts();
+      setDiscountPeriods(periodsResponse.data || []);
     } catch (err) {
       console.error('Error loading commission data:', err);
       setError(t('commissionManager.errorLoading'));
@@ -121,32 +105,28 @@ const CommissionManager = () => {
     if (!validateForm()) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = getCurrentUser();
 
       if (!user) {
         setError(t('commissionManager.errors.notAuthenticated'));
         return;
       }
 
-      const periodData = {
-        name: formData.name.trim(),
-        description: formData.description.trim() || null,
-        discount_percentage: parseFloat(formData.discount_percentage),
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        applicable_categories: formData.applicable_categories.length > 0
-          ? formData.applicable_categories
-          : null,
-        min_event_price: parseFloat(formData.min_event_price) || 0,
-        is_active: formData.is_active,
-        created_by: user.id,
-      };
+      const periodData = new FormData();
+      periodData.append('name', formData.name.trim());
+      if (formData.description.trim()) {
+        periodData.append('description', formData.description.trim());
+      }
+      periodData.append('discount_percentage', parseFloat(formData.discount_percentage));
+      periodData.append('start_date', formData.start_date);
+      periodData.append('end_date', formData.end_date);
+      if (formData.applicable_categories.length > 0) {
+        periodData.append('applicable_categories', JSON.stringify(formData.applicable_categories));
+      }
+      periodData.append('min_event_price', parseFloat(formData.min_event_price) || 0);
+      periodData.append('is_active', formData.is_active);
 
-      const { error: insertError } = await supabase
-        .from('commission_discount_periods')
-        .insert([periodData]);
-
-      if (insertError) throw insertError;
+      await commissionApi.createDiscount(periodData);
 
       setSuccess(t('commissionManager.success.created'));
       setFormData({
@@ -169,12 +149,9 @@ const CommissionManager = () => {
 
   const toggleActiveStatus = async (id, currentStatus) => {
     try {
-      const { error } = await supabase
-        .from('commission_discount_periods')
-        .update({ is_active: !currentStatus })
-        .eq('id', id);
-
-      if (error) throw error;
+      const formData = new FormData();
+      formData.append('is_active', !currentStatus);
+      await commissionApi.createDiscount(formData);
 
       loadData();
       setSuccess(t('commissionManager.success.updated'));
@@ -188,12 +165,7 @@ const CommissionManager = () => {
     if (!confirm(t('commissionManager.confirmDelete'))) return;
 
     try {
-      const { error } = await supabase
-        .from('commission_discount_periods')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await commissionApi.deleteDiscount(id);
 
       loadData();
       setSuccess(t('commissionManager.success.deleted'));

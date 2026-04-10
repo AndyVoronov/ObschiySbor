@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { profilesApi, eventsApi, invitationsApi } from '../lib/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AvatarUpload from '../components/AvatarUpload';
@@ -43,23 +43,9 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
+      const { data } = await profilesApi.getMe();
 
-      if (error) {
-        console.error(t('profile.errorLoadingProfile'), error);
-        // Если профиль не найден или произошла ошибка, создаём пустой объект
-        setProfile({
-          id: user.id,
-          full_name: '',
-          city: '',
-          interests: '',
-          gender: '',
-        });
-      } else if (!data) {
+      if (!data) {
         // Профиль не найден - это ошибка, т.к. профиль должен создаваться автоматически
         console.error('Профиль не найден в базе данных для пользователя:', user.id);
         // Создаём временный профиль, чтобы избежать падения UI
@@ -96,13 +82,7 @@ const Profile = () => {
 
   const fetchMyEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('creator_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await eventsApi.list({ creator_id: user.id });
       setMyEvents(data || []);
     } catch (error) {
       console.error(t('profile.errorLoadingEvents'), error.message);
@@ -111,16 +91,8 @@ const Profile = () => {
 
   const fetchParticipatingEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('event_participants')
-        .select(`
-          *,
-          events (*)
-        `)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      setParticipatingEvents(data?.map(p => p.events) || []);
+      const { data } = await eventsApi.list({ participant_id: user.id });
+      setParticipatingEvents(data || []);
     } catch (error) {
       console.error(t('profile.errorLoadingParticipations'), error.message);
     }
@@ -128,14 +100,8 @@ const Profile = () => {
 
   const fetchInvitationsCount = async () => {
     try {
-      const { count, error } = await supabase
-        .from('event_invitations')
-        .select('*', { count: 'exact', head: true })
-        .eq('invitee_id', user.id)
-        .eq('status', 'pending');
-
-      if (error) throw error;
-      setInvitationsCount(count || 0);
+      const { data: invitations } = await invitationsApi.list();
+      setInvitationsCount(invitations?.filter(i => i.status === 'pending').length || 0);
     } catch (error) {
       console.error('Ошибка загрузки количества приглашений:', error.message);
     }
@@ -151,12 +117,7 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(formData)
-        .eq('id', user.id);
-
-      if (error) throw error;
+      await profilesApi.updateMe(formData);
 
       setProfile({ ...profile, ...formData });
       setEditing(false);

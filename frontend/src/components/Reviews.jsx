@@ -1,5 +1,5 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { supabase } from '../lib/supabase';
+import { reviewsApi } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import './Reviews.css';
 
@@ -16,19 +16,8 @@ const Reviews = forwardRef(({ eventId }, ref) => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('reviews')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const response = await reviewsApi.list(eventId);
+      const data = response.data;
 
       setReviews(data || []);
 

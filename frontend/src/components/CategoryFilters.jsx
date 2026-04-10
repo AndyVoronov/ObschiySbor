@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { dictionariesApi } from '../lib/api';
 import { CATEGORIES } from '../constants/categories';
 import './CategoryFilters.css';
 
@@ -18,131 +18,83 @@ const CategoryFilters = ({ category, filters, onChange }) => {
 
       // Загружаем справочники в зависимости от категории
       if (category === CATEGORIES.BOARD_GAMES) {
-        const { data: games } = await supabase
-          .from('board_games')
-          .select('id, name')
-          .order('name');
-        data.boardGames = games || [];
+        const response = await dictionariesApi.get('board_games');
+        data.boardGames = response.data || [];
       }
 
       if (category === CATEGORIES.YOGA) {
-        const { data: types } = await supabase
-          .from('yoga_practice_types')
-          .select('id, name')
-          .order('name');
-        data.practiceTypes = types || [];
+        const response = await dictionariesApi.get('yoga_practice_types');
+        data.practiceTypes = response.data || [];
       }
 
       if (category === CATEGORIES.COOKING) {
-        const { data: types } = await supabase
-          .from('cuisine_types')
-          .select('id, name')
-          .order('name');
-        data.cuisineTypes = types || [];
+        const response = await dictionariesApi.get('cuisine_types');
+        data.cuisineTypes = response.data || [];
       }
 
       if (category === CATEGORIES.MUSIC_JAM) {
-        const { data: genres } = await supabase
-          .from('music_genres')
-          .select('id, name')
-          .order('name');
-        data.genres = genres || [];
+        const response = await dictionariesApi.get('music_genres');
+        data.genres = response.data || [];
       }
 
       if (category === CATEGORIES.SEMINAR) {
-        const { data: topics } = await supabase
-          .from('seminar_topics')
-          .select('id, name')
-          .order('name');
-        data.topics = topics || [];
+        const response = await dictionariesApi.get('seminar_topics');
+        data.topics = response.data || [];
       }
 
       if (category === CATEGORIES.PICNIC) {
-        const { data: types } = await supabase
-          .from('picnic_types')
-          .select('id, name')
-          .order('name');
-        data.picnicTypes = types || [];
+        const response = await dictionariesApi.get('picnic_types');
+        data.picnicTypes = response.data || [];
       }
 
       if (category === CATEGORIES.PHOTO_WALK) {
-        const { data: themes } = await supabase
-          .from('photography_themes')
-          .select('id, name')
-          .order('name');
-        data.themes = themes || [];
+        const response = await dictionariesApi.get('photography_themes');
+        data.themes = response.data || [];
       }
 
       if (category === CATEGORIES.QUEST) {
-        const { data: themes } = await supabase
-          .from('quest_themes')
-          .select('id, name')
-          .order('name');
-        data.questThemes = themes || [];
+        const response = await dictionariesApi.get('quest_themes');
+        data.questThemes = response.data || [];
       }
 
       if (category === CATEGORIES.DANCE) {
-        const { data: styles } = await supabase
-          .from('dance_styles')
-          .select('id, name')
-          .order('name');
-        data.danceStyles = styles || [];
+        const response = await dictionariesApi.get('dance_styles');
+        data.danceStyles = response.data || [];
       }
 
       if (category === CATEGORIES.VOLUNTEER) {
-        const { data: types } = await supabase
-          .from('volunteer_activity_types')
-          .select('id, name')
-          .order('name');
-        data.activityTypes = types || [];
+        const response = await dictionariesApi.get('volunteer_activity_types');
+        data.activityTypes = response.data || [];
       }
 
       if (category === CATEGORIES.FITNESS) {
-        const { data: types } = await supabase
-          .from('fitness_workout_types')
-          .select('id, name')
-          .order('name');
-        data.workoutTypes = types || [];
+        const response = await dictionariesApi.get('fitness_workout_types');
+        data.workoutTypes = response.data || [];
       }
 
       if (category === CATEGORIES.THEATER) {
-        const { data: genres } = await supabase
-          .from('theater_genres')
-          .select('id, name')
-          .order('name');
-        data.theaterGenres = genres || [];
+        const response = await dictionariesApi.get('theater_genres');
+        data.theaterGenres = response.data || [];
       }
 
       if (category === CATEGORIES.CRAFT) {
-        const { data: types } = await supabase
-          .from('craft_types')
-          .select('id, name')
-          .order('name');
-        data.craftTypes = types || [];
+        const response = await dictionariesApi.get('craft_types');
+        data.craftTypes = response.data || [];
       }
 
       if (category === CATEGORIES.CONCERT) {
-        const { data: genres } = await supabase
-          .from('music_genres')
-          .select('id, name')
-          .order('name');
-        data.concertGenres = genres || [];
+        const response = await dictionariesApi.get('music_genres');
+        data.concertGenres = response.data || [];
       }
 
       if (category === CATEGORIES.SPORTS) {
-        const { data: types } = await supabase
-          .from('sports_types')
-          .select('id, name')
-          .order('name');
-        data.sportsTypes = types || [];
+        const response = await dictionariesApi.get('sports_types');
+        data.sportsTypes = response.data || [];
       }
 
       if (category === CATEGORIES.ECO_TOUR) {
-        const { data: types } = await supabase
-          .from('eco_tour_types')
-          .select('id, name')
-          .order('name');
-        data.tourTypes = types || [];
+        const response = await dictionariesApi.get('eco_tour_types');
+        data.tourTypes = response.data || [];
       }
 
       setDictionaryData(data);

@@ -43,3 +43,4 @@ frontend/playwright/.cache/
 *.backup
 .cache/
 nul
+.server-env

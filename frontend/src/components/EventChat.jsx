@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { chatApi, wsHelpers, eventsApi } from '../lib/api';
+import { getAccessToken } from '../lib/authStorage';
 import { useAuth } from '../contexts/AuthContext';
 import './EventChat.css';
 
@@ -10,14 +11,19 @@ const EventChat = forwardRef(({ eventId }, ref) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [chatRoom, setChatRoom] = useState(null);
+  const [chatRoomId, setChatRoomId] = useState(null);
   const [isParticipant, setIsParticipant] = useState(false);
   const messagesEndRef = useRef(null);
+  const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (eventId && user) {
       initChat();
     }
+    return () => {
+      cleanupWs();
+    };
   }, [eventId, user]);
 
   // Expose refetch method to parent component
@@ -27,126 +33,76 @@ const EventChat = forwardRef(({ eventId }, ref) => {
     }
   }));
 
-  // Отдельный useEffect для подписки на real-time обновления
+  // WebSocket для real-time обновления сообщений
   useEffect(() => {
-    if (!chatRoom) return;
+    if (!chatRoomId || !user) return;
 
-    const subscription = supabase
-      .channel(`chat-${chatRoom.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `room_id=eq.${chatRoom.id}`
-        },
-        async (payload) => {
-          // Добавляем новое сообщение напрямую в стейт
-          const { data: newMessageData } = await supabase
-            .from('chat_messages')
-            .select(`
-              *,
-              profiles:user_id (
-                full_name,
-                avatar_url
-              )
-            `)
-            .eq('id', payload.new.id)
-            .single();
+    const connectWs = useCallback(() => {
+      const token = getAccessToken();
+      if (!token) return;
 
-          if (newMessageData) {
-            setMessages(prev => [...prev, newMessageData]);
+      try {
+        const url = wsHelpers.getChatUrl(chatRoomId, token);
+        const ws = new WebSocket(url);
+        wsRef.current = ws;
+
+        ws.onopen = () => console.log('Chat WS connected');
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            setMessages(prev => [...prev, msg]);
             scrollToBottom();
+          } catch (err) {
+            console.error('Error parsing chat WS message:', err);
           }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [chatRoom]);
-
-  const initChat = async () => {
-    try {
-      // Проверяем, является ли пользователь участником события
-      const { data: participantData } = await supabase
-        .from('event_participants')
-        .select('*')
-        .eq('event_id', eventId)
-        .eq('user_id', user.id)
-        .eq('status', 'joined')
-        .single();
-
-      // Проверяем, является ли пользователь создателем события
-      const { data: eventData } = await supabase
-        .from('events')
-        .select('creator_id')
-        .eq('id', eventId)
-        .single();
-
-      const isCreator = eventData?.creator_id === user.id;
-      const isParticipantUser = !!participantData;
-
-      setIsParticipant(isCreator || isParticipantUser);
-
-      if (!isCreator && !isParticipantUser) {
-        setLoading(false);
-        return;
+        };
+        ws.onclose = () => {
+          console.log('Chat WS closed, reconnecting...');
+          reconnectTimeoutRef.current = setTimeout(connectWs, 5000);
+        };
+        ws.onerror = () => {
+          ws.close();
+        };
+      } catch (err) {
+        console.error('Error connecting chat WS:', err);
+        reconnectTimeoutRef.current = setTimeout(connectWs, 10000);
       }
+    }, [chatRoomId]);
 
-      // Получаем или создаём чат-комнату
-      let { data: room, error: roomError } = await supabase
-        .from('chat_rooms')
-        .select('*')
-        .eq('event_id', eventId)
-        .single();
+    connectWs();
 
-      if (roomError && roomError.code === 'PGRST116') {
-        // Комната не найдена, создаём её
-        const { data: newRoom, error: createError } = await supabase
-          .from('chat_rooms')
-          .insert({ event_id: eventId })
-          .select()
-          .single();
+    return () => cleanupWs();
+  }, [chatRoomId, user]);
 
-        if (createError) throw createError;
-        room = newRoom;
-      } else if (roomError) {
-        throw roomError;
-      }
-
-      setChatRoom(room);
-
-      // Загружаем сообщения
-      await loadMessages(room.id);
-    } catch (error) {
-      console.error('Ошибка инициализации чата:', error);
-    } finally {
-      setLoading(false);
+  const cleanupWs = () => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
   };
 
-  const loadMessages = async (roomId) => {
+  const initChat = async () => {
     try {
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('room_id', roomId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      setMessages(data || []);
+      // Проверяем участие (участник или создатель) — единый запрос через API
+      // Сервер вернёт chat_room_id если доступ есть, иначе 403
+      const { data: chatData } = await chatApi.getMessages(eventId);
+      // Если дошли сюда — пользователь имеет доступ
+      setIsParticipant(true);
+      setChatRoomId(chatData?.room_id || eventId);
+      setMessages(chatData?.messages || []);
       scrollToBottom();
     } catch (error) {
-      console.error('Ошибка загрузки сообщений:', error);
+      if (error.response?.status === 403) {
+        setIsParticipant(false);
+      } else {
+        console.error('Ошибка инициализации чата:', error);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -159,18 +115,10 @@ const EventChat = forwardRef(({ eventId }, ref) => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
-    if (!newMessage.trim() || !chatRoom) return;
+    if (!newMessage.trim()) return;
 
     try {
-      const { error } = await supabase
-        .from('chat_messages')
-        .insert({
-          room_id: chatRoom.id,
-          user_id: user.id,
-          message: newMessage.trim()
-        });
-
-      if (error) throw error;
+      await chatApi.sendMessage(eventId, { message: newMessage.trim() });
 
       setNewMessage('');
     } catch (error) {
@@ -210,18 +158,18 @@ const EventChat = forwardRef(({ eventId }, ref) => {
               className={`chat-message ${msg.user_id === user.id ? 'own-message' : ''}`}
             >
               <div className="message-avatar">
-                {msg.profiles?.avatar_url ? (
-                  <img src={msg.profiles.avatar_url} alt="" />
+                {msg.avatar_url ? (
+                  <img src={msg.avatar_url} alt="" />
                 ) : (
                   <div className="avatar-placeholder">
-                    {msg.profiles?.full_name?.[0]?.toUpperCase() || '?'}
+                    {msg.full_name?.[0]?.toUpperCase() || '?'}
                   </div>
                 )}
               </div>
               <div className="message-content">
                 <div className="message-header">
                   <span className="message-author">
-                    {msg.profiles?.full_name || t('eventChat.anonymous')}
+                    {msg.full_name || t('eventChat.anonymous')}
                   </span>
                   <span className="message-time">
                     {new Date(msg.created_at).toLocaleString('ru-RU', {

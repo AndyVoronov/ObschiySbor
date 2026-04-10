@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
-import { supabase } from '../lib/supabase';
+import { gamificationApi } from '../lib/api';
 import './GamificationPanel.css';
 
 /**
@@ -28,76 +28,14 @@ const GamificationPanel = ({ userId }) => {
     try {
       setLoading(true);
 
-      // Загружаем профиль с данными геймификации
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const response = await gamificationApi.get(userId);
+      const data = response.data;
 
-      if (profileError) throw profileError;
-      setProfile(profileData);
-
-      // Загружаем информацию о текущем уровне
-      const { data: levelData, error: levelError } = await supabase
-        .from('levels')
-        .select('*')
-        .eq('level', profileData.level)
-        .single();
-
-      if (levelError) throw levelError;
-      setCurrentLevel(levelData);
-
-      // Загружаем информацию о следующем уровне
-      const { data: nextLevelData } = await supabase
-        .from('levels')
-        .select('*')
-        .eq('level', profileData.level + 1)
-        .single();
-
-      setNextLevel(nextLevelData);
-
-      // Загружаем ВСЕ достижения
-      const { data: allAchievementsData, error: allAchievementsError } = await supabase
-        .from('achievements')
-        .select('*')
-        .eq('is_active', true)
-        .order('rarity', { ascending: true }); // сначала common, потом rare
-
-      if (allAchievementsError) throw allAchievementsError;
-
-      // Загружаем прогресс пользователя по достижениям
-      const { data: userProgressData, error: userProgressError } = await supabase
-        .from('user_achievements')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (userProgressError) throw userProgressError;
-
-      // Объединяем данные: для каждого достижения добавляем прогресс пользователя
-      const achievementsWithProgress = allAchievementsData.map(achievement => {
-        const userProgress = userProgressData?.find(up => up.achievement_id === achievement.id);
-        return {
-          achievement,
-          progress: userProgress?.progress || 0,
-          target: userProgress?.target || achievement.requirement?.target || 1,
-          is_unlocked: userProgress?.is_unlocked || false,
-          unlocked_at: userProgress?.unlocked_at || null,
-        };
-      });
-
-      setAchievements(achievementsWithProgress || []);
-
-      // Загружаем недавнюю активность (последние 10 записей)
-      const { data: activityData, error: activityError } = await supabase
-        .from('experience_log')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (activityError) throw activityError;
-      setRecentActivity(activityData || []);
+      setProfile(data.profile || null);
+      setCurrentLevel(data.current_level || null);
+      setNextLevel(data.next_level || null);
+      setAchievements(data.achievements || []);
+      setRecentActivity(data.recent_activity || []);
 
     } catch (error) {
       console.error('Ошибка загрузки данных геймификации:', error);

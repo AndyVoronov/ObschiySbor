@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { reportsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './AppealBlockModal.css';
 
@@ -28,45 +28,8 @@ const AppealBlockModal = ({ isOpen, onClose, blockInfo, onSuccess }) => {
       setLoading(true);
       setError('');
 
-      // Получаем активную блокировку пользователя
-      const { data: activeBlock, error: blockError } = await supabase
-        .from('user_blocks')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .single();
-
-      if (blockError) throw new Error('Не удалось найти активную блокировку');
-
-      // Проверяем, нет ли уже pending обжалования
-      const { data: existingAppeal, error: checkError } = await supabase
-        .from('block_appeals')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('block_id', activeBlock.id)
-        .eq('status', 'pending')
-        .maybeSingle();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        throw checkError;
-      }
-
-      if (existingAppeal) {
-        setError('У вас уже есть активное обжалование, ожидающее рассмотрения');
-        return;
-      }
-
-      // Создаём обжалование
-      const { error: insertError } = await supabase
-        .from('block_appeals')
-        .insert({
-          user_id: user.id,
-          block_id: activeBlock.id,
-          reason: reason.trim(),
-          status: 'pending'
-        });
-
-      if (insertError) throw insertError;
+      // Submit appeal via reports API with a special type
+      await reportsApi.create(null, `BLOCK_APPEAL: ${reason.trim()}`);
 
       alert('Ваше обжалование успешно отправлено и будет рассмотрено администрацией в течение 48 часов.');
 
@@ -77,7 +40,7 @@ const AppealBlockModal = ({ isOpen, onClose, blockInfo, onSuccess }) => {
       }
     } catch (err) {
       console.error('Ошибка отправки обжалования:', err);
-      setError(err.message || 'Не удалось отправить обжалование');
+      setError(err.response?.data?.detail || err.message || 'Не удалось отправить обжалование');
     } finally {
       setLoading(false);
     }

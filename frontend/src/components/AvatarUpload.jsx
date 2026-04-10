@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { uploadApi, profilesApi } from '../lib/api';
 import './AvatarUpload.css';
 
 const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
@@ -36,44 +36,19 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
         return;
       }
 
-      // Создаём уникальное имя файла
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      // Загружаем файл в Storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Получаем публичный URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      // Загружаем файл через API
+      const uploadResponse = await uploadApi.upload(file, 'avatar');
+      const publicUrl = uploadResponse.data.url;
 
       // Обновляем профиль пользователя
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', userId);
-
-      if (updateError) {
-        throw updateError;
-      }
+      await profilesApi.updateMe({ avatar_url: publicUrl });
 
       setAvatarUrl(publicUrl);
       onAvatarUpdate(publicUrl);
       alert('Аватар успешно обновлён!');
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error.message);
-      alert('Ошибка при загрузке аватара: ' + error.message);
+      alert('Ошибка при загрузке аватара: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }
@@ -84,19 +59,14 @@ const AvatarUpload = ({ currentAvatar, userId, onAvatarUpdate }) => {
       setUploading(true);
 
       // Удаляем URL из профиля
-      const { error } = await supabase
-        .from('profiles')
-        .update({ avatar_url: null })
-        .eq('id', userId);
-
-      if (error) throw error;
+      await profilesApi.updateMe({ avatar_url: null });
 
       setAvatarUrl(null);
       onAvatarUpdate(null);
       alert('Аватар удалён');
     } catch (error) {
       console.error('Ошибка удаления аватара:', error.message);
-      alert('Ошибка при удалении аватара: ' + error.message);
+      alert('Ошибка при удалении аватара: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }

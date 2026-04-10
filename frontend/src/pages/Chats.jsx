@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { chatApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import EventChat from '../components/EventChat';
 import './Chats.css';
@@ -23,83 +23,10 @@ function Chats() {
     try {
       setLoading(true);
 
-      // Получаем события, в которых пользователь участвует
-      const { data: participantData } = await supabase
-        .from('event_participants')
-        .select('event_id')
-        .eq('user_id', user.id)
-        .eq('status', 'joined');
+      // Получаем все чат-комнаты пользователя с данными о событиях, последнем сообщении и непрочитанных
+      const { data: rooms } = await chatApi.getRooms();
 
-      // Получаем события, созданные пользователем
-      const { data: creatorEvents } = await supabase
-        .from('events')
-        .select('id')
-        .eq('creator_id', user.id);
-
-      // Объединяем все события
-      const allEventIds = [
-        ...new Set([
-          ...(participantData || []).map(p => p.event_id),
-          ...(creatorEvents || []).map(e => e.id)
-        ])
-      ];
-
-      if (allEventIds.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      // Получаем чат-комнаты для этих событий
-      const { data: rooms, error } = await supabase
-        .from('chat_rooms')
-        .select(`
-          *,
-          events (
-            id,
-            title,
-            event_date,
-            image_url,
-            creator_id
-          )
-        `)
-        .in('event_id', allEventIds)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Для каждой комнаты получаем последнее сообщение
-      const roomsWithLastMessage = await Promise.all(
-        (rooms || []).map(async (room) => {
-          const { data: lastMessage } = await supabase
-            .from('chat_messages')
-            .select(`
-              message,
-              created_at,
-              profiles:user_id (
-                full_name
-              )
-            `)
-            .eq('room_id', room.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-          // Получаем количество непрочитанных сообщений
-          const { count: unreadCount } = await supabase
-            .from('chat_messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('room_id', room.id)
-            .neq('user_id', user.id);
-
-          return {
-            ...room,
-            lastMessage,
-            unreadCount: unreadCount || 0
-          };
-        })
-      );
-
-      setChatRooms(roomsWithLastMessage);
+      setChatRooms(rooms || []);
     } catch (error) {
       console.error('Ошибка загрузки чатов:', error);
     } finally {
@@ -151,7 +78,7 @@ function Chats() {
                   {room.lastMessage ? (
                     <p className="last-message">
                       <span className="message-author">
-                        {room.lastMessage.profiles?.full_name}:
+                        {room.lastMessage.profiles?.full_name || room.lastMessage.author_name}:
                       </span>{' '}
                       {room.lastMessage.message.length > 50
                         ? room.lastMessage.message.substring(0, 50) + '...'

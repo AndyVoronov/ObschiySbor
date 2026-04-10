@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { invitationsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './EventInvitations.css';
@@ -21,36 +21,7 @@ const EventInvitations = () => {
     try {
       setLoading(true);
 
-      // Получаем все приглашения для текущего пользователя
-      const { data, error } = await supabase
-        .from('event_invitations')
-        .select(`
-          id,
-          event_id,
-          inviter_id,
-          status,
-          message,
-          created_at,
-          event:event_id (
-            id,
-            title,
-            category,
-            event_date,
-            location,
-            image_url,
-            price
-          ),
-          inviter:inviter_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('invitee_id', user.id)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await invitationsApi.list();
 
       setInvitations(data || []);
     } catch (error) {
@@ -64,15 +35,8 @@ const EventInvitations = () => {
     try {
       setProcessing({ ...processing, [invitationId]: true });
 
-      // Обновляем статус приглашения на 'accepted'
-      const { error: updateError } = await supabase
-        .from('event_invitations')
-        .update({ status: 'accepted' })
-        .eq('id', invitationId);
+      await invitationsApi.accept(invitationId);
 
-      if (updateError) throw updateError;
-
-      // Триггер базы данных автоматически добавит в участники
       alert('Вы приняли приглашение! Вы добавлены в участники события.');
 
       // Обновляем список приглашений
@@ -92,13 +56,7 @@ const EventInvitations = () => {
     try {
       setProcessing({ ...processing, [invitationId]: true });
 
-      // Обновляем статус приглашения на 'rejected'
-      const { error } = await supabase
-        .from('event_invitations')
-        .update({ status: 'rejected' })
-        .eq('id', invitationId);
-
-      if (error) throw error;
+      await invitationsApi.reject(invitationId);
 
       alert('Вы отклонили приглашение');
 
@@ -157,14 +115,14 @@ const EventInvitations = () => {
               <div className="invitation-header">
                 <div className="inviter-info">
                   <div className="inviter-avatar">
-                    {invitation.inviter.avatar_url ? (
+                    {invitation.inviter?.avatar_url ? (
                       <img src={invitation.inviter.avatar_url} alt={invitation.inviter.full_name} />
                     ) : (
                       <div className="avatar-placeholder-inv">👤</div>
                     )}
                   </div>
                   <div className="inviter-text">
-                    <span className="inviter-name">{invitation.inviter.full_name || 'Пользователь'}</span>
+                    <span className="inviter-name">{invitation.inviter?.full_name || 'Пользователь'}</span>
                     <span className="invitation-action">пригласил вас на событие</span>
                   </div>
                 </div>
@@ -181,17 +139,17 @@ const EventInvitations = () => {
               )}
 
               <div className="event-preview">
-                {invitation.event.image_url && (
+                {invitation.event?.image_url && (
                   <div className="event-image-preview">
                     <img src={invitation.event.image_url} alt={invitation.event.title} />
                   </div>
                 )}
                 <div className="event-info-preview">
                   <h3 className="event-title-preview">
-                    {getCategoryIcon(invitation.event.category)} {invitation.event.title}
+                    {getCategoryIcon(invitation.event?.category)} {invitation.event?.title}
                   </h3>
                   <p className="event-date-preview">
-                    📅 {new Date(invitation.event.event_date).toLocaleDateString('ru-RU', {
+                    📅 {new Date(invitation.event?.event_date).toLocaleDateString('ru-RU', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -199,8 +157,8 @@ const EventInvitations = () => {
                       minute: '2-digit'
                     })}
                   </p>
-                  <p className="event-location-preview">📍 {invitation.event.location}</p>
-                  {invitation.event.price > 0 && (
+                  <p className="event-location-preview">📍 {invitation.event?.location}</p>
+                  {invitation.event?.price > 0 && (
                     <p className="event-price-preview">💰 {invitation.event.price} ₽</p>
                   )}
                 </div>
@@ -209,7 +167,7 @@ const EventInvitations = () => {
               <div className="invitation-actions">
                 <button
                   className="btn-accept-inv"
-                  onClick={() => handleAccept(invitation.id, invitation.event.id)}
+                  onClick={() => handleAccept(invitation.id, invitation.event?.id)}
                   disabled={processing[invitation.id]}
                 >
                   {processing[invitation.id] ? 'Принимаю...' : '✓ Принять'}

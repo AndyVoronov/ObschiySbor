@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { reviewsApi, eventsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import './ReviewForm.css';
@@ -27,51 +27,41 @@ const ReviewForm = ({ eventId, onReviewAdded }) => {
       setError('');
 
       // Проверяем, участвовал ли пользователь в событии
-      const { data: participationData, error: participationError } = await supabase
-        .from('event_participants')
-        .select('*')
-        .eq('event_id', eventId)
-        .eq('user_id', user.id)
-        .eq('status', 'joined')
-        .single();
-
-      if (participationError || !participationData) {
+      try {
+        await eventsApi.checkParticipation(eventId, user.id);
+      } catch (participationErr) {
+        // 404 or error means user hasn't participated
         setError(t('reviews.errorParticipationRequired'));
         setLoading(false);
         return;
       }
 
       // Проверяем, не оставлял ли пользователь уже отзыв
-      const { data: existingReview } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('event_id', eventId)
-        .eq('user_id', user.id)
-        .single();
+      let existingReview = null;
+      try {
+        const reviewsResponse = await reviewsApi.list(eventId);
+        const userReviews = (reviewsResponse.data || []).filter(
+          r => r.user_id === user.id
+        );
+        if (userReviews.length > 0) {
+          existingReview = userReviews[0];
+        }
+      } catch (listErr) {
+        // If listing fails, proceed to create
+      }
+
+      const reviewData = {
+        rating,
+        comment: comment.trim() || null,
+      };
 
       if (existingReview) {
         // Обновляем существующий отзыв
-        const { error: updateError } = await supabase
-          .from('reviews')
-          .update({
-            rating,
-            comment: comment.trim() || null
-          })
-          .eq('id', existingReview.id);
-
-        if (updateError) throw updateError;
+        const { api: rawApi } = await import('../lib/api');
+        await rawApi.put(`/events/${eventId}/reviews`, reviewData);
       } else {
         // Создаём новый отзыв
-        const { error: insertError } = await supabase
-          .from('reviews')
-          .insert({
-            event_id: eventId,
-            user_id: user.id,
-            rating,
-            comment: comment.trim() || null
-          });
-
-        if (insertError) throw insertError;
+        await reviewsApi.create(eventId, reviewData);
       }
 
       setSuccess(true);

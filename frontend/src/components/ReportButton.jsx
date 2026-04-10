@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { reportsApi } from '../lib/api';
 import './ReportButton.css';
 
 const ReportButton = ({ eventId, eventTitle, showLabel = true }) => {
@@ -55,36 +55,12 @@ const ReportButton = ({ eventId, eventTitle, showLabel = true }) => {
     setError(null);
 
     try {
-      // Проверяем, не отправлял ли пользователь уже жалобу на это событие
-      const { data: existingReport } = await supabase
-        .from('reports')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('reporter_id', user.id)
-        .maybeSingle();
-
-      if (existingReport) {
-        setError(t('reportButton.errorAlreadyReported'));
-        setSubmitting(false);
-        return;
-      }
-
-      // Создаём жалобу
       const reasonLabel = REPORT_REASONS.find(r => r.value === selectedReason)?.label;
       const fullReason = description
         ? `${reasonLabel}: ${description}`
         : reasonLabel;
 
-      const { error: insertError } = await supabase
-        .from('reports')
-        .insert([{
-          event_id: eventId,
-          reporter_id: user.id,
-          reason: fullReason,
-          status: 'pending',
-        }]);
-
-      if (insertError) throw insertError;
+      await reportsApi.create(eventId, fullReason);
 
       setSubmitted(true);
       setTimeout(() => {
@@ -93,7 +69,11 @@ const ReportButton = ({ eventId, eventTitle, showLabel = true }) => {
       }, 2000);
     } catch (err) {
       console.error('Ошибка отправки жалобы:', err);
-      setError(t('reportButton.errorGeneral'));
+      if (err.response?.status === 409) {
+        setError(t('reportButton.errorAlreadyReported'));
+      } else {
+        setError(t('reportButton.errorGeneral'));
+      }
     } finally {
       setSubmitting(false);
     }

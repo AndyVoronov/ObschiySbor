@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { profilesApi, eventsApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './UserProfile.css';
 
@@ -27,13 +27,7 @@ const UserProfile = () => {
       setLoading(true);
       setError('');
 
-      const { data, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
+      const { data } = await profilesApi.getById(userId);
 
       if (!data) {
         setError(t('userProfile.notFound'));
@@ -52,29 +46,21 @@ const UserProfile = () => {
   const loadUserEvents = async () => {
     try {
       // Загрузка созданных событий
-      const { data: createdEvents, error: createdError } = await supabase
-        .from('events')
-        .select('*')
-        .eq('creator_id', userId)
-        .eq('moderation_status', 'active')
-        .order('event_date', { ascending: false })
-        .limit(20);
-
-      if (createdError) throw createdError;
+      const { data: createdEvents } = await eventsApi.list({
+        creator_id: userId,
+        moderation_status: 'active',
+        sort: 'event_date',
+        order: 'desc',
+        limit: 20,
+      });
 
       // Загрузка событий, в которых участвует пользователь
-      const { data: participations, error: participationsError } = await supabase
-        .from('event_participants')
-        .select(`
-          event:events(*)
-        `)
-        .eq('user_id', userId)
-        .eq('status', 'joined');
+      const { data: participatedEvents } = await eventsApi.list({
+        participant_id: userId,
+        status: 'joined',
+      });
 
-      if (participationsError) throw participationsError;
-
-      const participatedEvents = participations
-        ?.map(p => p.event)
+      const filteredParticipated = (participatedEvents || [])
         .filter(e => e && e.moderation_status === 'active')
         .filter(e => e.creator_id !== userId) // Исключаем собственные события
         .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
@@ -82,7 +68,7 @@ const UserProfile = () => {
 
       setEvents({
         created: createdEvents || [],
-        participated: participatedEvents || []
+        participated: filteredParticipated,
       });
     } catch (err) {
       console.error('Error loading user events:', err);

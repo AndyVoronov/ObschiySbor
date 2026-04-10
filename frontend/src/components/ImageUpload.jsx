@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { uploadApi } from '../lib/api';
 import './ImageUpload.css';
 
 const ImageUpload = ({ onImageUpload, currentImage }) => {
@@ -26,37 +26,16 @@ const ImageUpload = ({ onImageUpload, currentImage }) => {
 
       setUploading(true);
 
-      // Создаём уникальное имя файла
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `events/${fileName}`;
+      // Загружаем через API
+      const response = await uploadApi.upload(file, 'event');
+      const publicUrl = response.data.url;
 
-      // Загружаем в Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('event-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error('Ошибка загрузки:', uploadError);
-        alert('Ошибка загрузки изображения: ' + uploadError.message);
-        return;
-      }
-
-      // Получаем публичный URL
-      const { data } = supabase.storage
-        .from('event-images')
-        .getPublicUrl(filePath);
-
-      const publicUrl = data.publicUrl;
       setPreviewUrl(publicUrl);
       onImageUpload(publicUrl);
 
     } catch (error) {
       console.error('Ошибка:', error);
-      alert('Произошла ошибка при загрузке изображения');
+      alert('Произошла ошибка при загрузке изображения: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { profilesApi, dictionariesApi } from '../lib/api';
 import './ReferralPanel.css';
 
 /**
@@ -26,42 +26,20 @@ const ReferralPanel = ({ userId }) => {
       setLoading(true);
 
       // Загружаем профиль с реферальным кодом
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('referral_code, total_referrals, referral_bonus_earned')
-        .eq('id', userId)
-        .single();
-
-      if (profileError) throw profileError;
+      const profileResponse = await profilesApi.getById(userId);
+      const profileData = profileResponse.data;
       setProfile(profileData);
 
       // Загружаем список рефералов
-      const { data: referralsData, error: referralsError } = await supabase
-        .from('referrals')
-        .select(`
-          *,
-          referred:profiles!referrals_referred_id_fkey (
-            id,
-            full_name,
-            avatar_url,
-            created_at
-          )
-        `)
-        .eq('referrer_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (referralsError) throw referralsError;
-      setReferrals(referralsData || []);
+      const referralsResponse = await dictionariesApi.get('referrals');
+      // Filter referrals for the current user from the response
+      const allReferrals = referralsResponse.data || [];
+      setReferrals(allReferrals.filter(r => r.referrer_id === userId) || []);
 
       // Загружаем настройки наград
-      const { data: rewardsData, error: rewardsError } = await supabase
-        .from('referral_rewards')
-        .select('*')
-        .eq('is_active', true)
-        .order('referrer_reward', { ascending: true });
-
-      if (rewardsError) throw rewardsError;
-      setRewards(rewardsData || []);
+      const rewardsResponse = await dictionariesApi.get('referral_rewards');
+      const allRewards = rewardsResponse.data || [];
+      setRewards(allRewards.filter(r => r.is_active) || []);
 
     } catch (error) {
       console.error('Ошибка загрузки реферальных данных:', error);

@@ -1,7 +1,11 @@
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 
 /**
  * Создаёт повторяющиеся события на основе родительского события
+ *
+ * Note: The recurring_pattern is stored on the event model and the backend
+ * generates individual events from the pattern. This wrapper calls the
+ * backend endpoint to trigger generation.
  *
  * @param {string} parentEventId - ID родительского события
  * @param {Object} recurrenceConfig - Конфигурация повторения
@@ -17,24 +21,17 @@ export async function createRecurringEvents(parentEventId, recurrenceConfig) {
   } = recurrenceConfig;
 
   try {
-    // Вызываем функцию PostgreSQL для генерации событий
-    const { data, error } = await supabase.rpc('generate_recurring_events', {
-      parent_event_id: parentEventId,
-      frequency: frequency,
-      interval_count: interval,
+    const { data } = await api.post(`/events/${parentEventId}/recurring`, {
+      frequency,
+      interval,
       occurrence_count: occurrenceCount || 10,
       days_of_week: daysOfWeek || null,
       end_date: endDate || null,
     });
 
-    if (error) {
-      console.error('Ошибка создания повторяющихся событий:', error);
-      throw error;
-    }
-
     return data || [];
   } catch (err) {
-    console.error('Ошибка вызова generate_recurring_events:', err);
+    console.error('Ошибка создания повторяющихся событий:', err);
     throw err;
   }
 }
@@ -47,18 +44,10 @@ export async function createRecurringEvents(parentEventId, recurrenceConfig) {
  */
 export async function getRecurringEventSeries(eventId) {
   try {
-    const { data, error } = await supabase.rpc('get_recurring_event_series', {
-      event_id: eventId,
-    });
-
-    if (error) {
-      console.error('Ошибка получения серии событий:', error);
-      throw error;
-    }
-
+    const { data } = await api.get(`/events/${eventId}/recurring`);
     return data || [];
   } catch (err) {
-    console.error('Ошибка вызова get_recurring_event_series:', err);
+    console.error('Ошибка получения серии событий:', err);
     throw err;
   }
 }
@@ -72,19 +61,12 @@ export async function getRecurringEventSeries(eventId) {
  */
 export async function deleteRecurringEvents(eventId, deleteMode = 'all') {
   try {
-    const { data, error } = await supabase.rpc('delete_recurring_event_series', {
-      event_id: eventId,
-      delete_mode: deleteMode,
+    const { data } = await api.delete(`/events/${eventId}/recurring`, {
+      params: { delete_mode: deleteMode },
     });
-
-    if (error) {
-      console.error('Ошибка удаления серии событий:', error);
-      throw error;
-    }
-
     return data || 0;
   } catch (err) {
-    console.error('Ошибка вызова delete_recurring_event_series:', err);
+    console.error('Ошибка удаления серии событий:', err);
     throw err;
   }
 }

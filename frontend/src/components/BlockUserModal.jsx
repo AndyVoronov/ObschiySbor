@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import './BlockUserModal.css';
 
@@ -40,16 +40,11 @@ const BlockUserModal = ({ isOpen, onClose, targetUser, onSuccess }) => {
       setLoading(true);
 
       const until = blockType === 'permanent' ? null : new Date(blockedUntil).toISOString();
+      const fullReason = blockType === 'permanent'
+        ? reason.trim()
+        : `${reason.trim()} (до ${until})`;
 
-      // Вызываем функцию БД block_user
-      const { error: rpcError } = await supabase.rpc('block_user', {
-        p_user_id: targetUser.id,
-        p_blocked_by: user.id,
-        p_reason: reason.trim(),
-        p_blocked_until: until
-      });
-
-      if (rpcError) throw rpcError;
+      await adminApi.blockUser(targetUser.id, fullReason);
 
       const userName = targetUser.full_name || targetUser.email || 'Пользователь';
       alert(`Пользователь "${userName}" успешно заблокирован`);
@@ -60,7 +55,7 @@ const BlockUserModal = ({ isOpen, onClose, targetUser, onSuccess }) => {
       onClose();
     } catch (err) {
       console.error('Ошибка блокировки:', err);
-      setError(err.message || 'Не удалось заблокировать пользователя');
+      setError(err.response?.data?.detail || err.message || 'Не удалось заблокировать пользователя');
     } finally {
       setLoading(false);
     }
